@@ -84,6 +84,7 @@ canvas{display:block;max-width:100%;max-height:min(60vh,760px);width:auto;height
 .field{display:flex;flex-direction:column;gap:6px}
 .field>label,.flabel{font-size:13px;font-weight:500;display:flex;justify-content:space-between;gap:8px}
 .rv{font-variant-numeric:tabular-nums;color:var(--muted);font-weight:400}
+.field select{font:15px/1.4 var(--f-body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 11px;width:100%}
 .field input[type=text],.field textarea{font:15px/1.4 var(--f-body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 11px;width:100%}
 .field textarea{resize:vertical;min-height:70px}
 .field input[type=range]{accent-color:var(--accent);width:100%}
@@ -99,6 +100,9 @@ canvas{display:block;max-width:100%;max-height:min(60vh,760px);width:auto;height
 .thumb{width:48px;height:48px;border-radius:8px;object-fit:cover;background:linear-gradient(160deg,#8a3f78,#f0785a 60%,#2e1c45);flex:none;border:1px solid var(--line)}
 .thumb.round{border-radius:50%}
 .empty{color:var(--muted);font-size:14px;margin:0}
+.snd-pick{display:flex;align-items:flex-end;gap:8px}.snd-pick .field{flex:1;min-width:0}.snd-pick>button{padding:10px 13px}
+.lib-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--line);border-radius:8px}
+.lib-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}
 
 /* timeline */
 .timeline{grid-area:tl;display:flex;flex-direction:column;gap:10px}
@@ -310,9 +314,9 @@ function postHeader(m,x,y,w){
 
 /* ================= project model ================= */
 let uid=1;
-function mk(o={}){return{from:'them',kind:'text',text:'',img:null,postUser:'',delay:.8,typing:1.2,typingAuto:true,keyboard:true,open:false,openHold:2,...o,id:uid++};}
+function mk(o={}){return{from:'them',kind:'text',text:'',img:null,postUser:'',delay:.8,typing:1.2,typingAuto:true,keyboard:true,open:false,openHold:2,sound:'default',...o,id:uid++};}
 function DEFAULT(){return{style:'ios',mode:'light',name:'Maya',status:'Active now',time:'9:41',receipt:'',iosColor:'Blue',dmColor:'Purple',avColor:'Green',kbSpeed:'Normal',startPause:.5,endHold:1.5,avatar:null,
-  sound:{on:true,volume:.7,send:'Pop',receive:'Chime',keys:true},
+  sound:{on:true,volume:.7,send:'Pop',receive:'Chime',keys:true,keySound:'Click',tap:'Tap'},
   msgs:[mk({from:'divider',text:'Today 4:12 PM',delay:.2}),mk({from:'them',text:'are you still at the beach??',delay:.4}),mk({from:'me',text:'yes!! look at this',delay:.8}),
     mk({from:'me',kind:'photo',delay:.5,open:true,openHold:2.2}),mk({from:'them',text:'ok that is unreal',delay:.7}),mk({from:'them',text:'save me a sunset please',delay:.4}),
     mk({from:'me',text:"deal. next time you're coming",delay:.9})]};}
@@ -333,11 +337,11 @@ function build(){
     if(m.from==='divider'){e.typeStart=e.typeEnd=e.arrive=t;}
     else if(m.from==='them'){const ty=typ(m);e.typeStart=t;e.typeEnd=t+ty;e.arrive=e.typeEnd;e.dots=ty>0;}
     else if(usesKeyboard(m)){e.kbUp=t;e.typeStart=t+.35;e.typeEnd=e.typeStart+typ(m);e.arrive=e.typeEnd+.18;e.keys=true;
-      const n=m.text.length,per=(e.typeEnd-e.typeStart)/n;e.per=per;for(let k=0;k<n;k++)if(m.text[k]!==' ')snd.push({t:e.typeStart+k*per,type:'key'});}
+      const n=m.text.length,per=(e.typeEnd-e.typeStart)/n;e.per=per;for(let k=0;k<n;k++)if(m.text[k]!==' ')snd.push({t:e.typeStart+k*per,type:'key',i});}
     else{e.typeStart=e.typeEnd=t;e.arrive=t+.05;}
     e.popEnd=e.arrive+.3;
-    if(m.from!=='divider')snd.push({t:e.arrive,type:m.from==='me'?'send':'receive'});
-    if(m.open&&m.kind!=='text'&&m.from!=='divider'){e.openTap=e.popEnd+.4;e.openStart=e.openTap+.35;e.openFull=e.openStart+.55;e.closeStart=e.openFull+m.openHold;e.closeEnd=e.closeStart+.45;e.end=e.closeEnd;snd.push({t:e.openTap,type:'tap'});}
+    if(m.from!=='divider')snd.push({t:e.arrive,type:m.from==='me'?'send':'receive',i});
+    if(m.open&&m.kind!=='text'&&m.from!=='divider'){e.openTap=e.popEnd+.4;e.openStart=e.openTap+.35;e.openFull=e.openStart+.55;e.closeStart=e.openFull+m.openHold;e.closeEnd=e.closeStart+.45;e.end=e.closeEnd;snd.push({t:e.openTap,type:'tap',i});}
     else e.end=e.popEnd;
     if(e.keys)kb.push([e.kbUp,e.arrive+.45]);
     ev.push(e);t=e.end;
@@ -518,17 +522,38 @@ function track(n){live.push(n);n.onended=()=>{const i=live.indexOf(n);if(i>=0)li
 function env(g,when,a,peak,dec){g.gain.setValueAtTime(.0001,when);g.gain.exponentialRampToValueAtTime(peak,when+a);g.gain.exponentialRampToValueAtTime(.0001,when+a+dec);}
 function osc(type,f0,f1,when,dur,peak){const o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(f0,when);if(f1)o.frequency.exponentialRampToValueAtTime(f1,when+dur*.6);env(g,when,.006,peak,dur);o.connect(g);g.connect(master);o.start(when);o.stop(when+dur+.05);track(o);}
 function noise(when,dur,peak,ft,f0,f1,q){const s=AC.createBufferSource();s.buffer=NOISEBUF;const f=AC.createBiquadFilter();f.type=ft;f.frequency.setValueAtTime(f0,when);if(f1)f.frequency.exponentialRampToValueAtTime(f1,when+dur);f.Q.value=q||1;const g=AC.createGain();env(g,when,.004,peak,dur);s.connect(f);f.connect(g);g.connect(master);s.start(when,Math.random()*.5);s.stop(when+dur+.05);track(s);}
-function sfx(type,when){if(!audio())return;when=Math.max(when,AC.currentTime);
-  if(type==='send'){const v=P.sound.send;if(v==='Pop')osc('sine',420,900,when,.16,.45);else if(v==='Swoosh')noise(when,.28,.4,'bandpass',600,3200,1.2);else osc('square',1180,0,when,.07,.1);}
-  else if(type==='receive'){const v=P.sound.receive;if(v==='Chime'){osc('sine',1047,0,when,.45,.28);osc('sine',1319,0,when+.09,.5,.25);}else if(v==='Ding'){osc('sine',1568,0,when,.7,.3);osc('sine',3136,0,when,.35,.06);}else osc('sine',260,680,when,.18,.4);}
-  else if(type==='key'){noise(when,.025,.22,'highpass',1800,0,.7);osc('sine',180,0,when,.03,.05);}
-  else if(type==='tap')osc('sine',900,0,when,.05,.12);}
+const BUILTIN={
+  Pop:w=>osc('sine',420,900,w,.16,.45), Swoosh:w=>noise(w,.28,.4,'bandpass',600,3200,1.2), Blip:w=>osc('square',1180,0,w,.07,.1),
+  Chime:w=>{osc('sine',1047,0,w,.45,.28);osc('sine',1319,0,w+.09,.5,.25);}, Ding:w=>{osc('sine',1568,0,w,.7,.3);osc('sine',3136,0,w,.35,.06);}, Bubble:w=>osc('sine',260,680,w,.18,.4),
+  Click:w=>{noise(w,.025,.22,'highpass',1800,0,.7);osc('sine',180,0,w,.03,.05);}, Tap:w=>osc('sine',900,0,w,.05,.12)};
+/* your own sound files, kept in this browser (IndexedDB) */
+let LIB=[];
+const IDB={db:null,
+  open(){return new Promise(res=>{try{const r=indexedDB.open('chat-reel',1);r.onupgradeneeded=()=>r.result.createObjectStore('sounds',{keyPath:'id'});r.onsuccess=()=>{IDB.db=r.result;res(r.result);};r.onerror=()=>res(null);}catch(e){res(null);}});},
+  async all(){const db=IDB.db||await IDB.open();if(!db)return[];return new Promise(res=>{try{const q=db.transaction('sounds').objectStore('sounds').getAll();q.onsuccess=()=>res(q.result||[]);q.onerror=()=>res([]);}catch(e){res([]);}});},
+  async put(o){const db=IDB.db||await IDB.open();if(db)try{db.transaction('sounds','readwrite').objectStore('sounds').put(o);}catch(e){}},
+  async del(id){const db=IDB.db||await IDB.open();if(db)try{db.transaction('sounds','readwrite').objectStore('sounds').delete(id);}catch(e){}}};
+const decodeAB=ab=>new Promise((res,rej)=>{try{const pr=AC.decodeAudioData(ab.slice(0),res,rej);if(pr&&pr.catch)pr.catch(rej);}catch(e){rej(e);}});
+async function decodeAll(){if(!audio())return;for(const it of LIB)if(!it.buf&&!it.bad){try{it.buf=await decodeAB(it.data);}catch(e){it.bad=true;}}}
+const libItem=v=>typeof v==='string'&&v.startsWith('lib:')?LIB.find(x=>x.id===v.slice(4)):null;
+function soundName(v){if(v==='none')return'Silent';if(v==='default')return'Default';const it=libItem(v);return it?it.name:(v||'');}
+function playSound(v,when){if(!audio()||!v||v==='none')return;when=Math.max(when,AC.currentTime);
+  if(v.startsWith('lib:')){const it=libItem(v);if(!it||!it.buf)return;const src=AC.createBufferSource();src.buffer=it.buf;src.connect(master);src.start(when);track(src);return;}
+  if(BUILTIN[v])BUILTIN[v](when);}
+/* which sound an event plays: a message's own sound wins over the defaults */
+function resolveSound(e){
+  if(e.type==='key')return P.sound.keys?(libItem(P.sound.keySound)||BUILTIN[P.sound.keySound]?P.sound.keySound:'Click'):'none';
+  if(e.type==='tap')return libItem(P.sound.tap)||BUILTIN[P.sound.tap]||P.sound.tap==='none'?P.sound.tap:'Tap';
+  const m=P.msgs[e.i],own=m&&m.sound&&m.sound!=='default'?m.sound:null,v=own||P.sound[e.type];
+  if(v==='none')return'none';return libItem(v)||BUILTIN[v]?v:(e.type==='send'?'Pop':'Chime');
+}
 function cancelSounds(){live.splice(0).forEach(n=>{try{n.stop(0);}catch(e){}});}
-function scheduleSounds(from){if(!P.sound.on||!audio())return;const base=AC.currentTime+.03;SCH.snd.forEach(s=>{if(s.t<from-1e-3)return;if(s.type==='key'&&!P.sound.keys)return;sfx(s.type,base+s.t-from);});}
+function scheduleSounds(from,base){if(!P.sound.on||!audio())return;if(base==null)base=AC.currentTime+.03;SCH.snd.forEach(s=>{if(s.t<from-1e-3)return;const v=resolveSound(s);if(v!=='none')playSound(v,base+s.t-from);});}
+async function loadLibrary(){const rows=await IDB.all();LIB=rows.filter(r=>r&&r.id&&r.data).map(r=>({id:r.id,name:r.name||'Sound',data:r.data,buf:null}));if(tab==='sound'||tab==='msg')renderSide();renderTimeline();}
 
 /* ================= playback ================= */
 const state={t:0,playing:false,start:0};let busy=false;
-function play(){const ac=audio();if(ac&&ac.state==='suspended')ac.resume();if(state.t>=SCH.dur-.02)state.t=0;state.start=performance.now()-state.t*1000;state.playing=true;cancelSounds();scheduleSounds(state.t);syncTransport();requestAnimationFrame(tick);}
+async function play(){const ac=audio();if(ac&&ac.state==='suspended')ac.resume();await decodeAll();if(state.t>=SCH.dur-.02)state.t=0;state.start=performance.now()-state.t*1000;state.playing=true;cancelSounds();scheduleSounds(state.t);syncTransport();requestAnimationFrame(tick);}
 function pause(){state.playing=false;cancelSounds();syncTransport();}
 function tick(){if(!state.playing||busy)return;let t=(performance.now()-state.start)/1000;
   if(t>=SCH.dur){if($('loop').checked){state.start=performance.now();t=0;cancelSounds();scheduleSounds(0);}else{state.t=SCH.dur;state.playing=false;drawNow();syncTransport();return;}}
@@ -557,7 +582,7 @@ function renderTimeline(){
       (ow?`<div class="seg-open" style="width:${ow}px">open</div><div class="hdl h-open" data-i="${i}" title="Drag to change how long it stays open"></div>`:'')+
       (tw>2&&(m.from==='them'||e.keys)?`<div class="hdl h-type" data-i="${i}" style="left:${tw-7}px" title="Drag to change how long typing lasts"></div>`:'')+`</div>`;});
   tlTrack.innerHTML=tr;
-  let sl='';if(P.sound.on)SCH.snd.forEach(s=>{if(s.type==='key'){if(P.sound.keys)sl+=`<i class="sk key" style="left:${PAD+s.t*pps}px"></i>`;}else sl+=`<i class="sk ${s.type}" style="left:${PAD+s.t*pps}px" title="${s.type==='send'?'Send':s.type==='receive'?'Receive':'Tap'} sound"></i>`;});
+  let sl='';if(P.sound.on)SCH.snd.forEach(s=>{const v=resolveSound(s);if(v==='none')return;if(s.type==='key')sl+=`<i class="sk key" style="left:${PAD+s.t*pps}px"></i>`;else sl+=`<i class="sk ${s.type}" style="left:${PAD+s.t*pps}px" title="${esc(soundName(v))}"></i>`;});
   tlSound.innerHTML=sl;moveHead();
 }
 function moveHead(follow){const x=PAD+state.t*pps;tlHead.style.left=x+'px';if(follow){const l=tlScroll.scrollLeft,w=tlScroll.clientWidth;if(x<l+20||x>l+w-60)tlScroll.scrollLeft=Math.max(0,x-w*.3);}}
@@ -589,6 +614,8 @@ function h(tag,props,...kids){const e=document.createElement(tag);for(const[k,v]
   kids.flat().forEach(c=>{if(c!=null&&c!==false)e.append(c.nodeType?c:document.createTextNode(c));});return e;}
 function segF(id,label,opts,val,on){const g=h('div',{class:'seg',role:'group','aria-labelledby':id+'-l'});opts.forEach(o=>{const[v,l]=Array.isArray(o)?o:[o,o];g.append(h('button',{type:'button','aria-pressed':String(v===val),onclick:()=>on(v)},l));});return h('div',{class:'field'},h('span',{class:'flabel',id:id+'-l'},label),g);}
 function rangeF(id,label,min,max,step,val,fmt,on){const out=h('output',{class:'rv',for:id},fmt(val)),inp=h('input',{type:'range',id,min,max,step,value:val});inp.oninput=()=>{out.textContent=fmt(+inp.value);on(+inp.value);};return h('div',{class:'field'},h('label',{for:id},label,out),inp);}
+function soundGroups(extra){const g=[];if(extra)g.push(['',extra]);g.push(['Built-in',Object.keys(BUILTIN).map(k=>[k,k])]);if(LIB.length)g.push(['My sounds',LIB.map(it=>['lib:'+it.id,it.name])]);return g;}
+function selectF(id,label,groups,val,on){const sel=h('select',{id});groups.forEach(([gl,opts])=>{const par=gl?h('optgroup',{label:gl}):sel;opts.forEach(([v,l])=>par.append(h('option',{value:v},l)));if(gl)sel.append(par);});sel.value=val;if(sel.value!==val&&sel.options.length)sel.selectedIndex=0;sel.onchange=()=>on(sel.value);return h('div',{class:'field'},h('label',{for:id},label),sel);}
 function textF(id,label,val,on,ph){const inp=h('input',{type:'text',id,value:val,placeholder:ph||''});inp.oninput=()=>on(inp.value);return h('div',{class:'field'},h('label',{for:id},label),inp);}
 function areaF(id,label,val,on){const ta=h('textarea',{id});ta.value=val;ta.oninput=()=>on(ta.value);return h('div',{class:'field'},h('label',{for:id},label),ta);}
 function checkF(id,label,val,on){const c=h('input',{type:'checkbox',id});c.checked=val;c.onchange=()=>on(c.checked);return h('label',{class:'chk',for:id},c,label);}
@@ -658,6 +685,9 @@ function msgPanel(p){
     if(m.keyboard){p.append(rangeF('i-typ','Typing time',.3,10,.05,typ(m),fmtS,v=>{m.typing=v;m.typingAuto=false;soft();}));
       p.append(checkF('i-auto','Set typing time from keyboard speed',m.typingAuto,v=>{if(!v)m.typing=typ(m);m.typingAuto=v;refresh();}));}
   }
+  if(m.from!=='divider'){
+    p.append(selectF('i-snd','Sound for this message',soundGroups([['default',`Default (${soundName(P.sound[m.from==='me'?'send':'receive'])})`],['none','Silent']]),m.sound||'default',v=>{m.sound=v;refresh();const ac=audio();if(ac&&v!=='none'){ac.resume();decodeAll().then(()=>playSound(resolveSound({type:m.from==='me'?'send':'receive',i:sel}),AC.currentTime+.05));}}));
+  }
   if(m.from!=='divider'&&m.kind!=='text'){
     p.append(checkF('i-open','Tap to open it full screen after it arrives',m.open,v=>{m.open=v;refresh();}));
     if(m.open)p.append(rangeF('i-hold','Stays open for',.3,10,.05,m.openHold,fmtS,v=>{m.openHold=v;soft();}));
@@ -689,17 +719,43 @@ function lookPanel(p){
   rb.onclick=()=>{if(!resetArmed){resetArmed=1;renderSide();setTimeout(()=>{resetArmed=0;if(tab==='look')renderSide();},3500);return;}resetArmed=0;P=DEFAULT();sel=1;state.t=0;refresh();};
   p.append(rb,h('p',{class:'help'},'Your messages and settings are kept in this browser. Photos are not, so add them again after reopening.'));
 }
+let sndMsg='';
 function soundPanel(p){
-  const prev=t=>{const ac=audio();if(!ac)return;ac.resume();if(t==='key'){for(let i=0;i<6;i++)sfx('key',ac.currentTime+.05+i*.09);}else sfx(t,ac.currentTime+.05);};
+  const hear=async v=>{const ac=audio();if(!ac)return;await ac.resume();await decodeAll();if(v==='keys'){const k=P.sound.keySound;for(let i=0;i<6;i++)playSound(k,AC.currentTime+.05+i*.09);}else playSound(v,AC.currentTime+.05);};
+  const pick=(id,label,key,extra,fallback)=>{const row=h('div',{class:'snd-pick'},selectF(id,label,soundGroups(extra),P.sound[key],v=>{P.sound[key]=v;refresh();hear(v);}),
+      h('button',{type:'button','aria-label':'Hear '+label,onclick:()=>hear(P.sound[key]==='none'?fallback:P.sound[key])},'▶'));return row;};
   p.append(checkF('s-on','Play sounds',P.sound.on,v=>{P.sound.on=v;if(AC)master.gain.value=v?P.sound.volume:0;refresh();}));
   p.append(rangeF('s-vol','Volume',0,1,.05,P.sound.volume,v=>Math.round(v*100)+'%',v=>{P.sound.volume=v;if(AC)master.gain.value=P.sound.on?v:0;save();}));
-  p.append(segF('s-send','When you send',['Pop','Swoosh','Blip'],P.sound.send,v=>{P.sound.send=v;save();renderSide();prev('send');}));
-  p.append(h('div',{class:'row'},h('button',{type:'button',onclick:()=>prev('send')},'▶ Hear it')));
-  p.append(segF('s-recv','When they reply',['Chime','Ding','Bubble'],P.sound.receive,v=>{P.sound.receive=v;save();renderSide();prev('receive');}));
-  p.append(h('div',{class:'row'},h('button',{type:'button',onclick:()=>prev('receive')},'▶ Hear it')));
-  p.append(checkF('s-keys','Keyboard clicks while you type',P.sound.keys,v=>{P.sound.keys=v;refresh();}));
-  p.append(h('div',{class:'row'},h('button',{type:'button',onclick:()=>prev('key')},'▶ Hear it')));
-  p.append(h('p',{class:'help'},'The sounds are made in your browser, so there is nothing to download. They are recorded into WebM and MP4 exports. GIFs are silent.'));
+  p.append(pick('s-send','When you send','send',[['none','Silent']],'Pop'));
+  p.append(pick('s-recv','When they reply','receive',[['none','Silent']],'Chime'));
+  p.append(checkF('s-keys','Keyboard sound while you type',P.sound.keys,v=>{P.sound.keys=v;refresh();}));
+  if(P.sound.keys)p.append(h('div',{class:'snd-pick'},selectF('s-keysnd','Keyboard sound',soundGroups(),P.sound.keySound,v=>{P.sound.keySound=v;refresh();hear('keys');}),h('button',{type:'button','aria-label':'Hear the keyboard sound',onclick:()=>hear('keys')},'▶')));
+  p.append(pick('s-tap','When a photo is tapped open','tap',[['none','Silent']],'Tap'));
+  p.append(h('p',{class:'help'},'You can also give any single message its own sound in the Message tab.'));
+  p.append(h('h4',{class:'fhead'},'My sounds'));
+  if(!LIB.length)p.append(h('p',{class:'empty'},'No sounds added yet. Add a short clip and it shows up in every sound list above.'));
+  LIB.forEach(it=>{p.append(h('div',{class:'lib-row'},
+    h('button',{type:'button',class:'ib','aria-label':'Play '+it.name,onclick:()=>hear('lib:'+it.id)},'▶'),
+    h('span',{class:'lib-name',title:it.name},it.name),
+    h('span',{class:'rv'},it.bad?'can’t play':it.buf?it.buf.duration.toFixed(1)+' s':''),
+    h('button',{type:'button',class:'ib','aria-label':'Remove '+it.name,onclick:()=>removeSound(it.id)},'✕')));});
+  const inp=h('input',{type:'file',id:'s-upload',accept:'audio/*,.mp3,.wav,.m4a,.aac,.ogg'});inp.onchange=()=>{if(inp.files[0])addSound(inp.files[0]);};
+  p.append(h('div',{class:'row'},h('label',{class:'btn primary',for:'s-upload'},'+ Add sound file',inp)));
+  if(sndMsg)p.append(h('p',{class:'status',role:'status'},sndMsg));
+  p.append(h('p',{class:'help'},'MP3, WAV or M4A work best. Short clips under 2 seconds sound most natural. Your sounds stay in this browser and are recorded into WebM and MP4 exports. GIFs are silent.'));
+}
+async function addSound(file){
+  sndMsg='';const ac=audio();if(!ac){sndMsg='This browser can’t play sounds.';renderSide();return;}
+  try{const data=await file.arrayBuffer(),buf=await decodeAB(data),id='s'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    const name=(file.name||'Sound').replace(/\.[a-z0-9]+$/i,'').slice(0,40)||'Sound';
+    LIB.push({id,name,data,buf});IDB.put({id,name,data});sndMsg=`Added “${name}”. Pick it from any list above.`;}
+  catch(e){sndMsg='That file couldn’t be read as a sound. Try an MP3, WAV or M4A file.';}
+  renderSide();renderTimeline();
+}
+function removeSound(id){
+  const v='lib:'+id;LIB=LIB.filter(x=>x.id!==id);IDB.del(id);
+  [['send','Pop'],['receive','Chime'],['keySound','Click'],['tap','Tap']].forEach(([k,d])=>{if(P.sound[k]===v)P.sound[k]=d;});
+  P.msgs.forEach(m=>{if(m.sound===v)m.sound='default';});sndMsg='Sound removed.';refresh();
 }
 
 /* ================= refresh ================= */
@@ -759,12 +815,12 @@ async function recordVideo(mime,onProg,half,withSound){
   if(!mime)throw new Error('This browser cannot record video');
   let src=cv,copy=null;if(half){src=document.createElement('canvas');src.width=540;src.height=1170;const sg=src.getContext('2d');copy=()=>sg.drawImage(cv,0,0,540,1170);}
   const vs=src.captureStream(30),tracks=[...vs.getVideoTracks()];let dest=null;
-  if(withSound&&audio()){await AC.resume();dest=AC.createMediaStreamDestination();master.connect(dest);tracks.push(...dest.stream.getAudioTracks());}
+  if(withSound&&audio()){await AC.resume();await decodeAll();dest=AC.createMediaStreamDestination();master.connect(dest);tracks.push(...dest.stream.getAudioTracks());}
   const opts={mimeType:mime,videoBitsPerSecond:8000000};if(dest)opts.audioBitsPerSecond=128000;
   const rec=new MediaRecorder(new MediaStream(tracks),opts),chunks=[];rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
   const stopped=new Promise(r=>rec.onstop=r),d=SCH.dur;drawFrame(0);if(copy)copy();
   rec.start(250);const t0=performance.now();
-  if(dest){cancelSounds();const base=AC.currentTime;SCH.snd.forEach(s=>{if(s.type==='key'&&!P.sound.keys)return;sfx(s.type,base+s.t);});}
+  if(dest){cancelSounds();scheduleSounds(0,AC.currentTime);}
   await new Promise(res=>{const step=()=>{const t=(performance.now()-t0)/1000;drawFrame(Math.min(t,d));if(copy)copy();onProg(Math.min(1,t/d));state.t=Math.min(t,d);moveHead();if(t>=d+.3)return res();requestAnimationFrame(step);};requestAnimationFrame(step);});
   const ms=performance.now()-t0;rec.stop();await stopped;if(dest){try{master.disconnect(dest);}catch(e){}}tracks.forEach(t=>t.stop());
   const blob=new Blob(chunks,{type:mime.split(';')[0]});return mime.includes('webm')?fixWebmDuration(blob,ms):blob;
@@ -838,6 +894,7 @@ async function makeGif(onProg){
 /* ================= boot ================= */
 load();SCH=build();state.t=SCH.ev[2]?SCH.ev[2].popEnd+.05:0;
 refresh();
+loadLibrary();
 window.addEventListener('resize',()=>renderTimeline());
 Promise.all(['400 40px Roboto','500 40px Roboto'].map(s=>document.fonts.load(s).catch(()=>{}))).then(()=>drawNow());
 </script>
