@@ -85,6 +85,7 @@ canvas{display:block;max-width:100%;max-height:min(60vh,760px);width:auto;height
 .field>label,.flabel{font-size:13px;font-weight:500;display:flex;justify-content:space-between;gap:8px}
 .rv{font-variant-numeric:tabular-nums;color:var(--muted);font-weight:400}
 .field select{font:15px/1.4 var(--f-body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 11px;width:100%}
+.field input[type=number]{font:15px/1.4 var(--f-body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 11px;width:100%}
 .field input[type=text],.field textarea{font:15px/1.4 var(--f-body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 11px;width:100%}
 .field textarea{resize:vertical;min-height:70px}
 .field input[type=range]{accent-color:var(--accent);width:100%}
@@ -144,6 +145,8 @@ canvas{display:block;max-width:100%;max-height:min(60vh,760px);width:auto;height
 .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
 
 /* export */
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;z-index:30;max-width:calc(100% - 32px);box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.proj{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .modal{position:fixed;inset:0;background:rgba(10,8,18,.72);display:grid;place-items:center;padding:20px;z-index:10}
 .sheet{background:var(--panel);border-radius:14px;padding:18px;width:min(560px,100%);max-height:100%;display:flex;flex-direction:column;gap:12px;overflow:auto}
 .sheet h3{margin:0;font:600 17px/1.2 var(--f-display)}
@@ -166,8 +169,13 @@ canvas{display:block;max-width:100%;max-height:min(60vh,760px);width:auto;height
   <h1 class="brand">Chat <span>Reel</span></h1>
   <p>Write a text conversation, time every message, and export it as a video.</p>
   <span class="spacer"></span>
-  <button type="button" id="exportBtn" class="primary">Export video</button>
+  <div class="proj">
+    <label class="btn" for="openProj">Open project<input type="file" id="openProj" accept=".json,application/json"></label>
+    <button type="button" id="saveProj">Save project</button>
+    <button type="button" id="exportBtn" class="primary">Export video</button>
+  </div>
 </header>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
 <main class="app">
   <section class="card list-col" aria-label="Messages">
@@ -225,7 +233,8 @@ canvas{display:block;max-width:100%;max-height:min(60vh,760px);width:auto;height
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="xTitle">
     <h3 id="xTitle">Export video</h3>
     <div class="field"><span class="flabel" id="xfmt-l">Format</span><div class="seg" id="xfmt" role="group" aria-labelledby="xfmt-l"></div></div>
-    <div class="field" id="xsizeF"><span class="flabel" id="xsize-l">Size</span><div class="seg" id="xsize" role="group" aria-labelledby="xsize-l"></div></div>
+    <div class="field" id="xsizeF"><span class="flabel" id="xsize-l">Quality</span><div class="seg" id="xsize" role="group" aria-labelledby="xsize-l"></div></div>
+    <div class="field" id="xlimF" hidden><label for="xlim">Keep the file under (MB)</label><input type="number" id="xlim" min="0.5" max="500" step="0.5" value="5" inputmode="decimal"></div>
     <label class="chk" id="xsoundL"><input type="checkbox" id="xsound" checked> Include sound</label>
     <p class="help" id="xHelp"></p>
     <div class="vprog" id="xProg" hidden><div id="xBar"></div></div>
@@ -717,7 +726,7 @@ function lookPanel(p){
   p.append(h('h4',{class:'fhead'},'Project'));
   const rb=h('button',{type:'button',id:'l-reset'},resetArmed?'Click again to replace your messages':'Start over with the example');
   rb.onclick=()=>{if(!resetArmed){resetArmed=1;renderSide();setTimeout(()=>{resetArmed=0;if(tab==='look')renderSide();},3500);return;}resetArmed=0;P=DEFAULT();sel=1;state.t=0;refresh();};
-  p.append(rb,h('p',{class:'help'},'Your messages and settings are kept in this browser. Photos are not, so add them again after reopening.'));
+  p.append(rb,h('p',{class:'help'},'Your messages and settings are kept in this browser automatically, but photos aren’t. Use Save project at the top to keep everything in one file, photos and your own sounds included.'));
 }
 let sndMsg='';
 function soundPanel(p){
@@ -780,18 +789,20 @@ async function saveFile(blob,filename){
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;document.body.append(a);a.click();a.remove();return 'Saved to your downloads.';
 }
 function saveNote(){return canSave()?'Download saves it to your device. In the Claude app on a phone, it opens the share sheet so you can save it to Photos.':`Right-click the ${xFormat==='gif'?'GIF and choose “Save image as…”, or press and hold it on a phone.':'video and choose “Save video as…” to keep it.'}`;}
-let xFormat='webm',xSize='Full',xResult=null;
+let xFormat='webm',xQual='best',xResult=null;
 function pickMime(kind,withSound){if(!window.MediaRecorder||!cv.captureStream)return null;
   const c=kind==='mp4'?(withSound?['video/mp4;codecs=avc1,mp4a.40.2','video/mp4']:['video/mp4;codecs=avc1','video/mp4']):(withSound?['video/webm;codecs=vp8,opus','video/webm;codecs=vp9,opus','video/webm']:['video/webm;codecs=vp8','video/webm']);
   return c.find(m=>{try{return MediaRecorder.isTypeSupported(m);}catch(e){return false;}})||null;}
 function openExport(){
   pause();const fm=[];if(pickMime('webm'))fm.push(['webm','WebM']);if(pickMime('mp4'))fm.push(['mp4','MP4']);fm.push(['gif','GIF']);if(!fm.some(f=>f[0]===xFormat))xFormat=fm[0][0];
   const xf=$('xfmt');xf.innerHTML='';fm.forEach(([k,l])=>xf.append(h('button',{type:'button','aria-pressed':String(k===xFormat),onclick:()=>{if(!busy){xFormat=k;openExport();}}},l)));
-  const xs=$('xsize');xs.innerHTML='';[['Full','Full size'],['Half','Half size (smoother on slower computers)']].forEach(([k,l])=>xs.append(h('button',{type:'button','aria-pressed':String(k===xSize),onclick:()=>{if(!busy){xSize=k;openExport();}}},l)));
-  const gif=xFormat==='gif';$('xsizeF').hidden=gif;$('xsoundL').hidden=gif||!P.sound.on;
+  const gif=xFormat==='gif',q=gif&&xQual==='half'?'best':xQual;
+  const xs=$('xsize');xs.innerHTML='';qualityOptions(xFormat).forEach(([k,l])=>xs.append(h('button',{type:'button','aria-pressed':String(k===q),onclick:()=>{if(!busy){xQual=k;openExport();}}},l)));
+  $('xlimF').hidden=q!=='limit';$('xsoundL').hidden=gif||!P.sound.on;
   const d=SCH.dur.toFixed(0);
   $('xHelp').textContent=gif?'Works anywhere images do and loops on its own. GIFs have no sound and only 256 colors, so photos can look a little blotchy. Made at half size.'
     :`${xFormat==='mp4'?'Plays almost everywhere, including iPhone and most social apps.':'Full color and a small file. Plays in Chrome, Firefox, Edge and on Android.'} Recording runs in real time, so it takes about ${d} seconds. Keep this tab in front while it records.`;
+  $('xHelp').textContent+=qualityNote(q);
   ['xProg','xVid','xGif','xSave','xDl'].forEach(id=>$(id).hidden=true);$('xStart').disabled=false;$('xStatus').textContent='';$('xmodal').hidden=false;$('xStart').focus();
 }
 $('exportBtn').onclick=openExport;
@@ -801,22 +812,25 @@ const xprog=f=>{$('xBar').style.width=Math.round(f*100)+'%';};
 $('xStart').onclick=async()=>{
   busy=true;pause();$('xStart').disabled=true;$('xClose').disabled=true;$('xProg').hidden=false;xprog(0);['xVid','xGif','xDl','xSave'].forEach(id=>$(id).hidden=true);
   try{
-    if(xFormat==='gif'){$('xStatus').textContent='Building the GIF…';xResult=await makeGif(xprog);}
-    else{const snd=$('xsound').checked&&P.sound.on;$('xStatus').textContent='Recording… keep this tab in front.';xResult=await recordVideo(pickMime(xFormat,snd)||pickMime(xFormat),xprog,xSize==='Half',snd);}
+    const q=xFormat==='gif'&&xQual==='half'?'best':xQual,limit=q==='limit'?Math.max(.5,parseFloat($('xlim').value)||5)*MB:0,say=m=>{$('xStatus').textContent=m;};
+    if(xFormat==='gif')xResult=await gifFit(limit,say,xprog);
+    else{const snd=$('xsound').checked&&P.sound.on,mime=pickMime(xFormat,snd)||pickMime(xFormat);if(!mime)throw new Error('This browser cannot record video');
+      xResult=await videoFit(mime,limit,q,say,xprog,SCH.dur,snd?(limit?64000:128000):0,{withSound:snd});}
     const url=URL.createObjectURL(xResult);if(xFormat==='gif'){$('xGif').src=url;$('xGif').hidden=false;}else{$('xVid').src=url;$('xVid').hidden=false;}
-    $('xStatus').textContent=`Done. ${(xResult.size/1048576).toFixed(1)} MB.`;$('xStart').textContent='Make it again';$('xDl').hidden=!canSave();$('xSave').hidden=false;
+    $('xStatus').textContent=doneText(xResult,xQual==='limit'?Math.max(.5,parseFloat($('xlim').value)||5)*MB:0);$('xStart').textContent='Make it again';$('xDl').hidden=!canSave();$('xSave').hidden=false;
     $('xSave').textContent=saveNote();
   }catch(err){$('xStatus').textContent='That didn’t work: '+(err&&err.message||err)+'. Try GIF, or open the local copy in Chrome.';}
   finally{busy=false;$('xStart').disabled=false;$('xClose').disabled=false;drawNow();}
 };
 $('xDl').onclick=async()=>{if(!xResult)return;$('xStatus').textContent=await saveFile(xResult,`chat-reel.${xFormat}`);};
 
-async function recordVideo(mime,onProg,half,withSound){
+async function recordVideo(mime,onProg,o){
   if(!mime)throw new Error('This browser cannot record video');
-  let src=cv,copy=null;if(half){src=document.createElement('canvas');src.width=540;src.height=1170;const sg=src.getContext('2d');copy=()=>sg.drawImage(cv,0,0,540,1170);}
+  o=o||{};const sc=o.scale||1,withSound=!!o.withSound;
+  let src=cv,copy=null;if(sc<1){src=document.createElement('canvas');src.width=Math.round(W*sc/2)*2;src.height=Math.round(H*sc/2)*2;const sg=src.getContext('2d');copy=()=>sg.drawImage(cv,0,0,src.width,src.height);}
   const vs=src.captureStream(30),tracks=[...vs.getVideoTracks()];let dest=null;
   if(withSound&&audio()){await AC.resume();await decodeAll();dest=AC.createMediaStreamDestination();master.connect(dest);tracks.push(...dest.stream.getAudioTracks());}
-  const opts={mimeType:mime,videoBitsPerSecond:8000000};if(dest)opts.audioBitsPerSecond=128000;
+  const opts={mimeType:mime,videoBitsPerSecond:Math.round(o.vbps||8e6)};if(dest)opts.audioBitsPerSecond=o.abps||128000;
   const rec=new MediaRecorder(new MediaStream(tracks),opts),chunks=[];rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
   const stopped=new Promise(r=>rec.onstop=r),d=SCH.dur;drawFrame(0);if(copy)copy();
   rec.start(250);const t0=performance.now();
@@ -853,43 +867,104 @@ function gifLZW(pixels,out){
     output(ent);ent=c;if(freeEnt<(1<<BITS)){codetab[i]=freeEnt++;htab[i]=fcode;}else{htab.fill(-1);freeEnt=clearCode+2;clearFlg=true;output(clearCode);}}
   output(ent);output(eofCode);out.byte(0);
 }
-function gifBegin(w,h,pal,loop){const o=ByteOut();o.str('GIF89a');o.u16(w);o.u16(h);o.byte(0xF7);o.byte(0);o.byte(0);o.bytes(pal);
-  if(loop){o.byte(0x21);o.byte(0xFF);o.byte(11);o.str('NETSCAPE2.0');o.byte(3);o.byte(1);o.u16(0);o.byte(0);}return{w,h,pal,cache:new Int16Array(32768).fill(-1),prev:null,parts:[o.data()],count:0};}
+function gifBegin(w,h,pal,loop,nc){const o=ByteOut();o.str('GIF89a');o.u16(w);o.u16(h);o.byte(0xF7);o.byte(0);o.byte(0);o.bytes(pal);
+  if(loop){o.byte(0x21);o.byte(0xFF);o.byte(11);o.str('NETSCAPE2.0');o.byte(3);o.byte(1);o.u16(0);o.byte(0);}return{w,h,pal,nc:nc||255,cache:new Int16Array(32768).fill(-1),prev:null,parts:[o.data()],count:0};}
 function gifFrame(st,data,delay){
   const n=st.w*st.h,idx=new Uint8Array(n),p=st.pal,c=st.cache;
   for(let i=0,j=0;i<n;i++,j+=4){const k=((data[j]>>3)<<10)|((data[j+1]>>3)<<5)|(data[j+2]>>3);let v=c[k];
-    if(v<0){const r=(data[j]>>3)*8+4,g=(data[j+1]>>3)*8+4,b=(data[j+2]>>3)*8+4;let bd=1e9;v=0;for(let q=0;q<255;q++){const dr=p[q*3]-r,dg=p[q*3+1]-g,db=p[q*3+2]-b,d=2*dr*dr+4*dg*dg+3*db*db;if(d<bd){bd=d;v=q;}}c[k]=v;}idx[i]=v;}
+    if(v<0){const r=(data[j]>>3)*8+4,g=(data[j+1]>>3)*8+4,b=(data[j+2]>>3)*8+4;let bd=1e9;v=0;for(let q=0;q<st.nc;q++){const dr=p[q*3]-r,dg=p[q*3+1]-g,db=p[q*3+2]-b,d=2*dr*dr+4*dg*dg+3*db*db;if(d<bd){bd=d;v=q;}}c[k]=v;}idx[i]=v;}
   let px=idx;if(st.prev){px=new Uint8Array(n);const pr=st.prev;for(let i=0;i<n;i++)px[i]=idx[i]===pr[i]?255:idx[i];}st.prev=idx;const o=ByteOut();
   o.byte(0x21);o.byte(0xF9);o.byte(4);o.byte(st.count?0x05:0x04);o.u16(Math.max(2,delay));o.byte(255);o.byte(0);o.byte(0x2C);o.u16(0);o.u16(0);o.u16(st.w);o.u16(st.h);o.byte(0);gifLZW(px,o);st.parts.push(o.data());st.count++;}
 function gifEnd(st){st.parts.push(new Uint8Array([0x3B]));return new Blob(st.parts,{type:'image/gif'});}
-function gifPalette(hist){
+function gifPalette(hist,maxC){
   const keys=[];for(let k=0;k<32768;k++)if(hist[k])keys.push(k);const ch=[k=>(k>>10)&31,k=>(k>>5)&31,k=>k&31];
   const stat=c=>{let n=0,mn=[31,31,31],mx=[0,0,0];for(const k of c){n+=hist[k];for(let a=0;a<3;a++){const v=ch[a](k);if(v<mn[a])mn[a]=v;if(v>mx[a])mx[a]=v;}}let ax=0;for(let a=1;a<3;a++)if(mx[a]-mn[a]>mx[ax]-mn[ax])ax=a;return{c,n,ax,range:mx[ax]-mn[ax]};};
   const boxes=[stat(keys)];
-  while(boxes.length<255){let bi=-1,best=0;boxes.forEach((b,i)=>{if(b.c.length>1){const sc=b.n*(b.range+1);if(sc>best){best=sc;bi=i;}}});if(bi<0)break;
+  while(boxes.length<(maxC||255)){let bi=-1,best=0;boxes.forEach((b,i)=>{if(b.c.length>1){const sc=b.n*(b.range+1);if(sc>best){best=sc;bi=i;}}});if(bi<0)break;
     const b=boxes[bi],f=ch[b.ax];b.c.sort((x,y)=>f(x)-f(y));let acc=0,cut=1;for(let i=0;i<b.c.length;i++){acc+=hist[b.c[i]];if(acc>=b.n/2){cut=Math.min(b.c.length-1,Math.max(1,i));break;}}
     boxes.splice(bi,1,stat(b.c.slice(0,cut)),stat(b.c.slice(cut)));}
   const pal=new Uint8Array(768);boxes.forEach((b,i)=>{let r=0,g=0,bl=0,n=0;for(const k of b.c){const w=hist[k];r+=(ch[0](k)*8+4)*w;g+=(ch[1](k)*8+4)*w;bl+=(ch[2](k)*8+4)*w;n+=w;}pal[i*3]=r/n;pal[i*3+1]=g/n;pal[i*3+2]=bl/n;});return pal;
 }
-function gifWorkerMain(){let st;self.onmessage=e=>{const m=e.data;if(m.cmd==='start')st=gifBegin(m.w,m.h,m.pal,m.loop);else if(m.cmd==='frame'){gifFrame(st,new Uint8ClampedArray(m.data),m.delay);self.postMessage({encoded:st.count});}else if(m.cmd==='finish')self.postMessage({blob:gifEnd(st)});};}
-function gifEncoder(w,h,pal,loop){
+function gifWorkerMain(){let st;self.onmessage=e=>{const m=e.data;if(m.cmd==='start')st=gifBegin(m.w,m.h,m.pal,m.loop,m.nc);else if(m.cmd==='frame'){gifFrame(st,new Uint8ClampedArray(m.data),m.delay);self.postMessage({encoded:st.count});}else if(m.cmd==='finish')self.postMessage({blob:gifEnd(st)});};}
+function gifEncoder(w,h,pal,loop,nc){
   let worker=null;try{const src=[ByteOut,gifLZW,gifBegin,gifFrame,gifEnd].map(String).join('\n')+'\n('+gifWorkerMain.toString()+')();';worker=new Worker(URL.createObjectURL(new Blob([src],{type:'text/javascript'})));}catch(e){worker=null;}
   if(worker){let resolveDone,sent=0,done=0;const waiters=[],fin=new Promise(r=>resolveDone=r);
     worker.onmessage=e=>{if(e.data.blob){resolveDone(e.data.blob);worker.terminate();}else{done=e.data.encoded;waiters.splice(0).forEach(f=>f());}};
-    worker.postMessage({cmd:'start',w,h,pal,loop});
+    worker.postMessage({cmd:'start',w,h,pal,loop,nc});
     return{async add(data,delay){sent++;worker.postMessage({cmd:'frame',data:data.buffer,delay},[data.buffer]);while(sent-done>4)await new Promise(r=>waiters.push(r));},finish(){worker.postMessage({cmd:'finish'});return fin;}};}
-  const st=gifBegin(w,h,pal,loop);return{async add(data,delay){gifFrame(st,data,delay);await new Promise(r=>setTimeout(r,0));},finish(){return Promise.resolve(gifEnd(st));}};
+  const st=gifBegin(w,h,pal,loop,nc);return{async add(data,delay){gifFrame(st,data,delay);await new Promise(r=>setTimeout(r,0));},finish(){return Promise.resolve(gifEnd(st));}};
 }
-async function makeGif(onProg){
-  const d=SCH.dur,fps=12,gw=540,gh=1170,off=document.createElement('canvas');off.width=gw;off.height=gh;const og=off.getContext('2d',{willReadFrequently:true});
+async function makeGif(onProg,o){
+  o=o||GIF_STEPS[0];const d=SCH.dur,fps=o.fps,gw=Math.round(W*o.s/2)*2,gh=Math.round(H*o.s/2)*2,off=document.createElement('canvas');off.width=gw;off.height=gh;const og=off.getContext('2d',{willReadFrequently:true});
   const grab=t=>{drawFrame(t);og.drawImage(cv,0,0,gw,gh);return og.getImageData(0,0,gw,gh).data;};
   const hist=new Uint32Array(32768);for(let k=0;k<=10;k++){const px=grab(d*k/10);for(let j=0;j<px.length;j+=8)hist[((px[j]>>3)<<10)|((px[j+1]>>3)<<5)|(px[j+2]>>3)]++;await new Promise(r=>setTimeout(r,0));}
-  const enc=gifEncoder(gw,gh,gifPalette(hist),$('loop').checked),n=Math.ceil(d*fps);let pend=null,pendT=0;
+  const enc=gifEncoder(gw,gh,gifPalette(hist,o.c),$('loop').checked,o.c),n=Math.ceil(d*fps);let pend=null,pendT=0;
   const same=(a,b)=>{const x=new Uint32Array(a.buffer),y=new Uint32Array(b.buffer);for(let i=0;i<x.length;i++)if(x[i]!==y[i])return false;return true;};
   for(let f=0;f<=n;f++){const t=Math.min(d,f/fps),px=grab(t);if(pend&&same(px,pend))continue;if(pend)await enc.add(pend,Math.round(t*100)-Math.round(pendT*100));
     pend=new Uint8Array(px.buffer.slice(0));pendT=t;onProg(f/n*.97);if(f%2===0)await new Promise(r=>setTimeout(r,0));}
   await enc.add(pend,Math.round((d+.5)*100)-Math.round(pendT*100));const blob=await enc.finish();onProg(1);return blob;
 }
+
+
+/* ---------- fitting an export under a size limit ---------- */
+const MB=1e6,mbs=n=>(n/MB).toFixed(1)+' MB';
+const GIF_STEPS=[{s:.5,fps:12,c:255},{s:.5,fps:10,c:160},{s:.42,fps:10,c:128},{s:.36,fps:8,c:96},{s:.3,fps:8,c:64},{s:.25,fps:6,c:48},{s:.2,fps:5,c:32}];
+async function gifFit(limit,say,onProg){
+  if(!limit){say('Building the GIF…');return makeGif(onProg,GIF_STEPS[0]);}
+  let out=null,i=0;
+  for(;;){say(out?`That came out at ${mbs(out.size)}. Making it smaller…`:'Building the GIF…');
+    out=await makeGif(onProg,GIF_STEPS[i]);if(out.size<=limit)return out;
+    if(i===GIF_STEPS.length-1)break;i=Math.min(GIF_STEPS.length-1,i+(out.size>limit*2.2?2:1));}
+  out.over=true;return out;
+}
+async function videoFit(mime,limit,qual,say,onProg,dur,audioBps,extra){
+  if(!limit){say('Recording… keep this tab in front.');return recordVideo(mime,onProg,{...extra,scale:qual==='half'?.5:1,vbps:qual==='half'?4e6:8e6,abps:audioBps?128000:0});}
+  let vb=Math.min(8e6,limit*8*.85/dur-audioBps),out=null;
+  for(let k=0;k<2;k++){
+    const scale=vb>=2.4e6?1:vb>=9e5?.5:vb>=4.5e5?.4:.33;
+    say(out?`That came out at ${mbs(out.size)}. Recording again at a lower quality…`:'Recording… keep this tab in front.');
+    out=await recordVideo(mime,onProg,{...extra,scale,vbps:Math.max(1.2e5,vb),abps:audioBps});
+    if(out.size<=limit)return out;
+    vb=vb*limit*.8/out.size;
+  }
+  out.over=true;return out;
+}
+function qualityOptions(fmt){return fmt==='gif'?[['best','Standard'],['limit','Size limit']]:[['best','Best quality'],['half','Half size'],['limit','Size limit']];}
+const qualityNote=q=>q==='limit'?' With a size limit, quality and size go down until the file fits. A video may record a second time if the first try comes out too big.':q==='half'?' Half size is smoother on slower computers and makes a smaller file.':'';
+function doneText(blob,limit){return blob.over?`Done, but it came out at ${mbs(blob.size)}, over your ${mbs(limit)} limit. Try a GIF, a shorter video, or a bigger limit.`:`Done. ${mbs(blob.size)}.`;}
+
+/* ---------- project files ---------- */
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>{t.hidden=true;},4500);}
+function imgToData(im){if(!im)return null;if(im.src&&String(im.src).startsWith('data:'))return im.src;
+  try{const c=document.createElement('canvas');c.width=im.naturalWidth||im.width;c.height=im.naturalHeight||im.height;c.getContext('2d').drawImage(im,0,0);return c.toDataURL('image/png');}catch(e){return null;}}
+function dataToImg(d){return new Promise(res=>{if(!d||typeof d!=='string')return res(null);const im=new Image();im.onload=()=>res(im);im.onerror=()=>res(null);im.src=d;});}
+const slugify=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,30);
+const todayStr=()=>new Date().toISOString().slice(0,10);
+const savedMsg=m=>/^Saved/.test(m)?'Project saved. Open it here any time to keep editing.':m;
+
+function abToB64(ab){const u=new Uint8Array(ab);let s='';for(let i=0;i<u.length;i+=32768)s+=String.fromCharCode.apply(null,u.subarray(i,i+32768));return btoa(s);}
+function b64ToAb(b){const s=atob(b),u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u.buffer;}
+$('saveProj').onclick=async()=>{
+  try{const doc={app:'chat-reel',version:1,savedAt:new Date().toISOString(),
+      project:{...P,avatar:imgToData(P.avatar),msgs:P.msgs.map(({id,...m})=>({...m,img:imgToData(m.img)}))},
+      sounds:LIB.map(it=>({id:it.id,name:it.name,data:abToB64(it.data)}))};
+    const blob=new Blob([JSON.stringify(doc)],{type:'application/json'});
+    toast(savedMsg(await saveFile(blob,`chat-reel-${slugify(P.name)||'project'}-${todayStr()}.json`)));}
+  catch(err){toast('The project couldn’t be saved: '+(err&&err.message||err));}
+};
+$('openProj').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  let doc=null;try{doc=JSON.parse(await f.text());}catch(err){}
+  if(doc&&doc.app==='photo-frame-studio'){toast('That’s a Photo Frame Studio project. Open it in the studio.');return;}
+  if(!doc||doc.app!=='chat-reel'||!doc.project||!Array.isArray(doc.project.msgs)){toast('That file isn’t a Chat Reel project.');return;}
+  pause();
+  for(const sd of doc.sounds||[]){if(!sd||!sd.id||!sd.data||LIB.some(x=>x.id===sd.id))continue;try{const data=b64ToAb(sd.data);LIB.push({id:sd.id,name:sd.name||'Sound',data,buf:null});IDB.put({id:sd.id,name:sd.name||'Sound',data});}catch(err){}}
+  const o=doc.project,d=DEFAULT();
+  P={...d,...o,sound:{...d.sound,...(o.sound||{})},avatar:await dataToImg(o.avatar),msgs:await Promise.all(o.msgs.map(async m=>mk({...m,img:await dataToImg(m.img)})))};
+  if(!LAY[P.style])P.style='ios';
+  sel=Math.min(1,P.msgs.length-1);tab='msg';state.t=0;refresh();
+  toast(`Opened “${f.name}”.`);
+};
 
 /* ================= boot ================= */
 load();SCH=build();state.t=SCH.ev[2]?SCH.ev[2].popEnd+.05:0;

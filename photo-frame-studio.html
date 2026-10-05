@@ -86,6 +86,8 @@ canvas{display:block;max-width:100%;max-height:min(74vh,900px);width:auto;height
 #vOut,#gOut{max-height:56vh;max-width:100%;align-self:center;border-radius:6px;background:#000;border:1px solid var(--line)}
 button:disabled{opacity:.5;cursor:not-allowed}
 .note{margin:16px 0 0;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;z-index:30;max-width:calc(100% - 32px);box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.proj{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .modal{position:fixed;inset:0;background:rgba(10,8,18,.72);display:grid;place-items:center;padding:20px;z-index:10}
 .sheet{background:var(--panel);border-radius:14px;padding:18px;max-width:min(560px,100%);max-height:100%;display:flex;flex-direction:column;gap:12px;overflow:auto}
 .sheet img{max-height:60vh;width:auto;max-width:100%;align-self:center;border-radius:4px;border:1px solid var(--line)}
@@ -110,7 +112,12 @@ button:disabled{opacity:.5;cursor:not-allowed}
 <header class="top">
   <h1 class="brand">Photo Frame <span>Studio</span></h1>
   <p>Pick a frame, add a photo, change the words, drag things into place.</p>
+  <div class="proj" style="margin-left:auto;align-self:center">
+    <label class="btn" for="openProj">Open project<input type="file" id="openProj" accept=".json,application/json"></label>
+    <button type="button" id="saveProj">Save project</button>
+  </div>
 </header>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
 <main class="app">
   <aside class="rail" aria-label="Frames">
@@ -147,7 +154,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="vTitle">
     <h3 id="vTitle">Make a video</h3>
     <div class="field"><span class="flabel" id="vfmt-l">Format</span><div class="seg" id="vfmt" role="group" aria-labelledby="vfmt-l"></div></div>
-    <div class="field" id="vsizeF"><span class="flabel" id="vsize-l">Size</span><div class="seg" id="vsize" role="group" aria-labelledby="vsize-l"></div></div>
+    <div class="field" id="vsizeF"><span class="flabel" id="vsize-l">Quality</span><div class="seg" id="vsize" role="group" aria-labelledby="vsize-l"></div></div>
+    <div class="field" id="vlimF" hidden><label for="vlim">Keep the file under (MB)</label><input type="number" id="vlim" min="0.5" max="500" step="0.5" value="5" inputmode="decimal"></div>
     <p class="help" id="vHelp"></p>
     <div class="vprog" id="vProg" hidden><div id="vBar"></div></div>
     <video id="vOut" controls loop playsinline muted hidden></video>
@@ -1463,17 +1471,18 @@ const vmodal=document.getElementById('vmodal'),vfmt=document.getElementById('vfm
 function pickMime(kind){if(!window.MediaRecorder||!cv.captureStream)return null;
   const c=kind==='mp4'?['video/mp4;codecs=avc1','video/mp4']:['video/webm;codecs=vp8','video/webm;codecs=vp9','video/webm'];
   return c.find(m=>{try{return MediaRecorder.isTypeSupported(m);}catch(e){return false;}})||null;}
-let vFormat='gif',vSize='Full',vResult=null,busy=false;
+let vFormat='gif',vQual='best',vResult=null,busy=false;
 function openVideo(){
   S.anim.playing=false;const fm=[];if(pickMime('webm'))fm.push(['webm','WebM']);if(pickMime('mp4'))fm.push(['mp4','MP4']);fm.push(['gif','GIF']);
   if(!fm.some(f=>f[0]===vFormat))vFormat=fm[0][0];
   vfmt.innerHTML='';fm.forEach(([k,l])=>{const b=document.createElement('button');b.type='button';b.textContent=l;b.setAttribute('aria-pressed',k===vFormat);b.onclick=()=>{if(busy)return;vFormat=k;openVideo();};vfmt.appendChild(b);});
-  const vs=document.getElementById('vsize');vs.innerHTML='';document.getElementById('vsizeF').hidden=vFormat==='gif';
-  [['Full','Full size'],['Half','Half size (smoother on slower computers)']].forEach(([k,l])=>{const b=document.createElement('button');b.type='button';b.textContent=l;b.setAttribute('aria-pressed',k===vSize);b.onclick=()=>{if(busy)return;vSize=k;openVideo();};vs.appendChild(b);});
+  const vq=vFormat==='gif'&&vQual==='half'?'best':vQual,vs=document.getElementById('vsize');vs.innerHTML='';
+  qualityOptions(vFormat).forEach(([k,l])=>{const b=document.createElement('button');b.type='button';b.textContent=l;b.setAttribute('aria-pressed',k===vq);b.onclick=()=>{if(busy)return;vQual=k;openVideo();};vs.appendChild(b);});
+  document.getElementById('vlimF').hidden=vq!=='limit';
   const d=animDur().toFixed(0);
   vHelp.textContent={webm:`Full color and a small file. Plays in Chrome, Firefox, Edge and on Android. Recording runs in real time, so it takes about ${d} seconds. Keep this tab in front while it records.`,
     mp4:`Plays almost everywhere, including iPhone and most social apps. Recording runs in real time, so it takes about ${d} seconds. Keep this tab in front while it records.`,
-    gif:'Works anywhere images do and loops on its own. GIFs are limited to 256 colors, so photos can look a little blotchy, and the file is bigger. Made at half size.'}[vFormat];
+    gif:'Works anywhere images do and loops on its own. GIFs are limited to 256 colors, so photos can look a little blotchy, and the file is bigger. Made at half size.'}[vFormat]+qualityNote(vq);
   vProg.hidden=true;vOut.hidden=true;gOut.hidden=true;vSave.hidden=true;vDl.hidden=true;vStart.hidden=false;vStart.disabled=false;vStatus.textContent='';
   vmodal.hidden=false;vStart.focus();
 }
@@ -1483,12 +1492,12 @@ const prog=f=>{vBar.style.width=Math.round(f*100)+'%';};
 vStart.onclick=async()=>{
   busy=true;vStart.disabled=true;vClose.disabled=true;vProg.hidden=false;prog(0);vOut.hidden=true;gOut.hidden=true;vDl.hidden=true;vSave.hidden=true;
   try{
-    if(vFormat==='gif'){vStatus.textContent='Building the GIF…';vResult=await makeGif(f=>{prog(f);});}
-    else{vStatus.textContent='Recording… keep this tab in front.';vResult=await recordVideo(pickMime(vFormat),prog,vSize==='Half');}
+    const q=vFormat==='gif'&&vQual==='half'?'best':vQual,limit=q==='limit'?Math.max(.5,parseFloat(document.getElementById('vlim').value)||5)*MB:0,say=m=>{vStatus.textContent=m;};
+    if(vFormat==='gif')vResult=await gifFit(limit,say,prog);
+    else{const mime=pickMime(vFormat);if(!mime)throw new Error('This browser cannot record video');vResult=await videoFit(mime,limit,q,say,prog,animDur(),0,{});}
     const url=URL.createObjectURL(vResult);
     if(vFormat==='gif'){gOut.src=url;gOut.hidden=false;}else{vOut.src=url;vOut.hidden=false;vOut.play().catch(()=>{});}
-    const mb=(vResult.size/1048576).toFixed(1);
-    vStatus.textContent=`Done. ${mb} MB.`;vStart.textContent='Make it again';
+    vStatus.textContent=doneText(vResult,vQual==='limit'?Math.max(.5,parseFloat(document.getElementById('vlim').value)||5)*MB:0);vStart.textContent='Make it again';
     vDl.hidden=!canSave();vSave.hidden=false;
     vSave.textContent=saveNote();
   }catch(err){vStatus.textContent='That didn’t work: '+(err&&err.message||err)+'. Try GIF, or open the local copy in Chrome.';}
@@ -1496,10 +1505,10 @@ vStart.onclick=async()=>{
 };
 vDl.onclick=async()=>{if(!vResult)return;vStatus.textContent=await saveFile(vResult,`${S.tpl}-chat.${vFormat}`);};
 
-async function recordVideo(mime,onProg,half){
-  let src=cv,copy=null;
-  if(half){src=document.createElement('canvas');src.width=Math.round(cv.width/4)*2;src.height=Math.round(cv.height/4)*2;const sg=src.getContext('2d');copy=()=>sg.drawImage(cv,0,0,src.width,src.height);}
-  const stream=src.captureStream(30),rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:8000000}),chunks=[];
+async function recordVideo(mime,onProg,o){
+  o=o||{};const sc=o.scale||1;let src=cv,copy=null;
+  if(sc<1){src=document.createElement('canvas');src.width=Math.round(cv.width*sc/2)*2;src.height=Math.round(cv.height*sc/2)*2;const sg=src.getContext('2d');copy=()=>sg.drawImage(cv,0,0,src.width,src.height);}
+  const stream=src.captureStream(30),rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:Math.round(o.vbps||8e6)}),chunks=[];
   rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
   const stopped=new Promise(r=>rec.onstop=r);
   S.exporting=true;const d=animDur();S.anim.t=0;render();
@@ -1546,55 +1555,55 @@ function gifLZW(pixels,out){
   }
   output(ent);output(eofCode);out.byte(0);
 }
-function gifBegin(w,h,pal,loop){const o=ByteOut();o.str('GIF89a');o.u16(w);o.u16(h);o.byte(0xF7);o.byte(0);o.byte(0);o.bytes(pal);
+function gifBegin(w,h,pal,loop,nc){const o=ByteOut();o.str('GIF89a');o.u16(w);o.u16(h);o.byte(0xF7);o.byte(0);o.byte(0);o.bytes(pal);
   if(loop){o.byte(0x21);o.byte(0xFF);o.byte(11);o.str('NETSCAPE2.0');o.byte(3);o.byte(1);o.u16(0);o.byte(0);}
-  return{w,h,pal,cache:new Int16Array(32768).fill(-1),prev:null,parts:[o.data()],count:0};}
+  return{w,h,pal,nc:nc||255,cache:new Int16Array(32768).fill(-1),prev:null,parts:[o.data()],count:0};}
 function gifFrame(st,data,delay){
   const n=st.w*st.h,idx=new Uint8Array(n),p=st.pal,c=st.cache;
   for(let i=0,j=0;i<n;i++,j+=4){const k=((data[j]>>3)<<10)|((data[j+1]>>3)<<5)|(data[j+2]>>3);let v=c[k];
-    if(v<0){const r=(data[j]>>3)*8+4,g=(data[j+1]>>3)*8+4,b=(data[j+2]>>3)*8+4;let bd=1e9;v=0;for(let q=0;q<255;q++){const dr=p[q*3]-r,dg=p[q*3+1]-g,db=p[q*3+2]-b,d=2*dr*dr+4*dg*dg+3*db*db;if(d<bd){bd=d;v=q;}}c[k]=v;}
+    if(v<0){const r=(data[j]>>3)*8+4,g=(data[j+1]>>3)*8+4,b=(data[j+2]>>3)*8+4;let bd=1e9;v=0;for(let q=0;q<st.nc;q++){const dr=p[q*3]-r,dg=p[q*3+1]-g,db=p[q*3+2]-b,d=2*dr*dr+4*dg*dg+3*db*db;if(d<bd){bd=d;v=q;}}c[k]=v;}
     idx[i]=v;}
   let px=idx;if(st.prev){px=new Uint8Array(n);const pr=st.prev;for(let i=0;i<n;i++)px[i]=idx[i]===pr[i]?255:idx[i];}
   st.prev=idx;const o=ByteOut();
   o.byte(0x21);o.byte(0xF9);o.byte(4);o.byte(st.count?0x05:0x04);o.u16(Math.max(2,delay));o.byte(255);o.byte(0);
   o.byte(0x2C);o.u16(0);o.u16(0);o.u16(st.w);o.u16(st.h);o.byte(0);gifLZW(px,o);st.parts.push(o.data());st.count++;}
 function gifEnd(st){st.parts.push(new Uint8Array([0x3B]));return new Blob(st.parts,{type:'image/gif'});}
-function gifPalette(hist){
+function gifPalette(hist,maxC){
   const keys=[];for(let k=0;k<32768;k++)if(hist[k])keys.push(k);
   const ch=[k=>(k>>10)&31,k=>(k>>5)&31,k=>k&31];
   const stat=c=>{let n=0,mn=[31,31,31],mx=[0,0,0];for(const k of c){n+=hist[k];for(let a=0;a<3;a++){const v=ch[a](k);if(v<mn[a])mn[a]=v;if(v>mx[a])mx[a]=v;}}
     let ax=0;for(let a=1;a<3;a++)if(mx[a]-mn[a]>mx[ax]-mn[ax])ax=a;return{c,n,ax,range:mx[ax]-mn[ax]};};
   const boxes=[stat(keys)];
-  while(boxes.length<255){let bi=-1,best=0;boxes.forEach((b,i)=>{if(b.c.length>1){const sc=b.n*(b.range+1);if(sc>best){best=sc;bi=i;}}});if(bi<0)break;
+  while(boxes.length<(maxC||255)){let bi=-1,best=0;boxes.forEach((b,i)=>{if(b.c.length>1){const sc=b.n*(b.range+1);if(sc>best){best=sc;bi=i;}}});if(bi<0)break;
     const b=boxes[bi],f=ch[b.ax];b.c.sort((x,y)=>f(x)-f(y));let acc=0,cut=1;for(let i=0;i<b.c.length;i++){acc+=hist[b.c[i]];if(acc>=b.n/2){cut=Math.min(b.c.length-1,Math.max(1,i));break;}}
     boxes.splice(bi,1,stat(b.c.slice(0,cut)),stat(b.c.slice(cut)));}
   const pal=new Uint8Array(768);boxes.forEach((b,i)=>{let r=0,g=0,bl=0,n=0;for(const k of b.c){const w=hist[k];r+=(ch[0](k)*8+4)*w;g+=(ch[1](k)*8+4)*w;bl+=(ch[2](k)*8+4)*w;n+=w;}pal[i*3]=r/n;pal[i*3+1]=g/n;pal[i*3+2]=bl/n;});
   return pal;
 }
 function gifWorkerMain(){let st;self.onmessage=e=>{const m=e.data;
-  if(m.cmd==='start')st=gifBegin(m.w,m.h,m.pal,m.loop);
+  if(m.cmd==='start')st=gifBegin(m.w,m.h,m.pal,m.loop,m.nc);
   else if(m.cmd==='frame'){gifFrame(st,new Uint8ClampedArray(m.data),m.delay);self.postMessage({encoded:st.count});}
   else if(m.cmd==='finish')self.postMessage({blob:gifEnd(st)});};}
-function gifEncoder(w,h,pal,loop){
+function gifEncoder(w,h,pal,loop,nc){
   let worker=null;
   try{const src=[ByteOut,gifLZW,gifBegin,gifFrame,gifEnd].map(String).join('\n')+'\n('+gifWorkerMain.toString()+')();';
     worker=new Worker(URL.createObjectURL(new Blob([src],{type:'text/javascript'})));}catch(e){worker=null;}
   if(worker){let resolveDone,sent=0,done=0,waiters=[];const fin=new Promise(r=>resolveDone=r);
     worker.onmessage=e=>{if(e.data.blob){resolveDone(e.data.blob);worker.terminate();}else{done=e.data.encoded;waiters.splice(0).forEach(f=>f());}};
-    worker.postMessage({cmd:'start',w,h,pal,loop});
+    worker.postMessage({cmd:'start',w,h,pal,loop,nc});
     return{async add(data,delay){sent++;worker.postMessage({cmd:'frame',data:data.buffer,delay},[data.buffer]);while(sent-done>4)await new Promise(r=>waiters.push(r));},
       finish(){worker.postMessage({cmd:'finish'});return fin;}};}
-  const st=gifBegin(w,h,pal,loop);
+  const st=gifBegin(w,h,pal,loop,nc);
   return{async add(data,delay){gifFrame(st,data,delay);await new Promise(r=>setTimeout(r,0));},finish(){return Promise.resolve(gifEnd(st));}};
 }
-async function makeGif(onProg){
-  const d=animDur(),fps=12,W=cv.width,H=cv.height,gw=Math.round(W/2),gh=Math.round(H/2);
+async function makeGif(onProg,o){
+  o=o||GIF_STEPS[0];const d=animDur(),fps=o.fps,W=cv.width,H=cv.height,gw=Math.round(W*o.s/2)*2,gh=Math.round(H*o.s/2)*2;
   const off=document.createElement('canvas');off.width=gw;off.height=gh;const og=off.getContext('2d',{willReadFrequently:true});
   const grab=t=>{S.anim.t=t;render();og.drawImage(cv,0,0,gw,gh);return og.getImageData(0,0,gw,gh).data;};
   S.exporting=true;
   const hist=new Uint32Array(32768);
   for(let k=0;k<=8;k++){const px=grab(d*k/8);for(let j=0;j<px.length;j+=8)hist[((px[j]>>3)<<10)|((px[j+1]>>3)<<5)|(px[j+2]>>3)]++;await new Promise(r=>setTimeout(r,0));}
-  const enc=gifEncoder(gw,gh,gifPalette(hist),fv('aLoop')!=='Off');
+  const enc=gifEncoder(gw,gh,gifPalette(hist,o.c),fv('aLoop')!=='Off',o.c);
   const n=Math.ceil(d*fps);let pend=null,pendT=0;
   const same=(a,b)=>{const x=new Uint32Array(a.buffer),y=new Uint32Array(b.buffer);for(let i=0;i<x.length;i++)if(x[i]!==y[i])return false;return true;};
   for(let f=0;f<=n;f++){const t=Math.min(d,f/fps),px=grab(t);
@@ -1606,8 +1615,70 @@ async function makeGif(onProg){
   const blob=await enc.finish();onProg(1);return blob;
 }
 
+
+/* ---------- fitting an export under a size limit ---------- */
+const MB=1e6,mbs=n=>(n/MB).toFixed(1)+' MB';
+const GIF_STEPS=[{s:.5,fps:12,c:255},{s:.5,fps:10,c:160},{s:.42,fps:10,c:128},{s:.36,fps:8,c:96},{s:.3,fps:8,c:64},{s:.25,fps:6,c:48},{s:.2,fps:5,c:32}];
+async function gifFit(limit,say,onProg){
+  if(!limit){say('Building the GIF…');return makeGif(onProg,GIF_STEPS[0]);}
+  let out=null,i=0;
+  for(;;){say(out?`That came out at ${mbs(out.size)}. Making it smaller…`:'Building the GIF…');
+    out=await makeGif(onProg,GIF_STEPS[i]);if(out.size<=limit)return out;
+    if(i===GIF_STEPS.length-1)break;i=Math.min(GIF_STEPS.length-1,i+(out.size>limit*2.2?2:1));}
+  out.over=true;return out;
+}
+async function videoFit(mime,limit,qual,say,onProg,dur,audioBps,extra){
+  if(!limit){say('Recording… keep this tab in front.');return recordVideo(mime,onProg,{...extra,scale:qual==='half'?.5:1,vbps:qual==='half'?4e6:8e6,abps:audioBps?128000:0});}
+  let vb=Math.min(8e6,limit*8*.85/dur-audioBps),out=null;
+  for(let k=0;k<2;k++){
+    const scale=vb>=2.4e6?1:vb>=9e5?.5:vb>=4.5e5?.4:.33;
+    say(out?`That came out at ${mbs(out.size)}. Recording again at a lower quality…`:'Recording… keep this tab in front.');
+    out=await recordVideo(mime,onProg,{...extra,scale,vbps:Math.max(1.2e5,vb),abps:audioBps});
+    if(out.size<=limit)return out;
+    vb=vb*limit*.8/out.size;
+  }
+  out.over=true;return out;
+}
+function qualityOptions(fmt){return fmt==='gif'?[['best','Standard'],['limit','Size limit']]:[['best','Best quality'],['half','Half size'],['limit','Size limit']];}
+const qualityNote=q=>q==='limit'?' With a size limit, quality and size go down until the file fits. A video may record a second time if the first try comes out too big.':q==='half'?' Half size is smoother on slower computers and makes a smaller file.':'';
+function doneText(blob,limit){return blob.over?`Done, but it came out at ${mbs(blob.size)}, over your ${mbs(limit)} limit. Try a GIF, a shorter video, or a bigger limit.`:`Done. ${mbs(blob.size)}.`;}
+
+/* ---------- project files ---------- */
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>{t.hidden=true;},4500);}
+function imgToData(im){if(!im)return null;if(im.src&&String(im.src).startsWith('data:'))return im.src;
+  try{const c=document.createElement('canvas');c.width=im.naturalWidth||im.width;c.height=im.naturalHeight||im.height;c.getContext('2d').drawImage(im,0,0);return c.toDataURL('image/png');}catch(e){return null;}}
+function dataToImg(d){return new Promise(res=>{if(!d||typeof d!=='string')return res(null);const im=new Image();im.onload=()=>res(im);im.onerror=()=>res(null);im.src=d;});}
+const slugify=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,30);
+const todayStr=()=>new Date().toISOString().slice(0,10);
+const savedMsg=m=>/^Saved/.test(m)?'Project saved. Open it here any time to keep editing.':m;
+
+document.getElementById('saveProj').onclick=async()=>{
+  try{const doc={app:'photo-frame-studio',version:1,savedAt:new Date().toISOString(),tpl:S.tpl,fields:S.fields,pos:S.pos,zoom:S.zoom,panX:S.panX,panY:S.panY,
+      images:{main:S.src===SAMPLE_IMG?null:imgToData(S.src),profile:imgToData(S.src2),chat:S.chatMedia.map(m=>({kind:m.kind,user:m.user,img:imgToData(m.img)})),cam:S.camMedia.map(imgToData)}};
+    const blob=new Blob([JSON.stringify(doc)],{type:'application/json'});
+    toast(savedMsg(await saveFile(blob,`frame-studio-${slugify(T[S.tpl].name)}-${todayStr()}.json`)));}
+  catch(err){toast('The project couldn’t be saved: '+(err&&err.message||err));}
+};
+document.getElementById('openProj').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  let doc=null;try{doc=JSON.parse(await f.text());}catch(err){}
+  if(doc&&doc.app==='chat-reel'){toast('That’s a Chat Reel project. Open it in Chat Reel.');return;}
+  if(!doc||doc.app!=='photo-frame-studio'||!doc.fields){toast('That file isn’t a Photo Frame Studio project.');return;}
+  Object.keys(T).forEach(k=>{if(doc.fields[k]&&typeof doc.fields[k]==='object')S.fields[k]={...S.fields[k],...doc.fields[k]};});
+  S.pos=doc.pos&&typeof doc.pos==='object'?doc.pos:{};
+  S.zoom=Math.min(3,Math.max(1,+doc.zoom||1));S.panX=Math.min(1,Math.max(-1,+doc.panX||0));S.panY=Math.min(1,Math.max(-1,+doc.panY||0));
+  document.getElementById('zoom').value=S.zoom;
+  const im=doc.images||{};
+  S.src=(await dataToImg(im.main))||SAMPLE_IMG;S.src2=await dataToImg(im.profile);
+  for(let i=0;i<3;i++){const c=(im.chat||[])[i]||{};S.chatMedia[i]={img:await dataToImg(c.img),kind:['Photo','Video','Post'].includes(c.kind)?c.kind:S.chatMedia[i].kind,user:typeof c.user==='string'?c.user:S.chatMedia[i].user};
+    S.camMedia[i]=await dataToImg((im.cam||[])[i]);}
+  S.anim.playing=false;S.anim.t=null;selectTpl(T[doc.tpl]?doc.tpl:S.tpl);
+  toast(`Opened “${f.name}”.`);
+};
+
 /* boot */
-S.src=makeSample();
+const SAMPLE_IMG=makeSample();
+S.src=SAMPLE_IMG;
 syncSaveUI();
 selectTpl('story');
 const specs=['400 40px "Archivo Black"','400 40px Bangers','700 40px "Bodoni Moda"','italic 400 40px "Bodoni Moda"','700 40px "Comic Neue"','italic 700 40px "Comic Neue"','400 40px "DM Serif Display"','italic 400 40px "DM Serif Display"','500 40px Jost','400 40px Oswald','500 40px Oswald','700 40px Oswald','400 40px Roboto','500 40px Roboto',
