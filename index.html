@@ -4,6 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#F2F1F6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121118" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Photo Tools">
+<script>try{if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')&&window.top===window.self)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}catch(e){}</script>
+
 <title>Photo Tools</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,6 +41,10 @@ a.app:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .app ul{margin:0;padding-left:18px;color:var(--muted);font-size:14px}
 .open{margin-top:auto;color:var(--accent);font-weight:600;font-size:15px}
 .note{color:var(--muted);font-size:14px;margin:0;border-top:1px solid var(--line);padding-top:16px}
+.install{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:16px 18px;border:1px dashed var(--accent);border-radius:14px}
+.install p{margin:0;font-size:15px;flex:1;min-width:220px}
+.install button{font:600 15px/1 var(--f-body);background:var(--accent);color:#fff;border:0;border-radius:10px;padding:12px 18px;cursor:pointer}
+.install button:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 @media (prefers-reduced-motion:reduce){a.app{transition:none}a.app:hover{transform:none}}
 </style>
 </head>
@@ -62,7 +76,17 @@ a.app:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
       <span class="open">Open Chat Reel →</span>
     </a>
   </div>
-  <p class="note">Everything runs in your browser. Your photos and videos stay on your device.</p>
+  <div class="install" id="install" hidden>
+    <p>Install Photo Tools on this device. It gets its own icon and works without internet.</p>
+    <button type="button" id="installBtn">Install app</button>
+  </div>
+  <p class="note">Everything runs in your browser. Your photos and videos stay on your device. To use it offline on Android, open this page in Chrome, tap ⋮ and choose <strong>Add to Home screen</strong> or <strong>Install app</strong>. Open both tools once while you’re online so everything gets saved to your phone.</p>
 </main>
+<script>
+let installEvt=null;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;document.getElementById('install').hidden=false;});
+document.getElementById('installBtn').onclick=async()=>{if(!installEvt)return;installEvt.prompt();try{await installEvt.userChoice;}catch(e){}installEvt=null;document.getElementById('install').hidden=true;};
+addEventListener('appinstalled',()=>{document.getElementById('install').hidden=true;});
+</script>
 </body>
 </html>
