@@ -301,6 +301,11 @@ const ICON={
   thumbUp:'M9 21h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.58 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2zM9 9l4.34-4.34L12 10h9v2l-3 7H9V9zM1 9h4v12H1z',
   thumbDown:'M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm0 12l-4.34 4.34L12 14H3v-2l3-7h9v10zm4-12h4v12h-4z',
   forward:'M14 9V5l7 7-7 7v-4.1c-5 0-8.5 1.6-11 5.1 1-5 4-10 11-11z',
+  bookmarkF:'M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z',
+  homeF:'M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z',
+  people:'M16.5 13c-1.2 0-3.07.34-4.5 1-1.43-.67-3.3-1-4.5-1C5.33 13 1 14.08 1 16.25V19h22v-2.75c0-2.17-4.33-3.25-6.5-3.25zm-4 4.5h-10v-1.25c0-.54 2.56-1.75 5-1.75s5 1.21 5 1.75v1.25zm9 0H14v-1.25c0-.46-.2-.86-.52-1.22.88-.3 1.96-.53 3.02-.53 2.44 0 5 1.21 5 1.75v1.25zM7.5 12c1.93 0 3.5-1.57 3.5-3.5S9.43 5 7.5 5 4 6.57 4 8.5 5.57 12 7.5 12zm0-5.5c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm9 5.5c1.93 0 3.5-1.57 3.5-3.5S18.43 5 16.5 5 13 6.57 13 8.5s1.57 3.5 3.5 3.5zm0-5.5c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2z',
+  inbox:'M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z',
+  personO:'M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z',
   bookmark:'M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2zm0 15l-5-2.18L7 18V5h10v13z',
   moreH:'M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z',
   bell:'M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z',
@@ -536,6 +541,92 @@ post:{group:'Social & phone',name:'Social post',sub:'Square feed post',w:1080,h:
     y+=lines.length*42+12;ctx.fillStyle=mu;ctx.font=F(29,400,'sys');
     if(fv('comments')){ctx.fillText(`View all ${fv('comments')} comments`,30,y);y+=48;}
     ctx.font=F(22,400,'sys');spacing('1px');ctx.fillText(fv('time').toUpperCase(),30,y);spacing('0px');
+  }},
+short:{group:'Social & phone',name:'Short video',sub:'TikTok-style feed',
+  size(){return fv('screen')==='Video only'?[1080,1920]:[1080,2340];},
+  note:'A vertical short-video feed: For You tabs, the like/comment/save/share rail with a spinning sound disc, username, caption with bold hashtags, the sound line, and an optional caption on the video you can drag. Phone shows the status bar and bottom tabs; Video only is just the clip.',
+  fields:[
+    {type:'photo2',label:'Profile picture'},
+    {id:'user',label:'Username',def:'@coastlinedaily'},
+    {id:'cap',label:'Caption',type:'area',def:'Caught the last ten minutes of light at the pier. Same spot every summer #sunset #goldenhour #beachday'},
+    {id:'sound',label:'Sound',def:'Original sound - coastlinedaily'},
+    {id:'anchor',label:'Link pill above the name (optional)',def:'See the full spot guide'},
+    {type:'head',label:'Counts'},
+    {id:'likes',label:'Likes',def:'1.2M'},
+    {id:'comments',label:'Comments',def:'8,412'},
+    {id:'saves',label:'Saves',def:'96.3K'},
+    {id:'shares',label:'Shares',def:'21.7K'},
+    {id:'liked',label:'Liked by you',type:'seg',options:['No','Yes'],def:'No'},
+    {id:'saved',label:'Saved by you',type:'seg',options:['No','Yes'],def:'No'},
+    {id:'follow',label:'Following them',type:'seg',options:['No','Yes'],def:'No'},
+    {type:'head',label:'Text on the video'},
+    {id:'ov',label:'Text',def:'POV: you finally made it to golden hour'},
+    {id:'ovStyle',label:'Style',type:'seg',options:['Classic','Box','Dark box','Outline'],def:'Box'},
+    {type:'head',label:'Screen'},
+    {id:'screen',label:'Layout',type:'seg',options:['Phone','Video only'],def:'Phone'},
+    {id:'tab',label:'Top tab',type:'seg',options:['For You','Following','None'],def:'For You'},
+    {id:'progress',label:'Video progress',type:'seg',options:['15%','40%','65%','90%'],def:'40%'},
+    {id:'time',label:'Clock',def:'9:41'}],
+  draw(W,H){
+    const phone=fv('screen')==='Phone',navH=phone?210:0,navTop=H-navH,red='#FE2C55';
+    ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+    drawPhoto({x:0,y:0,w:W,h:navTop});
+    let g=ctx.createLinearGradient(0,0,0,phone?330:240);g.addColorStop(0,'rgba(0,0,0,.42)');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.fillRect(0,0,W,phone?330:240);
+    g=ctx.createLinearGradient(0,navTop-760,0,navTop);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,.55)');ctx.fillStyle=g;ctx.fillRect(0,navTop-760,W,760);
+    /* text on the video */
+    const ov=fv('ov').trim();
+    if(ov){const p=pos('ov',[.5,.36]),st=fv('ovStyle'),cx=p.x*W,cy=p.y*navTop;ctx.font=F(62,700,'sys');const ls=wrap(ov,W-260),lh=80,bw=maxWidth(ls),th=ls.length*lh;
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      if(st==='Box'||st==='Dark box'){ctx.fillStyle=st==='Box'?'#fff':'rgba(0,0,0,.78)';ls.forEach((l,i)=>{const w=ctx.measureText(l).width+56,y=cy-th/2+i*lh;rr(cx-w/2,y-2,w,lh+4,18);ctx.fill();});}
+      ls.forEach((l,i)=>{const y=cy-th/2+i*lh+lh/2+2;
+        if(st==='Outline'){ctx.lineJoin='round';ctx.lineWidth=12;ctx.strokeStyle='#000';ctx.strokeText(l,cx,y);ctx.fillStyle='#fff';ctx.fillText(l,cx,y);}
+        else if(st==='Classic'){shadow(true,10,.55);ctx.fillStyle='#fff';ctx.fillText(l,cx,y);shadow(false);}
+        else{ctx.fillStyle=st==='Box'?'#111':'#fff';ctx.fillText(l,cx,y);}});
+      box('ov',cx-bw/2-34,cy-th/2-6,bw+68,th+12);}
+    /* top */
+    const ty=phone?196:110;
+    if(phone)statusBar(W,'#fff','sys',fv('time'));
+    if(fv('tab')!=='None'){ctx.textBaseline='middle';ctx.font=F(38,700,'sys');const a='Following',b='For You',wa=ctx.measureText(a).width,wb=ctx.measureText(b).width,gap=50,x0=W/2-(wa+gap+wb)/2;
+      shadow(true,6,.35);ctx.textAlign='left';const onB=fv('tab')==='For You';
+      ctx.fillStyle=onB?'rgba(255,255,255,.62)':'#fff';ctx.fillText(a,x0,ty);ctx.fillStyle=onB?'#fff':'rgba(255,255,255,.62)';ctx.fillText(b,x0+wa+gap,ty);shadow(false);
+      ctx.fillStyle='#fff';const ux=onB?x0+wa+gap+wb/2:x0+wa/2;rr(ux-30,ty+34,60,7,4);ctx.fill();
+      ctx.strokeStyle='#fff';ctx.lineWidth=4;rr(44,ty-26,84,52,12);ctx.stroke();ctx.font=F(22,800,'sys');ctx.textAlign='center';ctx.fillText('LIVE',86,ty+1);
+      icon('search',W-82,ty,62,'#fff');}
+    /* right rail */
+    const rx=W-92,bottom=navTop-(phone?60:70),step=186,disc=bottom-40,share=disc-step,save=share-step,comm=save-step,heart=comm-step,av=heart-step-10;
+    const cnt=(t,y)=>{if(!t)return;ctx.font=F(28,600,'sys');ctx.textAlign='center';ctx.textBaseline='middle';shadow(true,6,.5);ctx.fillStyle='#fff';ctx.fillText(t,rx,y);shadow(false);};
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(rx,av,56,0,Math.PI*2);ctx.fill();
+    avatar(rx,av,51,()=>drawPhoto({x:rx-51,y:av-51,w:102,h:102},{pan:false,z:2.2}));
+    if(fv('follow')!=='Yes'){ctx.fillStyle=red;ctx.beginPath();ctx.arc(rx,av+54,22,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=5;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(rx-10,av+54);ctx.lineTo(rx+10,av+54);ctx.moveTo(rx,av+44);ctx.lineTo(rx,av+64);ctx.stroke();}
+    shadow(true,10,.35);icon('heart',rx,heart-18,100,fv('liked')==='Yes'?red:'#fff');shadow(false);cnt(fv('likes'),heart+52);
+    shadow(true,10,.35);ctx.fillStyle='#fff';ctx.beginPath();ctx.ellipse(rx,comm-22,42,37,0,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.moveTo(rx+14,comm+8);ctx.lineTo(rx+30,comm+24);ctx.lineTo(rx+30,comm+4);ctx.closePath();ctx.fill();shadow(false);
+    ctx.fillStyle='rgba(0,0,0,.55)';[-15,0,15].forEach(d=>{ctx.beginPath();ctx.arc(rx+d,comm-22,5.5,0,Math.PI*2);ctx.fill();});cnt(fv('comments'),comm+52);
+    shadow(true,10,.35);icon('bookmarkF',rx,save-20,92,fv('saved')==='Yes'?'#FACE15':'#fff');shadow(false);cnt(fv('saves'),save+52);
+    shadow(true,10,.35);icon('forward',rx,share-20,96,'#fff');shadow(false);cnt(fv('shares'),share+52);
+    ctx.save();const dg=ctx.createRadialGradient(rx,disc,10,rx,disc,52);dg.addColorStop(0,'#444');dg.addColorStop(1,'#111');ctx.fillStyle=dg;ctx.beginPath();ctx.arc(rx,disc,52,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,.12)';ctx.lineWidth=2;[44,38].forEach(r=>{ctx.beginPath();ctx.arc(rx,disc,r,0,Math.PI*2);ctx.stroke();});ctx.restore();
+    avatar(rx,disc,27,()=>drawPhoto({x:rx-27,y:disc-27,w:54,h:54},{pan:false,z:2}));
+    ctx.fillStyle='rgba(255,255,255,.85)';ctx.font=F(30,400,'sys');ctx.textAlign='center';ctx.fillText('♪',rx-78,disc-40);ctx.font=F(24,400,'sys');ctx.fillText('♫',rx-60,disc-78);
+    /* bottom-left text */
+    const tx=40,maxW=W-250;let y=navTop-(phone?72:80);
+    ctx.textAlign='left';ctx.textBaseline='middle';shadow(true,6,.45);
+    ctx.fillStyle='#fff';ctx.font=F(32,400,'sys');const snd='♫  '+fv('sound');let sl=snd;while(ctx.measureText(sl).width>maxW-40&&sl.length>4)sl=sl.slice(0,-2);if(sl!==snd)sl=sl.trimEnd()+'…';ctx.fillText(sl,tx,y);
+    y-=66;
+    ctx.font=F(34,400,'sys');const words=fv('cap').split(/\s+/).filter(Boolean),lines=[[]];let lw=0;
+    words.forEach(wd=>{const b=/^[#@]/.test(wd);ctx.font=F(34,b?700:400,'sys');const ww=ctx.measureText(wd+' ').width;if(lw+ww>maxW&&lines[lines.length-1].length){lines.push([]);lw=0;}lines[lines.length-1].push([wd,b]);lw+=ww;});
+    let L=lines;if(L.length>3){L=L.slice(0,3);L[2]=L[2].slice(0,Math.max(1,L[2].length-2));L[2].push(['…more',true]);}
+    if(fv('cap').trim()){for(let i=L.length-1;i>=0;i--){let x=tx;L[i].forEach(([wd,b])=>{ctx.font=F(34,b?700:400,'sys');ctx.fillText(wd,x,y);x+=ctx.measureText(wd+' ').width;});y-=48;}y-=8;}
+    ctx.font=F(38,700,'sys');ctx.fillText(fv('user'),tx,y);shadow(false);
+    if(fv('anchor').trim()){y-=74;ctx.font=F(28,600,'sys');const aw=ctx.measureText(fv('anchor')).width;ctx.fillStyle='rgba(0,0,0,.42)';rr(tx,y-30,aw+92,60,10);ctx.fill();
+      ctx.fillStyle='#25C2A0';rr(tx+12,y-18,36,36,8);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=3.5;ctx.beginPath();ctx.moveTo(tx+20,y+6);ctx.lineTo(tx+26,y-6);ctx.lineTo(tx+31,y+2);ctx.lineTo(tx+40,y-10);ctx.stroke();
+      ctx.fillStyle='#fff';ctx.fillText(fv('anchor'),tx+62,y+1);}
+    /* progress + bottom tabs */
+    const pr=parseInt(fv('progress'))/100;ctx.fillStyle='rgba(255,255,255,.25)';ctx.fillRect(0,navTop-5,W,5);ctx.fillStyle='rgba(255,255,255,.9)';ctx.fillRect(0,navTop-5,W*pr,5);
+    if(phone){ctx.fillStyle='#000';ctx.fillRect(0,navTop,W,navH);const iy=navTop+64,ly=navTop+122;
+      [['homeF','Home',1],['people','Friends',0],[null,'',0],['inbox','Inbox',0],['personO','Profile',0]].forEach(([ic,lab,on],i)=>{const x=W*(i+.5)/5;
+        if(!ic){ctx.fillStyle='#fff';rr(x-52,iy-34,104,68,18);ctx.fill();ctx.strokeStyle='#000';ctx.lineWidth=7;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x-18,iy);ctx.lineTo(x+18,iy);ctx.moveTo(x,iy-18);ctx.lineTo(x,iy+18);ctx.stroke();return;}
+        icon(ic,x,iy,60,on?'#fff':'rgba(255,255,255,.75)');ctx.fillStyle=on?'#fff':'rgba(255,255,255,.75)';ctx.font=F(24,on?600:500,'sys');ctx.textAlign='center';ctx.fillText(lab,x,ly);});
+      homeBar(W,H,'#fff');}
   }},
 camera:{group:'Social & phone',name:'Phone camera',sub:'Viewfinder screen',w:1080,h:2340,
   note:'Makes the photo look like it’s on a phone camera viewfinder, with modes, zoom buttons and shutter.',
