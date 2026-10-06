@@ -138,7 +138,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 <body>
 <header class="top">
   <h1 class="brand">Photo Frame <span>Studio</span></h1>
-  <nav class="switch" aria-label="Switch tool"><a href="photo-frame-studio.html" aria-current="page">Frame Studio</a><a href="chat-reel.html">Chat Reel</a><a href="metadata-scrubber.html">Scrubber</a><a href="video-layers.html">Video</a></nav>
+  <nav class="switch" aria-label="Switch tool"><a href="photo-frame-studio.html" aria-current="page">Frame Studio</a><a href="photo-splitter.html">Splitter</a><a href="chat-reel.html">Chat Reel</a><a href="metadata-scrubber.html">Scrubber</a><a href="video-layers.html">Video</a></nav>
   <p>Pick a frame, add a photo, change the words, drag things into place.</p>
   <div class="proj proj-end">
     <label class="btn" for="openProj">Open project<input type="file" id="openProj" accept=".json,application/json"></label>
@@ -225,6 +225,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
     <div class="bar">
       <button type="button" id="dl" class="primary" hidden>Download PNG</button>
       <button type="button" id="copy">Copy image</button>
+      <button type="button" id="toSplit" hidden>Split for X →</button>
       <button type="button" id="toVL" hidden>Use in Video Layers →</button>
       <button type="button" id="close">Done</button>
     </div>
@@ -1836,7 +1837,7 @@ function syncSaveUI(){
 function saveNote(){return canSave()?'Download saves it to your device. In the Claude app on a phone, it opens the share sheet so you can save it to Photos.':(vFormat==='gif'?'Right-click the GIF and choose “Save image as…”, or press and hold it on a phone.':'Right-click the video and choose “Save video as…” to keep it.');}
 
 let lastURL='',lastBlob=null;
-document.getElementById('export').onclick=()=>{S.exporting=true;render();lastURL=cv.toDataURL('image/png');lastBlob=null;cv.toBlob(b=>{lastBlob=b;},'image/png');document.getElementById('out').src=lastURL;S.exporting=false;render();status.textContent='';document.getElementById('toVL').hidden=!HANDOFF.ok();modal.hidden=false;(topLevel?dl:document.getElementById('close')).focus();};
+document.getElementById('export').onclick=()=>{S.exporting=true;render();lastURL=cv.toDataURL('image/png');lastBlob=null;cv.toBlob(b=>{lastBlob=b;},'image/png');document.getElementById('out').src=lastURL;S.exporting=false;render();status.textContent='';document.getElementById('toVL').hidden=!HANDOFF.ok();document.getElementById('toSplit').hidden=!HANDOFF.ok();modal.hidden=false;(topLevel?dl:document.getElementById('close')).focus();};
 dl.onclick=async()=>{const b=lastBlob||await new Promise(r=>{S.exporting=true;render();cv.toBlob(r,'image/png');S.exporting=false;render();});status.textContent=await saveFile(b,`${S.tpl}-${Date.now()}.png`);};
 document.getElementById('close').onclick=()=>{modal.hidden=true;};
 modal.addEventListener('click',e=>{if(e.target===modal)modal.hidden=true;});
@@ -2142,6 +2143,8 @@ const HANDOFF={name:'pt-handoff',
     try{await Promise.race([flushAutosave(),new Promise(r=>setTimeout(r,1500))]);}catch(e){}location.href=page+'?handoff=1';}};
 document.getElementById('toVL').onclick=async()=>{const b=lastBlob||await new Promise(r=>{S.exporting=true;render();cv.toBlob(r,'image/png');S.exporting=false;render();});
   if(b)HANDOFF.send([new File([b],`${S.tpl}.png`,{type:'image/png'})],'video-layers.html');};
+document.getElementById('toSplit').onclick=async()=>{const b=lastBlob||await new Promise(r=>{S.exporting=true;render();cv.toBlob(r,'image/png');S.exporting=false;render();});
+  if(b)HANDOFF.send([new File([b],`${S.tpl}.png`,{type:'image/png'})],'photo-splitter.html');};
 document.getElementById('vToVL').onclick=()=>{if(vResult)HANDOFF.send([new File([vResult],`${S.tpl}.${vFormat}`,{type:vResult.type})],'video-layers.html');};
 let sharedBatch=[];
 document.getElementById('bShared').onclick=()=>runBatch(sharedBatch);
@@ -2160,7 +2163,7 @@ if(!narrowRail())openCat(catOf(S.tpl));
 AUTO.get().then(async doc=>{if(doc&&doc.app==='photo-frame-studio'&&doc.fields)await applyStudio(doc);}).catch(()=>{}).finally(()=>{autoReady=true;handoffIn();});
 /* ---------- switching tools: save first, then go; inside Claude each tool is its own page, so open it in a new tab ---------- */
 (function(){
-  const ART={'photo-frame-studio.html':'https://claude.ai/artifact/BTFF4oB7m8EHQMWNwCo2Uw','chat-reel.html':'https://claude.ai/artifact/Tzehgnj1qjBYtpZ6oxKAhG','metadata-scrubber.html':'https://claude.ai/artifact/8kwiNFdeFAR3uZ8NTzKVnX','video-layers.html':'https://claude.ai/artifact/HMnHFrAaDUyaiSg7H8uxwN'};
+  const ART={'photo-frame-studio.html':'https://claude.ai/artifact/BTFF4oB7m8EHQMWNwCo2Uw','chat-reel.html':'https://claude.ai/artifact/Tzehgnj1qjBYtpZ6oxKAhG','metadata-scrubber.html':'https://claude.ai/artifact/8kwiNFdeFAR3uZ8NTzKVnX','video-layers.html':'https://claude.ai/artifact/HMnHFrAaDUyaiSg7H8uxwN','photo-splitter.html':'https://claude.ai/artifact/ENVcKXEpCdopL6rRfj1fT9'};
   let top=false;try{top=window.top===window.self;}catch(e){}
   document.querySelectorAll('.switch a').forEach(a=>{
     if(a.getAttribute('aria-current')){a.addEventListener('click',e=>e.preventDefault());return;}

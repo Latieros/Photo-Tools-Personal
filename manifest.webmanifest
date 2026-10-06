@@ -1,7 +1,7 @@
 {
   "name": "Photo Tools",
   "short_name": "Photo Tools",
-  "description": "Frame photos, turn text conversations into videos, put pictures and videos together, and scrub hidden data from photos and videos.",
+  "description": "Frame photos, split them for X, turn text conversations into videos, put pictures and videos together, and scrub hidden data from photos and videos.",
   "id": "./",
   "start_url": "./",
   "scope": "./",
@@ -70,6 +70,17 @@
       "name": "Photo Frame Studio",
       "short_name": "Studio",
       "url": "photo-frame-studio.html",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Photo Splitter",
+      "short_name": "Splitter",
+      "url": "photo-splitter.html",
       "icons": [
         {
           "src": "icons/icon-192.png",
