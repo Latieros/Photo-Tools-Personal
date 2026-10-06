@@ -14,7 +14,7 @@ A small set of personal browser tools for dressing up photos, making short video
 | Tool | What it does |
 |---|---|
 | [Photo Frame Studio](#photo-frame-studio) | Puts a photo inside a frame: social posts, phone screens, chats, camera screens, prints, comics, covers and newspapers. Frames one photo or a whole batch. Exports an image, or a video for the chat frames. |
-| [Photo Splitter](#photo-splitter) | Cuts one photo into 2, 3 or 4 pieces that join back into the whole picture in a multi-photo post on X. |
+| [Photo Splitter](#photo-splitter) | Cuts one photo into 2, 3 or 4 pieces that join back into the whole picture as you swipe through a post on X, with your own cut lines and your choice of which piece comes first. |
 | [Chat Reel](#chat-reel) | Turns a text conversation into a video, timing every message on a timeline. Group chats, reactions, replies, voice notes and unsent messages, in iPhone, Android, DM, WhatsApp-style, Discord-style or lock-screen looks. |
 | [Metadata Scrubber](#metadata-scrubber) | Strips prompts, location and hidden data out of photos and videos and saves clean copies under random names, optionally under a size limit. |
 | [Video Layers](#video-layers) | Puts pictures, videos, text, music and your voice together and exports a new video or GIF. Green screen, motion paths with keyframes and one-tap layouts. |
@@ -109,19 +109,22 @@ The frames sit in four categories: **Social & phone**, **Cameras**, **Prints** a
 
 Cuts one photo into pieces that join back into the whole picture when you post them together on X.
 
-### Layouts
-- **4 photos:** X's 2 × 2 grid. Post them in order: 1 top left, 2 top right, 3 bottom left, 4 bottom right.
-- **3 photos:** one tall photo on the left, two stacked on the right.
-- **2 photos:** two tall photos side by side.
-- **Swipe strip:** 2, 3 or 4 pieces that join up side by side as you swipe from one to the next, each 4:5, 1:1, 3:4, 2:3, 9:16 or 16:9. Use this if X on your phone shows several photos as a swipe instead of a grid, or for Instagram.
+### Swipe (how X shows several photos now)
+- X shows 2 to 4 photos side by side at the same height. The first one is shown big and you swipe right to left through the rest, so the picture carries on from one photo to the next.
+- **Your own cuts:** drag the white lines in the preview to put each cut where you want it. Each piece keeps its own width, so you can cut around a face or a detail.
+- **All the same shape:** every piece 4:5, 1:1, 3:4, 2:3, 9:16 or 16:9 instead.
+- **Which piece goes first:** pick the left, middle or right piece as the first photo, since that's the one X shows big. The rest follow to the right, then come back around to the left side. For example, a wide drawing cut in three can open on the face in the middle, then the right side, then the left.
+- **Gap:** optionally leave out a sliver at each cut to match the space X puts between photos.
 
-### Lining it up
-- **X's gaps:** X draws a thin line between the photos. The splitter leaves that sliver of the picture out (0.5% by default, adjustable), so everything lines up across the line.
-- **Choosing what shows:** drag the picture in the preview, scroll or pinch to zoom, or tap **Show the whole photo** to fit all of it with a blurred or colored border.
-- **Preview:** a mock post on X in light, dim or dark, with the order numbered on each piece.
+### Older X grid view
+- **4-photo grid** (2 × 2), **3-photo grid** (one tall, two stacked) and **2-photo grid** (side by side), in X's 16:9 box. The splitter leaves out the thin line X draws between photos (0.5% by default) so everything lines up across it.
+
+### Preview and framing
+- The preview shows your photo with the cuts on top and a mock X post underneath, in light, dim or dark, with each piece numbered in posting order.
+- Drag the picture to move it, scroll or pinch to zoom, or tap **Show the whole photo** to fit all of it with a blurred or colored border.
 
 ### Saving
-- **Save the photos:** each piece is saved numbered in order (`photo-1-of-4.jpg`…), as JPG (small enough for X) or PNG. Or save them all as one ZIP.
+- **Save the photos:** each piece is saved numbered in posting order (`photo-1-of-3.jpg`…), as JPG (small enough for X) or PNG. Or save them all as one ZIP.
 - **Share (phones):** on the website or installed app, **Share** sends all the pieces straight to the X app in order.
 - Pieces are as sharp as your photo allows, up to 4096 pixels a side, X's limit.
 

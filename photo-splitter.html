@@ -126,7 +126,7 @@ canvas#cv.dragging{cursor:grabbing}
       <div class="row"><label class="btn primary" for="pick">Choose photo<input type="file" id="pick" accept="image/*"></label></div>
     </div>
     <div class="field">
-      <span class="flabel" id="lay-l">How X shows it</span>
+      <span class="flabel" id="lay-l">How X shows them</span>
       <div class="lays" id="lays" role="group" aria-labelledby="lay-l"></div>
       <p class="help" id="layHelp"></p>
     </div>
@@ -181,25 +181,37 @@ const HAS_FILTER=(()=>{try{const g=document.createElement('canvas').getContext('
 const cv=$('cv'),ctx=cv.getContext('2d');
 
 /* ================= layouts ================= */
-/* X shows 2, 3 or 4 photos in one 16:9 box with thin gaps between them; the strip lines pieces up side by side for swiping */
+/* X now shows 2 to 4 photos as a swipe: the first one big, the rest following to the right, all at the same height.
+   The older grid view put them in one 16:9 box with thin gaps between them. */
 const LAYS=[
-  {k:'grid4',name:'4 photos',sub:'2 × 2 grid',dia:[[0,0,.49,.48],[.51,0,.49,.48],[0,.52,.49,.48],[.51,.52,.49,.48]],
-   help:'X shows four photos as a 2 × 2 grid. Add them in order: 1 top left, 2 top right, 3 bottom left, 4 bottom right.'},
-  {k:'three',name:'3 photos',sub:'one tall, two stacked',dia:[[0,0,.49,1],[.51,0,.49,.48],[.51,.52,.49,.48]],
-   help:'X shows three photos as one tall photo on the left and two stacked on the right.'},
-  {k:'two',name:'2 photos',sub:'side by side',dia:[[0,0,.49,1],[.51,0,.49,1]],
-   help:'X shows two photos side by side, each one tall.'},
-  {k:'strip',name:'Swipe strip',sub:'one after another',dia:[[0,.1,.23,.8],[.255,.1,.23,.8],[.51,.1,.23,.8],[.765,.1,.23,.8]],
-   help:'Pieces that join up side by side as you swipe from one to the next. Use it if X on your phone shows several photos as a swipe instead of a grid, or for Instagram.'}];
+  {k:'strip',name:'Swipe',sub:'how X shows them now',dia:[[0,.06,.3,.88],[.33,.06,.3,.88],[.66,.06,.34,.88]],
+   help:'X shows 2 to 4 photos side by side at the same height. The first one is shown big and you swipe right to left through the rest, so the picture carries on from one photo to the next.'},
+  {k:'grid4',name:'4-photo grid',sub:'older X view',dia:[[0,0,.49,.48],[.51,0,.49,.48],[0,.52,.49,.48],[.51,.52,.49,.48]],
+   help:'The older X layout for four photos: a 2 × 2 grid. Add them in order: 1 top left, 2 top right, 3 bottom left, 4 bottom right.'},
+  {k:'three',name:'3-photo grid',sub:'older X view',dia:[[0,0,.49,1],[.51,0,.49,.48],[.51,.52,.49,.48]],
+   help:'The older X layout for three photos: one tall photo on the left and two stacked on the right.'},
+  {k:'two',name:'2-photo grid',sub:'older X view',dia:[[0,0,.49,1],[.51,0,.49,1]],
+   help:'The older X layout for two photos: side by side, each one tall.'}];
 const SHAPES=[['4:5',4/5],['1:1',1],['3:4',3/4],['2:3',2/3],['9:16',9/16],['16:9',16/9]];
 const THEMES={light:{bg:'#FFFFFF',ink:'#0F1419',muted:'#536471',line:'#EFF3F4',skel:'#E7ECF0'},dim:{bg:'#15202B',ink:'#F7F9F9',muted:'#8B98A5',line:'#38444D',skel:'#273340'},dark:{bg:'#000000',ink:'#E7E9EA',muted:'#71767B',line:'#2F3336',skel:'#202327'}};
-const DEF=()=>({layout:'grid4',n:3,shape:'4:5',gap:.005,sgap:0,z:1,px:0,py:0,bgMode:'blur',bg:'#000000',theme:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light',nums:true,fmt:'jpg'});
+const DEF=()=>({v:2,layout:'strip',n:3,shape:'free',cuts:null,first:0,gap:.005,sgap:0,z:1,px:0,py:0,bgMode:'blur',bg:'#000000',theme:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light',nums:true,fmt:'jpg'});
 let S=DEF(),IMG=null,BLOB=null,NAME='',SAMPLE=true;
 const lay=()=>LAYS.find(l=>l.k===S.layout)||LAYS[0];
 const shapeR=()=>(SHAPES.find(s=>s[0]===S.shape)||SHAPES[0])[1];
+const freeCuts=()=>S.layout==='strip'&&S.shape==='free';
+const MINW=.06;
+/* where the cuts go, as fractions of the width; even until you drag them */
+function cutsOf(){const n=S.n;let c=Array.isArray(S.cuts)&&S.cuts.length===n-1?S.cuts.slice():[...Array(n-1)].map((_,i)=>(i+1)/n);
+  c.sort((a,b)=>a-b);for(let i=0;i<c.length;i++)c[i]=clamp(c[i],(i?c[i-1]:0)+MINW,1-(c.length-i)*MINW);return c;}
+/* the order they're posted in: the chosen first piece, then on to the right, then back around to the left */
+function postOrder(){const n=geom().rects.length;if(S.layout!=='strip')return[...Array(n)].map((_,i)=>i);const f=clamp(S.first|0,0,n-1);return[...Array(n)].map((_,k)=>(f+k)%n);}
+function postNum(i){return postOrder().indexOf(i)+1;}
 /* the whole box's shape, and each piece as [x, y, w, h] in fractions of the box */
 function geom(){
-  if(S.layout==='strip'){const r=shapeR(),n=S.n,gs=S.sgap,wN=1/(n+(n-1)*gs),gp=gs*wN;return{A:r*(n+(n-1)*gs),rects:[...Array(n)].map((_,i)=>[i*(wN+gp),0,wN,1])};}
+  if(S.layout==='strip'){const n=S.n;
+    if(S.shape==='free'){const A=iw()/ih(),ed=[0,...cutsOf(),1],gh=S.sgap/A/2;
+      return{A,rects:[...Array(n)].map((_,i)=>{const x0=ed[i]+(i?gh:0),x1=ed[i+1]-(i<n-1?gh:0);return[x0,0,Math.max(.01,x1-x0),1];})};}
+    const r=shapeR(),A=r*n+(n-1)*S.sgap,wN=r/A,gp=S.sgap/A;return{A,rects:[...Array(n)].map((_,i)=>[i*(wN+gp),0,wN,1])};}
   const A=16/9,g=S.gap,gy=g*A,w=(1-g)/2,hh=(1-gy)/2;
   if(S.layout==='two')return{A,rects:[[0,0,w,1],[w+g,0,w,1]]};
   if(S.layout==='three')return{A,rects:[[0,0,w,1],[w+g,0,w,hh],[w+g,hh+gy,w,hh]]};
@@ -225,8 +237,48 @@ function pieceBoxes(W,H){return geom().rects.map(r=>{const x0=Math.round(r[0]*W)
 /* ================= preview: a post on X ================= */
 const pv=document.createElement('canvas'),pg=pv.getContext('2d');let MR={x:0,y:0,w:1,h:1};
 function rr(g,x,y,w,hh,r){g.beginPath();if(g.roundRect)g.roundRect(x,y,w,hh,Math.max(0,Math.min(r,w/2,hh/2)));else g.rect(x,y,w,hh);}
+function badge(g,x,y,n){g.fillStyle='rgba(0,0,0,.62)';g.beginPath();g.arc(x,y,19,0,Math.PI*2);g.fill();g.fillStyle='#fff';g.font='700 22px "Familjen Grotesk",system-ui,sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(String(n),x,y+1);g.textAlign='left';g.textBaseline='alphabetic';}
+function postHead(g,th,pad,col,top,w){
+  g.fillStyle=th.skel;g.beginPath();g.arc(pad+30,top+30,30,0,Math.PI*2);g.fill();
+  g.textBaseline='alphabetic';g.font='700 26px "Familjen Grotesk",system-ui,sans-serif';g.fillStyle=th.ink;g.fillText('You',pad+col,top+24);
+  const nw=g.measureText('You').width;g.font='400 25px "Familjen Grotesk",system-ui,sans-serif';g.fillStyle=th.muted;g.fillText('@you · now',pad+col+nw+10,top+24);
+  g.fillStyle=th.skel;rr(g,pad+col,top+44,Math.min(560,w*.7),18,9);g.fill();}
+function actions(g,th,x,y,w){g.fillStyle=th.skel;[0,1,2,3].forEach(i=>{const xx=x+i*(w/4.2);g.beginPath();g.arc(xx+12,y+42,11,0,Math.PI*2);g.fill();rr(g,xx+30,y+36,38,12,6);g.fill();});}
+let CUTX=[];
+/* swipe view: the photo with its cuts on top, and the post as X shows it underneath */
+function renderStrip(){
+  const th=THEMES[S.theme],{A}=geom(),CW=1100,pad=36,col=88,n=S.n,ord=postOrder(),free=freeCuts();
+  let cw=CW-pad*2,ch=cw/A;if(ch>480){ch=480;cw=ch*A;}
+  const cx0=Math.round((CW-cw)/2),cy0=pad+40;
+  pv.width=Math.round(cw);pv.height=Math.round(ch);drawBox(pg,pv.width,pv.height);
+  const bs=pieceBoxes(pv.width,pv.height),avail=CW-pad*2-col,gap=10;
+  let rowH=Math.min(520,ch*1.1);const tot=k=>bs.reduce((a,b)=>a+b.w/b.h*k,0)+gap*(n-1);if(tot(rowH)>avail)rowH=rowH*(avail-gap*(n-1))/(tot(rowH)-gap*(n-1));
+  const postTop=cy0+ch+64,rowTop=postTop+92,CH=Math.round(rowTop+rowH+84);
+  if(cv.width!==CW||cv.height!==CH){cv.width=CW;cv.height=CH;}
+  const g=ctx;g.fillStyle=th.bg;g.fillRect(0,0,CW,CH);
+  g.font='600 22px "Familjen Grotesk",system-ui,sans-serif';g.fillStyle=th.muted;g.textBaseline='alphabetic';
+  g.fillText(free?'Your photo. Drag the white lines to move the cuts.':'Your photo, cut into pieces',cx0,pad+22);
+  g.drawImage(pv,cx0,cy0);MR={x:cx0,y:cy0,w:pv.width,h:pv.height};
+  /* the slivers left out between pieces */
+  g.fillStyle='rgba(0,0,0,.6)';for(let i=0;i<n-1;i++){const a=bs[i],b=bs[i+1];if(b.x>a.x+a.w)g.fillRect(cx0+a.x+a.w,cy0,b.x-a.x-a.w,pv.height);}
+  CUTX=[];for(let i=0;i<n-1;i++){const a=bs[i],b=bs[i+1],x=cx0+(a.x+a.w+b.x)/2;CUTX.push(x);
+    g.save();g.shadowColor='rgba(0,0,0,.55)';g.shadowBlur=6;g.fillStyle='#fff';g.fillRect(x-1.5,cy0,3,pv.height);
+    if(free){rr(g,x-9,cy0+pv.height/2-30,18,60,9);g.fill();g.shadowColor='transparent';g.fillStyle='#8A8797';[-10,0,10].forEach(d=>g.fillRect(x-4,cy0+pv.height/2+d-1,8,2));}
+    g.restore();}
+  const[W,H]=outSize(),obs=pieceBoxes(W,H);
+  bs.forEach((b,i)=>{if(S.nums)badge(g,cx0+b.x+28,cy0+28,postNum(i));
+    const t=`${obs[i].w} × ${obs[i].h}`;g.font='600 18px "Familjen Grotesk",system-ui,sans-serif';const tw=g.measureText(t).width;
+    if(tw+16<b.w){g.fillStyle='rgba(0,0,0,.55)';rr(g,cx0+b.x+b.w/2-tw/2-8,cy0+pv.height-36,tw+16,26,13);g.fill();g.fillStyle='#fff';g.textAlign='center';g.fillText(t,cx0+b.x+b.w/2,cy0+pv.height-17);g.textAlign='left';}});
+  /* the post */
+  g.fillStyle=th.line;g.fillRect(pad,postTop-26,CW-pad*2,2);
+  postHead(g,th,pad,col,postTop,avail);
+  let x=pad+col;ord.forEach((i,k)=>{const b=bs[i],w=b.w/b.h*rowH;g.save();rr(g,x,rowTop,w,rowH,16);g.clip();g.drawImage(pv,b.x,b.y,b.w,b.h,x,rowTop,w,rowH);g.restore();
+    g.strokeStyle=th.line;g.lineWidth=2;rr(g,x,rowTop,w,rowH,16);g.stroke();if(S.nums)badge(g,x+28,rowTop+28,k+1);x+=w+gap;});
+  actions(g,th,pad+col,rowTop+rowH,avail);
+  renderPieces();}
 function render(){
-  if(!IMG)return;const th=THEMES[S.theme],{A}=geom(),CW=1100,pad=36,col=88,strip=S.layout==='strip';
+  if(!IMG)return;if(S.layout==='strip')return renderStrip();CUTX=[];
+  const th=THEMES[S.theme],{A}=geom(),CW=1100,pad=36,col=88,strip=false;
   let mw=CW-pad*2-col,mh=mw/A;if(mh>760){mh=760;mw=mh*A;}
   const top=pad+92,CH=Math.round(top+mh+84);if(cv.width!==CW||cv.height!==CH){cv.width=CW;cv.height=CH;}
   const g=ctx;g.fillStyle=th.bg;g.fillRect(0,0,CW,CH);
@@ -243,7 +295,7 @@ function render(){
   if(!strip){rr(g,mx,my,mw,mh,R);g.clip();}
   boxes.forEach((b,i)=>{g.save();if(strip){rr(g,mx+b.x,my+b.y,b.w,b.h,Math.min(b.w,b.h)*.05);g.clip();}
     g.drawImage(pv,b.x,b.y,b.w,b.h,mx+b.x,my+b.y,b.w,b.h);g.restore();
-    if(S.nums){const cx=mx+b.x+30,cy=my+b.y+30;g.fillStyle='rgba(0,0,0,.62)';g.beginPath();g.arc(cx,cy,19,0,Math.PI*2);g.fill();g.fillStyle='#fff';g.font='700 22px "Familjen Grotesk",system-ui,sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(String(i+1),cx,cy+1);g.textAlign='left';g.textBaseline='alphabetic';}});
+    if(S.nums)badge(g,mx+b.x+30,my+b.y+30,i+1);});
   g.restore();
   if(!strip){g.strokeStyle=th.line;g.lineWidth=2;rr(g,mx,my,mw,mh,R);g.stroke();}
   /* the action row */
@@ -256,9 +308,9 @@ let pieceCache=null;
 const sig=()=>JSON.stringify([S,NAME,iw(),ih(),SAMPLE]);
 function renderPieces(){
   const ol=$('plist');ol.innerHTML='';const[W,H]=outSize(),bs=pieceBoxes(W,H),ps=pieceBoxes(pv.width,pv.height);
-  bs.forEach((b,i)=>{const p=ps[i],tw=200,th=Math.max(1,Math.round(tw*b.h/b.w)),c=h('canvas',{width:tw,height:th,'aria-hidden':'true'});
+  postOrder().forEach((i,k)=>{const b=bs[i],p=ps[i],tw=200,th=Math.max(1,Math.round(tw*b.h/b.w)),c=h('canvas',{width:tw,height:th,'aria-hidden':'true'});
     try{c.getContext('2d').drawImage(pv,p.x,p.y,p.w,p.h,0,0,tw,th);}catch(e){}
-    ol.append(h('li',{},c,h('div',{class:'pmeta'},h('b',{},String(i+1)),h('span',{},`${b.w} × ${b.h}`),h('button',{type:'button','aria-label':`Save photo ${i+1}`,onclick:()=>saveOne(i)},'Save'))));});
+    ol.append(h('li',{},c,h('div',{class:'pmeta'},h('b',{},String(k+1)),h('span',{},`${b.w} × ${b.h}`),h('button',{type:'button','aria-label':`Save photo ${k+1}`,onclick:()=>saveOne(k)},'Save'))));});
   const n=bs.length;$('saveEach').textContent=`Save the ${n} photos`;
 }
 const baseName=()=>(String(NAME||'photo').replace(/\.[a-z0-9]+$/i,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,30)||'photo');
@@ -266,9 +318,10 @@ async function makePieces(){
   const s=sig();if(pieceCache&&pieceCache.sig===s)return pieceCache.files;
   const[W,H]=outSize(),full=document.createElement('canvas');full.width=W;full.height=H;drawBox(full.getContext('2d'),W,H);
   const png=S.fmt==='png',type=png?'image/png':'image/jpeg',ext=png?'png':'jpg',bs=pieceBoxes(W,H),files=[];
-  for(let i=0;i<bs.length;i++){const b=bs[i],c=document.createElement('canvas');c.width=b.w;c.height=b.h;const g=c.getContext('2d');
+  const ord=postOrder();
+  for(let k=0;k<bs.length;k++){const i=ord[k],b=bs[i],c=document.createElement('canvas');c.width=b.w;c.height=b.h;const g=c.getContext('2d');
     g.drawImage(full,b.x,b.y,b.w,b.h,0,0,b.w,b.h);const blob=await new Promise(r=>c.toBlob(r,type,.92));if(!blob)throw new Error('the picture is too big for this browser');
-    files.push(new File([blob],`${baseName()}-${i+1}-of-${bs.length}.${ext}`,{type}));}
+    files.push(new File([blob],`${baseName()}-${k+1}-of-${bs.length}.${ext}`,{type}));}
   full.width=full.height=0;pieceCache={sig:s,files};return files;}
 
 /* ================= saving ================= */
@@ -300,11 +353,16 @@ function renderOpts(){
     ls.append(h('button',{type:'button','aria-pressed':String(S.layout===L.k),onclick:()=>{S.layout=L.k;S.z=Math.max(S.z,zMin());changed({panel:true});}},d,L.name,h('small',{},L.sub)));});
   $('layHelp').textContent=lay().help;
   const so=$('stripOpts');so.innerHTML='';so.hidden=S.layout!=='strip';
-  if(S.layout==='strip'){so.append(segF('o-n','Pieces',[[2,'2'],[3,'3'],[4,'4']],S.n,v=>{S.n=v;changed({panel:true});}),
-    segF('o-sh','Shape of each piece',SHAPES.map(s=>[s[0],s[0]]),S.shape,v=>{S.shape=v;S.z=Math.max(S.z,zMin());changed({panel:true});}),
-    h('p',{class:'help'},'4:5 and 1:1 fill the most of a phone screen.'));}
+  if(S.layout==='strip'){const n=S.n,free=S.shape==='free';
+    so.append(segF('o-n','How many photos',[[2,'2'],[3,'3'],[4,'4']],n,v=>{S.n=v;S.cuts=null;S.first=Math.min(S.first,v-1);S.z=Math.max(S.z,zMin());changed({panel:true});}),
+      segF('o-sh','Where to cut',[['free','Your own cuts'],...SHAPES.map(s=>[s[0],'All '+s[0]])],S.shape,v=>{S.shape=v;S.z=Math.max(S.z,zMin());changed({panel:true});}),
+      h('p',{class:'help'},free?'Drag the white lines in the preview to put each cut where you want it. Each photo keeps its own width, and X shows them all at the same height.':'Every piece gets the same shape. 4:5 and 1:1 fill the most of a phone screen.'));
+    if(free&&Array.isArray(S.cuts))so.append(h('div',{class:'row'},h('button',{type:'button',onclick:()=>{S.cuts=null;changed({panel:true});}},'Even out the cuts')));
+    const names=n===2?['Left','Right']:n===3?['Left','Middle','Right']:['Left','2nd','3rd','Right'];
+    so.append(segF('o-first','Which piece goes first',names.map((l,i)=>[i,l]),clamp(S.first|0,0,n-1),v=>{S.first=v;changed({panel:true});}),
+      h('p',{class:'help'},'The first photo is the one X shows big, so start with the best part. The rest follow to the right, then come back around to the left side.'));}
   const gf=$('gapF');gf.innerHTML='';
-  if(S.layout==='strip')gf.append(rangeF('o-sg','Gap between pieces',0,.08,.005,S.sgap,v=>v?Math.round(v*1000)/10+'%':'None',v=>{S.sgap=v;changed();}),h('p',{class:'help'},'Leaves out a sliver between pieces if the app shows a gap as you swipe.'));
+  if(S.layout==='strip')gf.append(rangeF('o-sg','Leave out a gap at each cut',0,.05,.0025,S.sgap,v=>v?Math.round(v*1000)/10+'%':'None',v=>{S.sgap=v;changed();}),h('p',{class:'help'},'X puts a small space between photos as you swipe. Leaving out a matching sliver keeps lines in the picture straight across it. Most people leave this at none.'));
   else gf.append(rangeF('o-g','Leave out X’s gaps',0,.02,.001,S.gap,v=>v?Math.round(v*1000)/10+'%':'Off',v=>{S.gap=v;changed();}),h('p',{class:'help'},'X puts a thin line between the photos. Leaving that sliver out keeps everything lined up across the line. 0.5% matches X.'));
   const zf=$('zoomF');zf.innerHTML='';const zm=zMin();
   zf.append(rangeF('o-z','Zoom',Math.min(1,Math.floor(zm*100)/100),4,.01,S.z,v=>v<=zm+.005&&zm<.995?'Whole photo':Math.round(v*100)+'%',v=>{S.z=Math.max(zm,v);changed();syncBg();}));
@@ -327,9 +385,13 @@ $('recenter').onclick=()=>{S.px=S.py=0;changed();};
 const ptrs=new Map();let drag=null;
 function cpt(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)*cv.width/r.width,y:(e.clientY-r.top)*cv.height/r.height};}
 function slack(){const{A}=geom(),a=iw()/ih();return[Math.abs(S.z*Math.max(1,a/A)-1),Math.abs(S.z*Math.max(1,A/a)-1)];}
+function cutAt(p){if(!freeCuts()||p.y<MR.y-12||p.y>MR.y+MR.h+12)return -1;const r=cv.getBoundingClientRect();let best=-1,bd=Math.max(22,24*cv.width/(r.width||cv.width));CUTX.forEach((x,k)=>{const d=Math.abs(p.x-x);if(d<bd){bd=d;best=k;}});return best;}
 cv.addEventListener('pointerdown',e=>{if(!IMG)return;cv.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,cpt(e));
-  if(ptrs.size===1)drag={p:cpt(e),px:S.px,py:S.py};else if(ptrs.size===2){const[a,b]=[...ptrs.values()];drag={pinch:Math.hypot(a.x-b.x,a.y-b.y),z:S.z};}cv.classList.add('dragging');e.preventDefault();});
-cv.addEventListener('pointermove',e=>{if(!ptrs.has(e.pointerId)||!drag)return;ptrs.set(e.pointerId,cpt(e));
+  const ck=ptrs.size===1?cutAt(cpt(e)):-1;
+  if(ck>=0){S.cuts=cutsOf();drag={cut:ck};}
+  else if(ptrs.size===1)drag={p:cpt(e),px:S.px,py:S.py};else if(ptrs.size===2){const[a,b]=[...ptrs.values()];drag={pinch:Math.hypot(a.x-b.x,a.y-b.y),z:S.z};}cv.classList.add('dragging');e.preventDefault();});
+cv.addEventListener('pointermove',e=>{if(!ptrs.has(e.pointerId)||!drag){if(!drag&&IMG)cv.style.cursor=cutAt(cpt(e))>=0?'ew-resize':'';return;}ptrs.set(e.pointerId,cpt(e));
+  if(drag.cut!=null){const c=S.cuts,k=drag.cut,p=cpt(e);c[k]=clamp((p.x-MR.x)/MR.w,(k?c[k-1]:0)+MINW,(k<c.length-1?c[k+1]:1)-MINW);render();return;}
   if(drag.pinch&&ptrs.size>=2){const[a,b]=[...ptrs.values()];S.z=clamp(drag.z*Math.hypot(a.x-b.x,a.y-b.y)/drag.pinch,zMin(),4);changed();return;}
   if(drag.pinch)return;const p=cpt(e),[sx,sy]=slack();
   if(sx>1e-3)S.px=clamp(drag.px+2*((p.x-drag.p.x)/MR.w)/sx,-1,1);if(sy>1e-3)S.py=clamp(drag.py+2*((p.y-drag.p.y)/MR.h)/sy,-1,1);render();});
@@ -370,7 +432,7 @@ function writeState(){if(!restored)return Promise.resolve();return DB.tx('readwr
 function save(){clearTimeout(saveT);saveT=setTimeout(writeState,500);}
 function flushAutosave(){clearTimeout(saveT);return writeState();}
 async function restore(){try{const st=await DB.tx('readonly',s=>s.get('current'));
-  if(st&&st.S){S={...DEF(),...st.S};if(st.blob)await loadBlob(st.blob,st.name,true);}}catch(e){}
+  if(st&&st.S){S={...DEF(),...st.S};if(!st.S.v){S.v=2;S.layout='strip';S.shape='free';S.cuts=null;S.n=3;S.first=0;}if(st.blob)await loadBlob(st.blob,st.name,true);}}catch(e){}
   restored=true;renderOpts();render();}
 
 const CRC_T=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0;}return t;})();
