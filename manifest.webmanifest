@@ -68,6 +68,17 @@
           "sizes": "192x192"
         }
       ]
+    },
+    {
+      "name": "Video Layers",
+      "short_name": "Video",
+      "url": "video-layers.html",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }

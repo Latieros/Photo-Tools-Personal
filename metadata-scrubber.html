@@ -40,7 +40,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--f-body);
 .brand{font:600 22px/1.1 var(--f-display);letter-spacing:-.01em;margin:0}
 .brand span{color:var(--accent)}
 .top p{margin:0;color:var(--muted)}
-.switch{display:inline-flex;gap:2px;padding:3px;border:1px solid var(--line);border-radius:10px;background:var(--panel);align-self:center}
+.switch{display:inline-flex;gap:2px;padding:3px;border:1px solid var(--line);border-radius:10px;background:var(--panel);align-self:center;max-width:100%;overflow-x:auto}
 .switch a{font:500 14px/1 var(--f-body);color:var(--muted);text-decoration:none;padding:8px 12px;border-radius:7px;white-space:nowrap}
 .switch a:hover{color:var(--ink)}
 .switch a[aria-current="page"]{background:var(--ink);color:var(--bg)}
@@ -128,7 +128,7 @@ summary{cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);list-st
 <body>
 <header class="top">
   <h1 class="brand">Metadata <span>Scrubber</span></h1>
-  <nav class="switch" aria-label="Switch tool"><a href="photo-frame-studio.html">Frame Studio</a><a href="chat-reel.html">Chat Reel</a><a href="metadata-scrubber.html" aria-current="page">Scrubber</a></nav>
+  <nav class="switch" aria-label="Switch tool"><a href="photo-frame-studio.html">Frame Studio</a><a href="chat-reel.html">Chat Reel</a><a href="metadata-scrubber.html" aria-current="page">Scrubber</a><a href="video-layers.html">Video</a></nav>
   <p>Remove prompts, settings and hidden data from images, then save a clean copy under a new random name.</p>
 </header>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
@@ -498,7 +498,7 @@ async function makeSample(){
 /* ================= switching tools ================= */
 function flushAutosave(){return Promise.resolve();}
 (function(){
-  const ART={'photo-frame-studio.html':'https://claude.ai/artifact/BTFF4oB7m8EHQMWNwCo2Uw','chat-reel.html':'https://claude.ai/artifact/Tzehgnj1qjBYtpZ6oxKAhG','metadata-scrubber.html':'https://claude.ai/artifact/8kwiNFdeFAR3uZ8NTzKVnX'};
+  const ART={'photo-frame-studio.html':'https://claude.ai/artifact/BTFF4oB7m8EHQMWNwCo2Uw','chat-reel.html':'https://claude.ai/artifact/Tzehgnj1qjBYtpZ6oxKAhG','metadata-scrubber.html':'https://claude.ai/artifact/8kwiNFdeFAR3uZ8NTzKVnX','video-layers.html':'https://claude.ai/artifact/HMnHFrAaDUyaiSg7H8uxwN'};
   document.querySelectorAll('.switch a').forEach(a=>{
     if(a.getAttribute('aria-current')){a.addEventListener('click',e=>e.preventDefault());return;}
     if(!topLevel){const u=ART[a.getAttribute('href')];if(u&&!u.startsWith('__')){a.href=u;a.target='_blank';a.rel='noopener';}return;}
