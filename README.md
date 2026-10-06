@@ -28,6 +28,8 @@ Pick a frame, add a photo, change the words, drag things into place, export.
 
 ### Frames
 
+The frames sit in four categories: **Social & phone**, **Cameras**, **Prints** and **Covers & comics**. Tap a category to drop down its frames. A closed category shows which of its frames is picked, or how many it has.
+
 **Social & phone**
 - **Story caption:** a full-screen story with a see-through caption bar you can slide, a big sticker word and a profile header.
 - **Social post:** a feed post with username, location, likes, caption, comments and time. Light or dark.

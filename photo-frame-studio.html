@@ -43,9 +43,18 @@ body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--f-body);
 .label{font:600 11px/1 var(--f-body);text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:0 0 10px}
 .rail,.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
 .panel{max-height:calc(100vh - 40px);overflow:auto;position:sticky;top:16px}
-.tpls{display:flex;flex-direction:column;gap:2px}
-.grp{font:600 11px/1 var(--f-body);text-transform:uppercase;letter-spacing:.12em;color:var(--muted);padding:14px 11px 6px}
-.grp:first-child{padding-top:2px}
+.tpls{display:flex;flex-direction:column;gap:6px}
+.cat{display:flex;flex-direction:column;gap:2px}
+.cat-h{all:unset;box-sizing:border-box;cursor:pointer;width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:2px 10px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.cat-h:hover{border-color:var(--muted)}
+.cat-h[aria-expanded="true"]{border-color:var(--accent)}
+.cat-h:focus-visible,.tpl:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.cat-n{font:600 14px/1.2 var(--f-body)}
+.cat-cur{grid-column:1;font-size:12px;line-height:1.3;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cat.has-sel .cat-cur{color:var(--accent);font-weight:600}
+.chev{grid-column:2;grid-row:1/span 2;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:translateY(-2px) rotate(45deg);transition:transform .15s}
+.cat-h[aria-expanded="true"] .chev{transform:translateY(2px) rotate(-135deg)}
+.cat-list{display:flex;flex-direction:column;gap:2px;padding:2px 0 6px}
 .tpl{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:1px;padding:8px 11px;border-radius:8px;color:var(--ink)}
 .tpl small{color:var(--muted);font-size:12px}
 .tpl:hover{background:var(--bg)}
@@ -114,9 +123,10 @@ button:disabled{opacity:.5;cursor:not-allowed}
 @media (max-width:1100px){
   .app{grid-template-columns:minmax(0,1fr)}
   .rail{padding:12px;overflow-x:auto}
-  .tpls{flex-direction:row;align-items:center}
-  .grp{padding:0 6px 0 12px;white-space:nowrap}
-  .tpl{white-space:nowrap}
+  .tpls{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px}
+  .cat{display:contents}
+  .cat-h{order:0}
+  .cat-list{order:1;grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px;padding:6px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
   .stage,.panel{position:static;max-height:none}
   .canvas-wrap{min-height:300px;padding:12px}
   canvas{max-height:70vh}
@@ -139,6 +149,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
 <main class="app">
   <aside class="rail" aria-label="Frames">
+    <p class="label">Frames</p>
     <div class="tpls" id="tpls"></div>
   </aside>
 
@@ -1688,17 +1699,31 @@ function render(){
 
 /* ---------- UI ---------- */
 const tplsEl=document.getElementById('tpls'),fieldsEl=document.getElementById('fields');
-let lastGroup='';
+/* frames are grouped into categories; tap a category to drop down its frames */
+const CATS=[];
+const narrowRail=()=>matchMedia('(max-width:1100px)').matches;
+const catOf=k=>CATS.find(c=>c.keys.includes(k));
+function openCat(c){CATS.forEach(x=>{const on=x===c;x.list.hidden=!on;x.head.setAttribute('aria-expanded',String(on));});}
+function syncCats(){CATS.forEach(c=>{const has=c.keys.includes(S.tpl);c.wrap.classList.toggle('has-sel',has);c.head.querySelector('.cat-cur').textContent=has?T[S.tpl].name:`${c.keys.length} frames`;});}
 Object.entries(T).forEach(([k,t])=>{
   S.fields[k]={};t.fields.forEach(f=>{if(f.id)S.fields[k][f.id]=f.def;});
-  if(t.group!==lastGroup){lastGroup=t.group;const g=document.createElement('div');g.className='grp';g.textContent=t.group;tplsEl.appendChild(g);}
+  let c=CATS.find(x=>x.name===t.group);
+  if(!c){const i=CATS.length;c={name:t.group,keys:[],wrap:document.createElement('div'),head:document.createElement('button'),list:document.createElement('div')};
+    c.wrap.className='cat';c.head.type='button';c.head.className='cat-h';c.head.setAttribute('aria-expanded','false');c.head.setAttribute('aria-controls','cat-'+i);
+    c.head.innerHTML='<span class="cat-n"></span><span class="chev" aria-hidden="true"></span><span class="cat-cur"></span>';c.head.querySelector('.cat-n').textContent=t.group;
+    c.list.className='cat-list';c.list.id='cat-'+i;c.list.hidden=true;c.list.setAttribute('role','group');c.list.setAttribute('aria-label',t.group);
+    const cc=c;c.head.onclick=()=>openCat(cc.list.hidden?cc:null);
+    c.wrap.append(c.head,c.list);tplsEl.appendChild(c.wrap);CATS.push(c);}
+  c.keys.push(k);
   const b=document.createElement('button');b.className='tpl';b.type='button';b.dataset.k=k;b.innerHTML=`<span>${t.name}</span><small>${t.sub}</small>`;
-  b.onclick=()=>selectTpl(k);tplsEl.appendChild(b);
+  b.onclick=()=>{selectTpl(k);if(narrowRail())openCat(null);};c.list.appendChild(b);
 });
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&narrowRail()&&CATS.some(c=>!c.list.hidden))openCat(null);});
 function selectTpl(k){
-  if(k!==S.tpl){S.anim.playing=false;S.anim.t=null;}
+  const moved=k!==S.tpl;if(moved){S.anim.playing=false;S.anim.t=null;}
   S.tpl=k;S.hover=null;const t=T[k];
   tplsEl.querySelectorAll('.tpl').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===k));
+  syncCats();if(moved&&!narrowRail()){const c=catOf(k);if(c&&c.list.hidden)openCat(c);}
   document.getElementById('tplName').textContent=t.name;document.getElementById('tplNote').textContent=t.note;
   fieldsEl.innerHTML='';let n=0;
   t.fields.forEach(f=>{
@@ -2131,6 +2156,7 @@ const SAMPLE_IMG=makeSample();
 S.src=SAMPLE_IMG;
 syncSaveUI();
 selectTpl('story');
+if(!narrowRail())openCat(catOf(S.tpl));
 AUTO.get().then(async doc=>{if(doc&&doc.app==='photo-frame-studio'&&doc.fields)await applyStudio(doc);}).catch(()=>{}).finally(()=>{autoReady=true;handoffIn();});
 /* ---------- switching tools: save first, then go; inside Claude each tool is its own page, so open it in a new tab ---------- */
 (function(){
