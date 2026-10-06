@@ -182,7 +182,7 @@ canvas{display:block;max-width:100%;max-height:min(60vh,760px);width:auto;height
 <body>
 <header class="top">
   <h1 class="brand">Chat <span>Reel</span></h1>
-  <nav class="switch" aria-label="Switch tool"><a href="photo-frame-studio.html">Frame Studio</a><a href="chat-reel.html" aria-current="page">Chat Reel</a></nav>
+  <nav class="switch" aria-label="Switch tool"><a href="photo-frame-studio.html">Frame Studio</a><a href="chat-reel.html" aria-current="page">Chat Reel</a><a href="metadata-scrubber.html">Scrubber</a></nav>
   <p>Write a text conversation, time every message, and export it as a video.</p>
   <span class="spacer"></span>
   <div class="proj">
@@ -1004,7 +1004,7 @@ IDB.getState().then(async doc=>{
 }).catch(()=>{}).finally(()=>{restored=true;});
 /* ---------- switching tools: save first, then go; inside Claude each tool is its own page, so open it in a new tab ---------- */
 (function(){
-  const ART={'photo-frame-studio.html':'https://claude.ai/artifact/BTFF4oB7m8EHQMWNwCo2Uw','chat-reel.html':'https://claude.ai/artifact/Tzehgnj1qjBYtpZ6oxKAhG'};
+  const ART={'photo-frame-studio.html':'https://claude.ai/artifact/BTFF4oB7m8EHQMWNwCo2Uw','chat-reel.html':'https://claude.ai/artifact/Tzehgnj1qjBYtpZ6oxKAhG','metadata-scrubber.html':'https://claude.ai/artifact/8kwiNFdeFAR3uZ8NTzKVnX'};
   let top=false;try{top=window.top===window.self;}catch(e){}
   document.querySelectorAll('.switch a').forEach(a=>{
     if(a.getAttribute('aria-current')){a.addEventListener('click',e=>e.preventDefault());return;}

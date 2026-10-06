@@ -128,7 +128,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 <body>
 <header class="top">
   <h1 class="brand">Photo Frame <span>Studio</span></h1>
-  <nav class="switch" aria-label="Switch tool"><a href="photo-frame-studio.html" aria-current="page">Frame Studio</a><a href="chat-reel.html">Chat Reel</a></nav>
+  <nav class="switch" aria-label="Switch tool"><a href="photo-frame-studio.html" aria-current="page">Frame Studio</a><a href="chat-reel.html">Chat Reel</a><a href="metadata-scrubber.html">Scrubber</a></nav>
   <p>Pick a frame, add a photo, change the words, drag things into place.</p>
   <div class="proj proj-end">
     <label class="btn" for="openProj">Open project<input type="file" id="openProj" accept=".json,application/json"></label>
@@ -1716,7 +1716,7 @@ selectTpl('story');
 AUTO.get().then(async doc=>{if(doc&&doc.app==='photo-frame-studio'&&doc.fields)await applyStudio(doc);}).catch(()=>{}).finally(()=>{autoReady=true;});
 /* ---------- switching tools: save first, then go; inside Claude each tool is its own page, so open it in a new tab ---------- */
 (function(){
-  const ART={'photo-frame-studio.html':'https://claude.ai/artifact/BTFF4oB7m8EHQMWNwCo2Uw','chat-reel.html':'https://claude.ai/artifact/Tzehgnj1qjBYtpZ6oxKAhG'};
+  const ART={'photo-frame-studio.html':'https://claude.ai/artifact/BTFF4oB7m8EHQMWNwCo2Uw','chat-reel.html':'https://claude.ai/artifact/Tzehgnj1qjBYtpZ6oxKAhG','metadata-scrubber.html':'https://claude.ai/artifact/8kwiNFdeFAR3uZ8NTzKVnX'};
   let top=false;try{top=window.top===window.self;}catch(e){}
   document.querySelectorAll('.switch a').forEach(a=>{
     if(a.getAttribute('aria-current')){a.addEventListener('click',e=>e.preventDefault());return;}

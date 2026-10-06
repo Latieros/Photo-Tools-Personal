@@ -28,7 +28,7 @@
 @media (prefers-color-scheme: dark){:root{--bg:#121118; --panel:#1B1A23; --ink:#EEEDF4; --muted:#9D9AAE; --line:#2F2D3B; --accent:#9C88FF; color-scheme:dark}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 var(--f-body);padding-inline:16px;padding-block:calc(48px + env(safe-area-inset-top,0px)) 48px}
-main{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+main{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
 h1{font:600 clamp(26px,5vw,34px)/1.1 var(--f-display);margin:0;letter-spacing:-.01em}
 h1 span{color:var(--accent)}
 .lede{margin:8px 0 0;color:var(--muted);max-width:52ch}
@@ -52,7 +52,7 @@ a.app:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 <main>
   <header>
     <h1>Photo <span>Tools</span></h1>
-    <p class="lede">Frame photos to look like posts, phone screens, covers and prints, or turn a text conversation into a video.</p>
+    <p class="lede">Frame photos to look like posts, phone screens, covers and prints, turn a text conversation into a video, or scrub the hidden data out of your images.</p>
   </header>
   <div class="apps">
     <a class="app" href="photo-frame-studio.html">
@@ -75,12 +75,22 @@ a.app:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
       </ul>
       <span class="open">Open Chat Reel →</span>
     </a>
+    <a class="app" href="metadata-scrubber.html">
+      <h2>Metadata Scrubber</h2>
+      <p>Remove prompts, settings and hidden data from images and save clean copies under new random names.</p>
+      <ul>
+        <li>NovelAI prompts, seeds and the hidden copy in the transparency layer</li>
+        <li>Stable Diffusion and ComfyUI settings, EXIF, GPS and XMP</li>
+        <li>Many images at once, downloaded one by one or as a ZIP</li>
+      </ul>
+      <span class="open">Open the scrubber →</span>
+    </a>
   </div>
   <div class="install" id="install" hidden>
     <p>Install Photo Tools on this device. It gets its own icon and works without internet.</p>
     <button type="button" id="installBtn">Install app</button>
   </div>
-  <p class="note">Everything runs in your browser. Your photos and videos stay on your device. To use it offline on Android, open this page in Chrome, tap ⋮ and choose <strong>Add to Home screen</strong> or <strong>Install app</strong>. Open both tools once while you’re online so everything gets saved to your phone.</p>
+  <p class="note">Everything runs in your browser. Your photos and videos stay on your device. To use it offline on Android, open this page in Chrome, tap ⋮ and choose <strong>Add to Home screen</strong> or <strong>Install app</strong>. Open each tool once while you’re online so everything gets saved to your phone.</p>
 </main>
 <script>
 let installEvt=null;

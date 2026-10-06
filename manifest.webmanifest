@@ -1,7 +1,7 @@
 {
   "name": "Photo Tools",
   "short_name": "Photo Tools",
-  "description": "Frame photos to look like posts, phone screens, covers and prints, or turn a text conversation into a video.",
+  "description": "Frame photos, turn text conversations into videos, and scrub hidden data from images.",
   "id": "./",
   "start_url": "./",
   "scope": "./",
@@ -51,6 +51,17 @@
       "name": "Chat Reel",
       "short_name": "Chat Reel",
       "url": "chat-reel.html",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Metadata Scrubber",
+      "short_name": "Scrubber",
+      "url": "metadata-scrubber.html",
       "icons": [
         {
           "src": "icons/icon-192.png",
