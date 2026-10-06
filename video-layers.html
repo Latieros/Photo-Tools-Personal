@@ -118,6 +118,9 @@ canvas#cv{display:block;max-width:100%;max-height:min(62vh,760px);width:auto;hei
 .field input[type=range]{accent-color:var(--accent);width:100%}
 input[type=color]{width:40px;height:32px;border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:3px;flex:none}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px}
+.sizerow{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:end}
+.sizerow .link{padding:8px 10px;font-size:15px;margin-bottom:1px}
+.seg button small.px{font-size:11px;color:inherit;opacity:.7;font-variant-numeric:tabular-nums}
 .num{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
 .seg{display:flex;flex-wrap:wrap;gap:6px}
 .seg button{padding:7px 10px;font-size:13px}
@@ -323,7 +326,8 @@ const FONTS={
   rounded:['Rounded','600','Fredoka,"Arial Rounded MT Bold",sans-serif'],
   typewriter:['Typewriter','400','"Special Elite","Courier New",monospace'],
   mono:['Mono','700','"Space Mono",ui-monospace,monospace']};
-const ASPECTS={auto:'Auto','9:16':'9:16','1:1':'1:1','4:5':'4:5','16:9':'16:9','4:3':'4:3','3:4':'3:4',custom:'Custom'};
+const SIZES=[['9:16',1080,1920],['1:1',1080,1080],['4:5',1080,1350],['16:9',1920,1080],['4:3',1440,1080],['3:4',1080,1440]];
+const MAXPX=4096,MINPX=16,evenPx=n=>Math.max(MINPX,Math.min(MAXPX,Math.round((+n||0)/2)*2));
 const KIND={video:'Video',image:'Picture',text:'Text',audio:'Music'};
 const VIS=L=>L&&(L.type==='video'||L.type==='image');
 const isMedia=L=>L.type==='video'||L.type==='audio';
@@ -334,7 +338,12 @@ const BLENDS=[['source-over','Normal'],['screen','Screen'],['multiply','Multiply
 
 /* ================= project ================= */
 /* layers[0] is the bottom of the stack; the list on the left shows the top first */
-const freshP=()=>({aspect:'auto',res:1080,bg:'blur',bgColor:'#000000',cw:1080,ch:1350,layers:[]});
+const freshP=()=>({v:2,aspect:'auto',res:1080,bg:'blur',bgColor:'#000000',cw:1080,ch:1920,layers:[]});
+/* older saves stored a shape plus a quality; turn that into the exact pixel size it produced */
+function migrateP(p){if(p.v>=2)return p;const old=p.aspect;
+  if(old&&old!=='auto'){let a=9/16;if(old==='custom')a=clamp((+p.cw||1)/(+p.ch||1),.2,5);else{const[x,y]=String(old).split(':').map(Number);if(x&&y)a=x/y;}
+    const s=p.res||1080;let W,H;if(a<1){W=s;H=s/a;}else{H=s;W=s*a;}const big=Math.max(W,H);if(big>1920){const k=1920/big;W*=k;H*=k;}p.aspect='custom';p.cw=evenPx(W);p.ch=evenPx(H);}
+  p.v=2;return p;}
 let P=freshP(),sel=null,tab='layer';
 const M={};          /* per layer: element, object URL, natural size, duration */
 const BLOBS={};      /* media files by key */
@@ -359,9 +368,15 @@ function norm(L){
   return L;}
 function dispAR(L){const m=M[L.id];if(!m)return 1;const c=L.crop||{l:0,t:0,r:0,b:0};return(m.w*Math.max(.02,1-c.l-c.r))/(m.h*Math.max(.02,1-c.t-c.b))/(L.sy||1);}
 function autoBase(){return P.layers.find(l=>VIS(l)&&!l.hidden&&M[l.id]&&M[l.id].w);}
-function aspectNum(){const a=P.aspect;if(a==='auto'){const v=autoBase();return v?dispAR(v):9/16;}if(a==='custom')return clamp((+P.cw||1)/(+P.ch||1),.2,5);const[x,y]=a.split(':').map(Number);return x/y;}
-function canvasSize(){const a=aspectNum(),s=P.res;let W,H;if(a<1){W=s;H=s/a;}else{H=s;W=s*a;}
-  const big=Math.max(W,H);if(big>1920){const k=1920/big;W*=k;H*=k;}return[Math.max(2,Math.round(W/2)*2),Math.max(2,Math.round(H/2)*2)];}
+/* Auto follows the bottom layer's picture (after any crop, but not any stretch); otherwise the size is exactly what you typed */
+function autoAR(){const v=autoBase();if(!v)return 9/16;const m=M[v.id],c=v.crop;return(m.w*Math.max(.02,1-c.l-c.r))/(m.h*Math.max(.02,1-c.t-c.b));}
+function canvasSize(){if(P.aspect!=='auto')return[evenPx(P.cw||1080),evenPx(P.ch||1920)];
+  const a=autoAR(),s=P.res||1080;let W,H;if(a<1){W=s;H=s/a;}else{H=s;W=s*a;}
+  const big=Math.max(W,H);if(big>1920){const k=1920/big;W*=k;H*=k;}return[evenPx(W),evenPx(H)];}
+function aspectNum(){const[W,H]=canvasSize();return W/H;}
+function setCanvas(w,hh){lastSize=canvasSize();P.aspect='custom';P.cw=evenPx(w);P.ch=evenPx(hh);refitAll();refresh();}
+function shapeLike(L){const[W,H]=canvasSize(),ar=dispAR(L),long=Math.max(W,H);if(ar>=1)setCanvas(long,long/ar);else setCanvas(long*ar,long);}
+function stretchFill(L){const[W,H]=canvasSize(),arc=dispAR(L)*L.sy;L.x=.5;L.y=.5;L.rot=0;L.w=1;L.sy=clamp(H*arc/W,.02,50);L.lock=false;}
 const lenOf=L=>isMedia(L)?Math.max(.1,(L.trimOut-L.trimIn)/(L.speed||1)):Math.max(.1,L.dur);
 const endOf=L=>L.start+lenOf(L);
 function projDur(){let d=0;for(const L of P.layers)if(!L.hidden)d=Math.max(d,endOf(L));return Math.max(1,d);}
@@ -463,7 +478,7 @@ function matchTo(L,T,mode){const[W,H]=canvasSize(),tb=boxOf(T);let b=boxOf(L);co
   else if(mode==='height'){L.w=tb.h*(b.w/b.h)/W;}
   else if(mode==='fit'||mode==='cover'){const k=(mode==='fit'?Math.min:Math.max)(tb.w/b.w,tb.h/b.h);L.w=b.w*k/W;center();L.rot=T.rot||0;}
   else if(mode==='exact'){const m=M[L.id];L.sy=1;L.lock=true;L.crop=ratioCrop(m.w/m.h,tb.w/tb.h);L.w=tb.w/W;center();L.rot=T.rot||0;}
-  else if(mode==='stretch'){const arc=dispAR(L)*L.sy;L.w=tb.w/W;L.sy=clamp(tb.h*arc/tb.w,.1,10);L.lock=false;center();L.rot=T.rot||0;}
+  else if(mode==='stretch'){const arc=dispAR(L)*L.sy;L.w=tb.w/W;L.sy=clamp(tb.h*arc/tb.w,.02,50);L.lock=false;center();L.rot=T.rot||0;}
   else if(mode==='center')center();}
 
 /* ================= drawing ================= */
@@ -664,7 +679,7 @@ stageEl.addEventListener('pointermove',e=>{const p=cpt(e);
     if(keep){const k=Math.max(.02,((q.x-ax)*sx*w0+(q.y-ay)*sy*h0)/(w0*w0+h0*h0));nw=w0*k;nh=h0*k;}
     else{if(sx)nw=Math.max(8,(q.x-ax)*sx);if(sy)nh=Math.max(8,(q.y-ay)*sy);}
     const[cx,cy]=fromLocal(b0.cx,b0.cy,L.rot,sx?ax+sx*nw/2:0,sy?ay+sy*nh/2:0),arc=dispAR(L)*L.sy;
-    L.w=nw/W;if(!keep)L.sy=clamp(nh*arc/nw,.1,10);L.x=cx/W;L.y=cy/H;}
+    L.w=nw/W;if(!keep)L.sy=clamp(nh*arc/nw,.02,50);L.x=cx/W;L.y=cy/H;}
   drawNow();});
 const endDrag=()=>{if(drag){drag=null;guides={xs:[],ys:[]};drawNow();renderSide();save();}};
 stageEl.addEventListener('pointerup',endDrag);stageEl.addEventListener('pointercancel',endDrag);
@@ -724,7 +739,7 @@ async function splitAt(L,t){if(!L)return;const s=L.start,e=endOf(L);
 function renderSelBar(){const bar=$('selbar');bar.innerHTML='';const L=selL();if(!L){bar.hidden=true;return;}bar.hidden=false;
   const B=(lab,fn,title,pressed)=>h('button',{type:'button',class:pressed!=null?'tog':'',title:title||lab,'aria-pressed':pressed==null?null:String(!!pressed),onclick:fn},lab);
   bar.append(h('span',{class:'selname'},L.type==='text'?'Text':L.name));
-  if(VIS(L))bar.append(B('✂ Crop',()=>openCrop(L),'Crop'),B('Fit',()=>{fitLayer(L,'fit');soft();renderSide();},'Fit the whole thing in the video'),B('Fill',()=>{fitLayer(L,'fill');soft();renderSide();},'Fill the whole video'),
+  if(VIS(L))bar.append(B('✂ Crop',()=>openCrop(L),'Crop'),B('Fit',()=>{fitLayer(L,'fit');soft();renderSide();},'Fit the whole thing in the video'),B('Fill',()=>{fitLayer(L,'fill');soft();renderSide();},'Fill the whole video'),B('Stretch',()=>{stretchFill(L);soft();renderSide();},'Fill the whole video exactly, squeezing it if needed'),
     B('⇋ Flip',()=>{L.flipX=!L.flipX;soft();renderSide();},'Mirror left to right',L.flipX),B('↻ 90°',()=>{L.rot=nrm180(L.rot+90);soft();renderSide();},'Turn a quarter'));
   if(L.type==='text')bar.append(B('✎ Edit text',()=>{sub.text='text';renderSide();const ta=$('p-text');if(ta){ta.focus();if(innerWidth<1100)ta.scrollIntoView({block:'center',behavior:'smooth'});}}));
   bar.append(B('Split',()=>splitAt(L,state.t),'Cut in two at the playhead (S)'),B('Duplicate',()=>duplicate(L)));}
@@ -767,15 +782,16 @@ function grid9(L,frameFn,label){const g=h('div',{class:'grid9',role:'group','ari
 function sizePanel(p,L){
   const[W,H]=canvasSize(),b=boxOf(L);
   p.append(h('div',{class:'field'},h('span',{class:'flabel'},'Fit to the video'),h('div',{class:'row'},
-    btn('Fit',()=>{fitLayer(L,'fit');soft();renderSide();},'Show all of it'),btn('Fill',()=>{fitLayer(L,'fill');soft();renderSide();},'Cover the whole video'),grid9(L,null))));
+    btn('Fit',()=>{fitLayer(L,'fit');soft();renderSide();},'Show all of it'),btn('Fill',()=>{fitLayer(L,'fill');soft();renderSide();},'Cover the whole video, trimming what spills over'),
+    btn('Stretch',()=>{stretchFill(L);soft();renderSide();},'Fill the whole video exactly, squeezing it if needed'),grid9(L,null))));
   p.append(rangeF('p-w','Scale',.05,3,.01,L.w,pct,v=>{L.w=v;drawNow();save();sideSoon();}));
   const num=(id,label,val,on)=>{const i=h('input',{type:'number',id,value:Math.round(val),step:1,inputmode:'numeric'});i.onchange=()=>{const v=parseFloat(i.value);if(isFinite(v)){on(v);soft();renderSide();}};return h('label',{class:'num',for:id},label,i);};
   p.append(h('div',{class:'field'},h('span',{class:'flabel'},'Position and size',h('span',{class:'rv'},`pixels of ${W} × ${H}`)),h('div',{class:'grid2'},
     num('p-x','Left',b.cx-b.w/2,v=>{L.x=(v+b.w/2)/W;}),num('p-y','Top',b.cy-b.h/2,v=>{L.y=(v+b.h/2)/H;}),
-    num('p-pw','Width',b.w,v=>{v=Math.max(8,v);if(L.lock)L.w=v/W;else{const arc=dispAR(L)*L.sy;L.w=v/W;L.sy=clamp(b.h*arc/v,.1,10);}}),
-    num('p-ph','Height',b.h,v=>{v=Math.max(8,v);if(L.lock)L.w=v*dispAR(L)/W;else{const arc=dispAR(L)*L.sy;L.sy=clamp(v*arc/b.w,.1,10);}}))));
+    num('p-pw','Width',b.w,v=>{v=Math.max(8,v);if(L.lock)L.w=v/W;else{const arc=dispAR(L)*L.sy;L.w=v/W;L.sy=clamp(b.h*arc/v,.02,50);}}),
+    num('p-ph','Height',b.h,v=>{v=Math.max(8,v);if(L.lock)L.w=v*dispAR(L)/W;else{const arc=dispAR(L)*L.sy;L.sy=clamp(v*arc/b.w,.02,50);}}))));
   p.append(checkF('p-lock','Keep its shape (no stretching)',L.lock,v=>{L.lock=v;renderSide();soft();}));
-  if(!L.lock)p.append(h('p',{class:'help'},'Drag the side handles in the preview to stretch it. Corners still keep the shape unless you hold Shift.'));
+  p.append(h('p',{class:'help'},L.lock?'Width and height change together. Untick this to type any width and height.':'Width and height are separate. Drag the side handles in the preview to stretch it too.'));
   if(Math.abs(L.sy-1)>.005)p.append(h('div',{class:'row'},h('span',{class:'help'},`Stretched ${L.sy>1?'taller':'wider'} by ${Math.round(((L.sy>1?L.sy:1/L.sy)-1)*100)}%.`),btn('Undo stretch',()=>{L.sy=1;L.lock=true;soft();renderSide();})));
   p.append(h('h4',{class:'fhead'},'Turn and flip'));
   p.append(rangeF('p-rot','Rotate',-180,180,1,L.rot,deg,v=>{L.rot=Math.abs(v)<2?0:v;drawNow();save();}));
@@ -793,7 +809,7 @@ function sizePanel(p,L){
       h('p',{class:'help'},'Both make it the same size and shape as the other layer and put it right over it.')));
     p.append(h('div',{class:'field'},h('span',{class:'flabel'},'Put it on a spot of that layer'),grid9(L,()=>{const t=tgt();return t?frameOf(t):null;},'Snap to a spot on the other layer')));}
   p.append(h('h4',{class:'fhead'},'Video shape'));
-  p.append(h('div',{class:'row'},btn('Make the video this shape',()=>{lastSize=canvasSize();const ar=dispAR(L);P.aspect='custom';P.cw=Math.round(ar*1000);P.ch=1000;refitAll();fitLayer(L,'fit');refresh();toast('The video now has the same shape as this layer.');})));
+  p.append(h('div',{class:'row'},btn('Make the video this shape',()=>{shapeLike(L);fitLayer(L,'fit');refresh();const[W,H]=canvasSize();toast(`The video is now ${W} × ${H}, the same shape as this layer.`);})));
 }
 function cropRatios(L){const out=[['1:1',1],['4:5',.8],['9:16',9/16],['16:9',16/9],['4:3',4/3],['3:4',.75],['Video frame',aspectNum()]];
   otherVisuals(L).slice(0,3).forEach(o=>out.push([`Like “${o.name.slice(0,14)}”`,dispAR(o)]));return out;}
@@ -923,17 +939,29 @@ function placePanel(p,L){
       h('div',{class:'field'},h('span',{class:'flabel'},'Spot on that layer'),grid9(L,()=>{const t=P.layers.find(o=>o.id===s.value);return t?frameOf(t):null;},'Snap to a spot on the layer')));}
 }
 let listT=0;function renderListSoon(){clearTimeout(listT);listT=setTimeout(()=>{renderList();renderTimeline();},250);}
+let linkWH=false;
 function canvasPanel(p){
-  p.append(segF('c-asp','Shape',Object.entries(ASPECTS),P.aspect,v=>{lastSize=canvasSize();if(v==='custom'&&P.aspect!=='custom'){const[W,H]=canvasSize();P.cw=W;P.ch=H;}P.aspect=v;refitAll();renderSide();refresh();}));
-  if(P.aspect==='custom'){const num=(id,label,key)=>{const i=h('input',{type:'number',id,value:P[key],min:1,step:1,inputmode:'numeric'});i.onchange=()=>{const v=parseFloat(i.value);if(v>0){lastSize=canvasSize();P[key]=v;refitAll();refresh();}};return h('label',{class:'num',for:id},label,i);};
-    p.append(h('div',{class:'grid2'},num('c-cw','Width','cw'),num('c-ch','Height','ch')),h('p',{class:'help'},'Any two numbers work: pixels like 1080 × 1350, or a ratio like 21 × 9.'));}
-  p.append(h('p',{class:'help'},'Auto uses the shape of your bottom layer, after any crop. 9:16 suits TikTok, Reels and Shorts.'));
+  const[W,H]=canvasSize();
+  const num=(id,label,val,on)=>{const i=h('input',{type:'number',id,value:val,min:MINPX,max:MAXPX,step:1,inputmode:'numeric'});
+    i.onchange=()=>{const v=parseFloat(i.value);if(v>0)on(v);else i.value=val;};i.onkeydown=e=>{if(e.key==='Enter')i.blur();};return h('label',{class:'num',for:id},label,i);};
+  const link=h('button',{type:'button',class:'tog link','aria-pressed':String(linkWH),title:linkWH?'Width and height change together':'Width and height are separate','aria-label':'Keep the shape when typing a size',onclick:()=>{linkWH=!linkWH;renderSide();}},'🔗');
+  p.append(h('div',{class:'field'},h('span',{class:'flabel'},'Size in pixels',h('span',{class:'rv'},P.aspect==='auto'?'matching the bottom layer':'')),
+    h('div',{class:'sizerow'},num('c-w','Width',W,v=>setCanvas(v,linkWH?v*H/W:H)),link,num('c-h','Height',H,v=>setCanvas(linkWH?v*W/H:W,v)))));
+  p.append(h('p',{class:'help'},`Type any width and height and you get exactly that. ${linkWH?'The link is on, so the other number follows to keep the shape.':'Tap the link to keep the shape while you type.'} Video files need even numbers, so an odd number goes up by one. Up to ${MAXPX} pixels a side.`));
+  const sz=h('div',{class:'seg',role:'group','aria-labelledby':'c-pre-l'});
+  sz.append(h('button',{type:'button','aria-pressed':String(P.aspect==='auto'),title:'Follow the shape of the bottom layer',onclick:()=>{lastSize=canvasSize();P.aspect='auto';refitAll();refresh();}},'Auto'));
+  SIZES.forEach(([lab,w,hh])=>sz.append(h('button',{type:'button','aria-pressed':String(P.aspect!=='auto'&&W===w&&H===hh),title:`${w} × ${hh}`,onclick:()=>setCanvas(w,hh)},lab,h('small',{class:'px'},`${w}×${hh}`))));
+  sz.append(h('button',{type:'button',title:'Swap width and height',onclick:()=>setCanvas(H,W)},'⇄ Turn'));
+  p.append(h('div',{class:'field'},h('span',{class:'flabel',id:'c-pre-l'},'Quick sizes'),sz));
+  const base=autoBase();
+  if(base)p.append(h('div',{class:'field'},h('span',{class:'flabel'},`Bottom layer (${base.name.slice(0,22)})`),h('div',{class:'row'},
+    btn('Fit',()=>{fitLayer(base,'fit');soft();},'Show all of it'),btn('Fill',()=>{fitLayer(base,'fill');soft();},'Cover the whole video, trimming what spills over'),
+    btn('Stretch to this size',()=>{stretchFill(base);soft();},'Squeeze it to exactly this width and height'))));
   const vs=P.layers.filter(o=>VIS(o)&&M[o.id]).slice(0,4);
-  if(vs.length)p.append(h('div',{class:'field'},h('span',{class:'flabel'},'Same shape as a layer'),h('div',{class:'row'},...vs.map(o=>btn(o.name.slice(0,18),()=>{lastSize=canvasSize();const ar=dispAR(o);P.aspect='custom';P.cw=Math.round(ar*1000);P.ch=1000;refitAll();refresh();})))));
-  p.append(segF('c-res','Quality',[[1080,'1080p'],[720,'720p'],[480,'480p']],P.res,v=>{P.res=v;renderSide();refresh();}));
+  if(vs.length)p.append(h('div',{class:'field'},h('span',{class:'flabel'},'Same shape as a layer'),h('div',{class:'row'},...vs.map(o=>btn(o.name.slice(0,18),()=>shapeLike(o))))));
   p.append(segF('c-bg','Empty space',[['blur','Blurred video'],['color','Color']],P.bg,v=>{P.bg=v;renderSide();soft();}));
   if(P.bg==='color')p.append(colorF('c-col','Background color',P.bgColor,v=>{P.bgColor=v;drawNow();save();}));
-  p.append(h('p',{class:'help'},`Your video will be ${canvasSize().join(' × ')} and ${fmtS(projDur())} long.`));
+  p.append(h('p',{class:'help'},`Your video will be ${W} × ${H} pixels and ${fmtS(projDur())} long.${Math.max(W,H)>1920?' Sizes over 1920 take more work to record, so keep the tab in front while it exports.':''}`));
   p.append(h('h4',{class:'fhead'},'Project'));
   const rb=h('button',{type:'button'},resetArmed?'Tap again to remove everything':'Start a new video');
   rb.onclick=()=>{if(!resetArmed){resetArmed=1;renderSide();setTimeout(()=>{resetArmed=0;if(tab==='canvas')renderSide();},3500);return;}
@@ -945,6 +973,7 @@ function refitAll(){/* layers that filled or fitted the old shape keep doing so 
   const old=lastSize;if(!old)return;const car=old[0]/old[1];
   for(const L of P.layers){if(!VIS(L)||!M[L.id]||Math.abs(L.x-.5)>.01||Math.abs(L.y-.5)>.01)continue;
     const ar=dispAR(L),fitW=ar>car?1:ar/car,fillW=ar>car?ar/car:1;
+    if(!L.lock&&!L.rot&&Math.abs(L.w-1)<.01&&Math.abs(old[0]/ar-old[1])<3){stretchFill(L);continue;}
     if(Math.abs(L.w-fitW)<.01)fitLayer(L,'fit');else if(Math.abs(L.w-fillW)<.01)fitLayer(L,'fill');}
 }
 let lastSize=null;
@@ -1064,7 +1093,7 @@ async function restore(){
     if(st&&st.P&&Array.isArray(st.P.layers)&&st.P.layers.length){
       const keep=[];
       for(const L of st.P.layers){norm(L);if(L.media){const b=await DB.tx('media','readonly',s=>s.get(L.media));if(!b)continue;BLOBS[L.media]=b;if(!(await makeMedia(L)))continue;}keep.push(L);}
-      P={...freshP(),...st.P,layers:keep};sel=keep.some(l=>l.id===st.sel)?st.sel:null;
+      P=migrateP({...st.P,layers:keep});P={...freshP(),...P};sel=keep.some(l=>l.id===st.sel)?st.sel:null;
     }}catch(e){}
   restored=true;lastSnap=JSON.stringify(P);refresh();
 }
