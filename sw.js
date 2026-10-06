@@ -1,5 +1,5 @@
 /* Photo Tools offline support: keeps the apps, icons and fonts on the device so they open without internet */
-const VERSION='81458cef80d9';
+const VERSION='0cb36167cb25';
 const APP='photo-tools-app-'+VERSION, FONTS='photo-tools-fonts-v1';
 const FILES=['./','index.html','photo-frame-studio.html','chat-reel.html','manifest.webmanifest',
   'icons/icon-192.png','icons/icon-512.png','icons/icon-maskable-192.png','icons/icon-maskable-512.png','icons/icon-180.png','icons/favicon-32.png'];

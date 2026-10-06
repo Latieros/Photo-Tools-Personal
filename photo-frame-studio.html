@@ -98,6 +98,13 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .note{margin:16px 0 0;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;z-index:30;max-width:calc(100% - 32px);box-shadow:0 8px 24px rgba(0,0,0,.25)}
 .proj{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.proj-end{margin-left:auto;align-self:center}
+@media (max-width:700px){.proj-end{margin-left:0}}
+.switch{display:inline-flex;gap:2px;padding:3px;border:1px solid var(--line);border-radius:10px;background:var(--panel);align-self:center}
+.switch a{font:500 14px/1 var(--f-body);color:var(--muted);text-decoration:none;padding:8px 12px;border-radius:7px;white-space:nowrap}
+.switch a:hover{color:var(--ink)}
+.switch a[aria-current="page"]{background:var(--ink);color:var(--bg)}
+.switch a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .modal{position:fixed;inset:0;background:rgba(10,8,18,.72);display:grid;place-items:center;padding:20px;z-index:10}
 .sheet{background:var(--panel);border-radius:14px;padding:18px;max-width:min(560px,100%);max-height:100%;display:flex;flex-direction:column;gap:12px;overflow:auto}
 .sheet img{max-height:60vh;width:auto;max-width:100%;align-self:center;border-radius:4px;border:1px solid var(--line)}
@@ -121,8 +128,9 @@ button:disabled{opacity:.5;cursor:not-allowed}
 <body>
 <header class="top">
   <h1 class="brand">Photo Frame <span>Studio</span></h1>
+  <nav class="switch" aria-label="Switch tool"><a href="photo-frame-studio.html" aria-current="page">Frame Studio</a><a href="chat-reel.html">Chat Reel</a></nav>
   <p>Pick a frame, add a photo, change the words, drag things into place.</p>
-  <div class="proj" style="margin-left:auto;align-self:center">
+  <div class="proj proj-end">
     <label class="btn" for="openProj">Open project<input type="file" id="openProj" accept=".json,application/json"></label>
     <button type="button" id="saveProj">Save project</button>
   </div>
@@ -1317,6 +1325,7 @@ function render(){
   const t=T[S.tpl],[w,h]=dims(t);if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h;}
   S.boxes=[];S.photo=null;ctx.save();ctx.clearRect(0,0,w,h);t.draw(w,h);ctx.restore();spacing('0px');
   syncAnimUI();
+  autosave();
   if(!S.exporting&&S.hover){const b=S.boxes.find(b=>b.id===S.hover);if(b){ctx.save();ctx.setLineDash([14,10]);ctx.lineWidth=4;ctx.strokeStyle='#7C5CFF';ctx.strokeRect(b.x,b.y,b.w,b.h);ctx.restore();}}
 }
 
@@ -1662,9 +1671,10 @@ const slugify=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(
 const todayStr=()=>new Date().toISOString().slice(0,10);
 const savedMsg=m=>/^Saved/.test(m)?'Project saved. Open it here any time to keep editing.':m;
 
+function studioDoc(){return{app:'photo-frame-studio',version:1,savedAt:new Date().toISOString(),tpl:S.tpl,fields:S.fields,pos:S.pos,zoom:S.zoom,panX:S.panX,panY:S.panY,
+  images:{main:S.src===SAMPLE_IMG?null:imgToData(S.src),profile:imgToData(S.src2),chat:S.chatMedia.map(m=>({kind:m.kind,user:m.user,img:imgToData(m.img)})),cam:S.camMedia.map(imgToData)}};}
 document.getElementById('saveProj').onclick=async()=>{
-  try{const doc={app:'photo-frame-studio',version:1,savedAt:new Date().toISOString(),tpl:S.tpl,fields:S.fields,pos:S.pos,zoom:S.zoom,panX:S.panX,panY:S.panY,
-      images:{main:S.src===SAMPLE_IMG?null:imgToData(S.src),profile:imgToData(S.src2),chat:S.chatMedia.map(m=>({kind:m.kind,user:m.user,img:imgToData(m.img)})),cam:S.camMedia.map(imgToData)}};
+  try{const doc=studioDoc();
     const blob=new Blob([JSON.stringify(doc)],{type:'application/json'});
     toast(savedMsg(await saveFile(blob,`frame-studio-${slugify(T[S.tpl].name)}-${todayStr()}.json`)));}
   catch(err){toast('The project couldn’t be saved: '+(err&&err.message||err));}
@@ -1674,6 +1684,10 @@ document.getElementById('openProj').onchange=async e=>{
   let doc=null;try{doc=JSON.parse(await f.text());}catch(err){}
   if(doc&&doc.app==='chat-reel'){toast('That’s a Chat Reel project. Open it in Chat Reel.');return;}
   if(!doc||doc.app!=='photo-frame-studio'||!doc.fields){toast('That file isn’t a Photo Frame Studio project.');return;}
+  await applyStudio(doc);
+  toast(`Opened “${f.name}”.`);
+};
+async function applyStudio(doc){
   Object.keys(T).forEach(k=>{if(doc.fields[k]&&typeof doc.fields[k]==='object')S.fields[k]={...S.fields[k],...doc.fields[k]};});
   S.pos=doc.pos&&typeof doc.pos==='object'?doc.pos:{};
   S.zoom=Math.min(3,Math.max(1,+doc.zoom||1));S.panX=Math.min(1,Math.max(-1,+doc.panX||0));S.panY=Math.min(1,Math.max(-1,+doc.panY||0));
@@ -1683,14 +1697,36 @@ document.getElementById('openProj').onchange=async e=>{
   for(let i=0;i<3;i++){const c=(im.chat||[])[i]||{};S.chatMedia[i]={img:await dataToImg(c.img),kind:['Photo','Video','Post'].includes(c.kind)?c.kind:S.chatMedia[i].kind,user:typeof c.user==='string'?c.user:S.chatMedia[i].user};
     S.camMedia[i]=await dataToImg((im.cam||[])[i]);}
   S.anim.playing=false;S.anim.t=null;selectTpl(T[doc.tpl]?doc.tpl:S.tpl);
-  toast(`Opened “${f.name}”.`);
-};
+}
+/* your work is kept in this browser (IndexedDB), photos included, so switching tools or closing the app doesn't lose it */
+const AUTO={db:null,
+  open(){if(AUTO.opening)return AUTO.opening;return AUTO.opening=new Promise(res=>{try{const r=indexedDB.open('photo-frame-studio',1);r.onupgradeneeded=()=>r.result.createObjectStore('state');
+    r.onsuccess=()=>{AUTO.db=r.result;res(r.result);};r.onerror=r.onblocked=()=>res(null);}catch(e){res(null);}});},
+  async get(){const db=AUTO.db||await AUTO.open();if(!db)return null;return new Promise(res=>{try{const q=db.transaction('state').objectStore('state').get('current');q.onsuccess=()=>res(q.result||null);q.onerror=()=>res(null);}catch(e){res(null);}});},
+  async put(doc){const db=AUTO.db||await AUTO.open();if(!db)return;return new Promise(res=>{try{const tx=db.transaction('state','readwrite');tx.objectStore('state').put(doc,'current');tx.oncomplete=()=>res();tx.onerror=tx.onabort=()=>res();}catch(e){res();}});}};
+let autoReady=false,autoT=0;
+function autosave(){if(!autoReady||S.exporting)return;clearTimeout(autoT);autoT=setTimeout(()=>{AUTO.put(studioDoc()).catch(()=>{});},700);}
+function flushAutosave(){clearTimeout(autoT);return autoReady?AUTO.put(studioDoc()):Promise.resolve();}
 
 /* boot */
 const SAMPLE_IMG=makeSample();
 S.src=SAMPLE_IMG;
 syncSaveUI();
 selectTpl('story');
+AUTO.get().then(async doc=>{if(doc&&doc.app==='photo-frame-studio'&&doc.fields)await applyStudio(doc);}).catch(()=>{}).finally(()=>{autoReady=true;});
+/* ---------- switching tools: save first, then go; inside Claude each tool is its own page, so open it in a new tab ---------- */
+(function(){
+  const ART={'photo-frame-studio.html':'https://claude.ai/artifact/BTFF4oB7m8EHQMWNwCo2Uw','chat-reel.html':'https://claude.ai/artifact/Tzehgnj1qjBYtpZ6oxKAhG'};
+  let top=false;try{top=window.top===window.self;}catch(e){}
+  document.querySelectorAll('.switch a').forEach(a=>{
+    if(a.getAttribute('aria-current')){a.addEventListener('click',e=>e.preventDefault());return;}
+    if(!top){const u=ART[a.getAttribute('href')];if(u){a.href=u;a.target='_blank';a.rel='noopener';}return;}
+    a.addEventListener('click',async e=>{if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||e.button)return;e.preventDefault();
+      try{await Promise.race([flushAutosave(),new Promise(r=>setTimeout(r,1500))]);}catch(err){}location.href=a.href;});
+  });
+  addEventListener('pagehide',()=>{try{flushAutosave();}catch(e){}});
+})();
+
 const specs=['400 40px "Archivo Black"','400 40px Bangers','700 40px "Bodoni Moda"','italic 400 40px "Bodoni Moda"','700 40px "Comic Neue"','italic 700 40px "Comic Neue"','400 40px "DM Serif Display"','italic 400 40px "DM Serif Display"','500 40px Jost','400 40px Oswald','500 40px Oswald','700 40px Oswald','400 40px Roboto','500 40px Roboto',
   '400 40px "Abril Fatface"','400 40px Anton','400 40px "Bebas Neue"','400 40px "Bowlby One"','600 40px Caveat','700 40px Cinzel','600 40px "Josefin Sans"','700 40px Kalam','400 40px "Luckiest Guy"','600 40px Montserrat','400 40px "Permanent Marker"','900 40px "Playfair Display"','italic 700 40px "Playfair Display"','400 40px "Shadows Into Light"','400 40px Shrikhand','400 40px "Share Tech Mono"'];
 Promise.all(specs.map(s=>document.fonts.load(s).catch(()=>{}))).then(render);

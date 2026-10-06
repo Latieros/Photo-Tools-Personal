@@ -157,6 +157,11 @@ canvas{display:block;max-width:100%;max-height:min(60vh,760px);width:auto;height
 /* export */
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;z-index:30;max-width:calc(100% - 32px);box-shadow:0 8px 24px rgba(0,0,0,.25)}
 .proj{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.switch{display:inline-flex;gap:2px;padding:3px;border:1px solid var(--line);border-radius:10px;background:var(--panel);align-self:center}
+.switch a{font:500 14px/1 var(--f-body);color:var(--muted);text-decoration:none;padding:8px 12px;border-radius:7px;white-space:nowrap}
+.switch a:hover{color:var(--ink)}
+.switch a[aria-current="page"]{background:var(--ink);color:var(--bg)}
+.switch a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .modal{position:fixed;inset:0;background:rgba(10,8,18,.72);display:grid;place-items:center;padding:20px;z-index:10}
 .sheet{background:var(--panel);border-radius:14px;padding:18px;width:min(560px,100%);max-height:100%;display:flex;flex-direction:column;gap:12px;overflow:auto}
 .sheet h3{margin:0;font:600 17px/1.2 var(--f-display)}
@@ -177,6 +182,7 @@ canvas{display:block;max-width:100%;max-height:min(60vh,760px);width:auto;height
 <body>
 <header class="top">
   <h1 class="brand">Chat <span>Reel</span></h1>
+  <nav class="switch" aria-label="Switch tool"><a href="photo-frame-studio.html">Frame Studio</a><a href="chat-reel.html" aria-current="page">Chat Reel</a></nav>
   <p>Write a text conversation, time every message, and export it as a video.</p>
   <span class="spacer"></span>
   <div class="proj">
@@ -341,7 +347,15 @@ function DEFAULT(){return{style:'ios',mode:'light',name:'Maya',status:'Active no
     mk({from:'me',text:"deal. next time you're coming",delay:.9})]};}
 let P=DEFAULT(),sel=1;
 const KEY='chat-reel-v1';
-function save(){clearTimeout(save.t);save.t=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify({...P,avatar:null,msgs:P.msgs.map(m=>({...m,img:null}))}));}catch(e){}},400);}
+let restored=false;
+/* your work is kept in this browser: text and settings in localStorage, the full project with photos in IndexedDB */
+function reelDoc(withSounds){const d={app:'chat-reel',version:1,savedAt:new Date().toISOString(),
+  project:{...P,avatar:imgToData(P.avatar),msgs:P.msgs.map(({id,...m})=>({...m,img:imgToData(m.img)}))}};
+  if(withSounds)d.sounds=LIB.map(it=>({id:it.id,name:it.name,data:abToB64(it.data)}));return d;}
+function writeState(){try{localStorage.setItem(KEY,JSON.stringify({...P,avatar:null,msgs:P.msgs.map(m=>({...m,img:null}))}));}catch(e){}
+  return restored?IDB.putState(reelDoc(false)):Promise.resolve();}
+function save(){clearTimeout(save.t);save.t=setTimeout(writeState,400);}
+function flushAutosave(){clearTimeout(save.t);return writeState();}
 function load(){try{const o=JSON.parse(localStorage.getItem(KEY)||'null');if(o&&Array.isArray(o.msgs)&&o.msgs.length){const d=DEFAULT();P={...d,...o,sound:{...d.sound,...(o.sound||{})},avatar:null,msgs:o.msgs.map(m=>mk({...m,img:null}))};}}catch(e){}}
 
 /* ================= schedule ================= */
@@ -548,7 +562,11 @@ const BUILTIN={
 /* your own sound files, kept in this browser (IndexedDB) */
 let LIB=[];
 const IDB={db:null,
-  open(){return new Promise(res=>{try{const r=indexedDB.open('chat-reel',1);r.onupgradeneeded=()=>r.result.createObjectStore('sounds',{keyPath:'id'});r.onsuccess=()=>{IDB.db=r.result;res(r.result);};r.onerror=()=>res(null);}catch(e){res(null);}});},
+  open(){if(IDB.opening)return IDB.opening;return IDB.opening=new Promise(res=>{try{const r=indexedDB.open('chat-reel',2);
+    r.onupgradeneeded=()=>{const db=r.result;if(!db.objectStoreNames.contains('sounds'))db.createObjectStore('sounds',{keyPath:'id'});if(!db.objectStoreNames.contains('state'))db.createObjectStore('state');};
+    r.onsuccess=()=>{IDB.db=r.result;res(r.result);};r.onerror=r.onblocked=()=>res(null);}catch(e){res(null);}});},
+  async getState(){const db=IDB.db||await IDB.open();if(!db)return null;return new Promise(res=>{try{const q=db.transaction('state').objectStore('state').get('current');q.onsuccess=()=>res(q.result||null);q.onerror=()=>res(null);}catch(e){res(null);}});},
+  async putState(doc){const db=IDB.db||await IDB.open();if(!db)return;return new Promise(res=>{try{const tx=db.transaction('state','readwrite');tx.objectStore('state').put(doc,'current');tx.oncomplete=()=>res();tx.onerror=tx.onabort=()=>res();}catch(e){res();}});},
   async all(){const db=IDB.db||await IDB.open();if(!db)return[];return new Promise(res=>{try{const q=db.transaction('sounds').objectStore('sounds').getAll();q.onsuccess=()=>res(q.result||[]);q.onerror=()=>res([]);}catch(e){res([]);}});},
   async put(o){const db=IDB.db||await IDB.open();if(db)try{db.transaction('sounds','readwrite').objectStore('sounds').put(o);}catch(e){}},
   async del(id){const db=IDB.db||await IDB.open();if(db)try{db.transaction('sounds','readwrite').objectStore('sounds').delete(id);}catch(e){}}};
@@ -736,7 +754,7 @@ function lookPanel(p){
   p.append(h('h4',{class:'fhead'},'Project'));
   const rb=h('button',{type:'button',id:'l-reset'},resetArmed?'Click again to replace your messages':'Start over with the example');
   rb.onclick=()=>{if(!resetArmed){resetArmed=1;renderSide();setTimeout(()=>{resetArmed=0;if(tab==='look')renderSide();},3500);return;}resetArmed=0;P=DEFAULT();sel=1;state.t=0;refresh();};
-  p.append(rb,h('p',{class:'help'},'Your messages and settings are kept in this browser automatically, but photos aren’t. Use Save project at the top to keep everything in one file, photos and your own sounds included.'));
+  p.append(rb,h('p',{class:'help'},'Your work is kept in this browser automatically, photos and sounds included, so you can switch tools and come back to it. Use Save project at the top for a copy you can open on any device.'));
 }
 let sndMsg='';
 function soundPanel(p){
@@ -955,9 +973,7 @@ const savedMsg=m=>/^Saved/.test(m)?'Project saved. Open it here any time to keep
 function abToB64(ab){const u=new Uint8Array(ab);let s='';for(let i=0;i<u.length;i+=32768)s+=String.fromCharCode.apply(null,u.subarray(i,i+32768));return btoa(s);}
 function b64ToAb(b){const s=atob(b),u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u.buffer;}
 $('saveProj').onclick=async()=>{
-  try{const doc={app:'chat-reel',version:1,savedAt:new Date().toISOString(),
-      project:{...P,avatar:imgToData(P.avatar),msgs:P.msgs.map(({id,...m})=>({...m,img:imgToData(m.img)}))},
-      sounds:LIB.map(it=>({id:it.id,name:it.name,data:abToB64(it.data)}))};
+  try{const doc=reelDoc(true);
     const blob=new Blob([JSON.stringify(doc)],{type:'application/json'});
     toast(savedMsg(await saveFile(blob,`chat-reel-${slugify(P.name)||'project'}-${todayStr()}.json`)));}
   catch(err){toast('The project couldn’t be saved: '+(err&&err.message||err));}
@@ -967,19 +983,38 @@ $('openProj').onchange=async e=>{
   let doc=null;try{doc=JSON.parse(await f.text());}catch(err){}
   if(doc&&doc.app==='photo-frame-studio'){toast('That’s a Photo Frame Studio project. Open it in the studio.');return;}
   if(!doc||doc.app!=='chat-reel'||!doc.project||!Array.isArray(doc.project.msgs)){toast('That file isn’t a Chat Reel project.');return;}
-  pause();
+  pause();await applyReel(doc);
+  sel=Math.min(1,P.msgs.length-1);tab='msg';state.t=0;refresh();
+  toast(`Opened “${f.name}”.`);
+};
+async function applyReel(doc){
   for(const sd of doc.sounds||[]){if(!sd||!sd.id||!sd.data||LIB.some(x=>x.id===sd.id))continue;try{const data=b64ToAb(sd.data);LIB.push({id:sd.id,name:sd.name||'Sound',data,buf:null});IDB.put({id:sd.id,name:sd.name||'Sound',data});}catch(err){}}
   const o=doc.project,d=DEFAULT();
   P={...d,...o,sound:{...d.sound,...(o.sound||{})},avatar:await dataToImg(o.avatar),msgs:await Promise.all(o.msgs.map(async m=>mk({...m,img:await dataToImg(m.img)})))};
   if(!LAY[P.style])P.style='ios';
-  sel=Math.min(1,P.msgs.length-1);tab='msg';state.t=0;refresh();
-  toast(`Opened “${f.name}”.`);
-};
+}
 
 /* ================= boot ================= */
 load();SCH=build();state.t=SCH.ev[2]?SCH.ev[2].popEnd+.05:0;
 refresh();
 loadLibrary();
+IDB.getState().then(async doc=>{
+  if(doc&&doc.app==='chat-reel'&&doc.project&&Array.isArray(doc.project.msgs)&&doc.project.msgs.length){
+    const keep=sel;await applyReel(doc);sel=Math.min(keep,P.msgs.length-1);SCH=build();state.t=SCH.ev[2]?SCH.ev[2].popEnd+.05:0;refresh();}
+}).catch(()=>{}).finally(()=>{restored=true;});
+/* ---------- switching tools: save first, then go; inside Claude each tool is its own page, so open it in a new tab ---------- */
+(function(){
+  const ART={'photo-frame-studio.html':'https://claude.ai/artifact/BTFF4oB7m8EHQMWNwCo2Uw','chat-reel.html':'https://claude.ai/artifact/Tzehgnj1qjBYtpZ6oxKAhG'};
+  let top=false;try{top=window.top===window.self;}catch(e){}
+  document.querySelectorAll('.switch a').forEach(a=>{
+    if(a.getAttribute('aria-current')){a.addEventListener('click',e=>e.preventDefault());return;}
+    if(!top){const u=ART[a.getAttribute('href')];if(u){a.href=u;a.target='_blank';a.rel='noopener';}return;}
+    a.addEventListener('click',async e=>{if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||e.button)return;e.preventDefault();
+      try{await Promise.race([flushAutosave(),new Promise(r=>setTimeout(r,1500))]);}catch(err){}location.href=a.href;});
+  });
+  addEventListener('pagehide',()=>{try{flushAutosave();}catch(e){}});
+})();
+
 window.addEventListener('resize',()=>renderTimeline());
 Promise.all(['400 40px Roboto','500 40px Roboto'].map(s=>document.fonts.load(s).catch(()=>{}))).then(()=>drawNow());
 </script>
