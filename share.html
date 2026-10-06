@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#F2F1F6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121118" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Photo Tools">
+<script>try{if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')&&window.top===window.self)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}catch(e){}</script>
+
+<title>Open with Photo Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600&family=Unbounded:wght@600&display=swap">
+<style>
+/* Layout: what you shared on top, then one card per tool that can take it */
+:root{
+  --bg:#F2F1F6; --panel:#FFFFFF; --ink:#18161F; --muted:#686577; --line:#DDDAE6; --accent:#5B3DF5;
+  --f-display:"Unbounded","Familjen Grotesk",system-ui,sans-serif;
+  --f-body:"Familjen Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root{--bg:#121118; --panel:#1B1A23; --ink:#EEEDF4; --muted:#9D9AAE; --line:#2F2D3B; --accent:#9C88FF; color-scheme:dark}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 var(--f-body);padding-inline:16px;padding-block:calc(36px + env(safe-area-inset-top,0px)) 48px}
+main{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+.kicker{margin:0 0 6px;font-size:14px}
+.kicker a{color:var(--muted);text-decoration:none}
+.kicker a:hover{color:var(--accent)}
+h1{font:600 clamp(24px,5vw,30px)/1.15 var(--f-display);margin:0;letter-spacing:-.01em}
+.lede{margin:8px 0 0;color:var(--muted)}
+.thumbs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.thumbs figure{margin:0;flex:none;width:88px;height:88px;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:var(--panel);display:grid;place-items:center;position:relative}
+.thumbs img,.thumbs video{width:100%;height:100%;object-fit:cover;display:block}
+.thumbs figcaption{position:absolute;inset:auto 4px 4px auto;font:600 11px/1 var(--f-body);background:rgba(0,0,0,.6);color:#fff;border-radius:5px;padding:3px 5px}
+.thumbs .ico{font-size:30px}
+.apps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+a.app{display:flex;flex-direction:column;gap:8px;padding:18px;border:1px solid var(--line);border-radius:14px;background:var(--panel);color:inherit;text-decoration:none;transition:border-color .15s,transform .15s}
+a.app:hover{border-color:var(--accent);transform:translateY(-2px)}
+a.app:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.app h2{margin:0;font:600 16px/1.2 var(--f-display)}
+.app p{margin:0;color:var(--muted);font-size:15px}
+.app .part{font-size:13px;color:var(--muted)}
+.open{margin-top:auto;color:var(--accent);font-weight:600;font-size:15px}
+.note{color:var(--muted);font-size:14px;margin:0;border-top:1px solid var(--line);padding-top:16px}
+@media (prefers-reduced-motion:reduce){a.app{transition:none}a.app:hover{transform:none}}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="kicker"><a href="./">← Photo Tools</a></p>
+    <h1 id="title">Open with…</h1>
+    <p class="lede" id="lede">Getting what you shared…</p>
+  </header>
+  <div class="thumbs" id="thumbs" aria-label="What you shared"></div>
+  <div class="apps" id="apps"></div>
+  <p class="note" id="note">Everything stays on your device. Nothing is uploaded.</p>
+</main>
+<script>
+const TOOLS=[
+  {page:'photo-frame-studio.html',name:'Photo Frame Studio',does:'Put it in a frame: a post, a phone screen, a cover or a print.',kinds:['image']},
+  {page:'metadata-scrubber.html',name:'Metadata Scrubber',does:'Remove the location, camera details and AI prompts, and save a clean copy.',kinds:['image','video']},
+  {page:'video-layers.html',name:'Video Layers',does:'Use it in a video with text, music and other layers.',kinds:['image','video','audio']},
+  {page:'chat-reel.html',name:'Chat Reel',does:'Add photos to a chat as your messages, or use a sound for them.',kinds:['image','audio']}];
+const WORD={image:['photo','photos'],video:['video','videos'],audio:['sound','sounds'],other:['file','files']};
+const kindOf=f=>/^image\//.test(f.type)||/\.(png|jpe?g|webp|gif|avif|bmp|heic|heif)$/i.test(f.name)?'image':/^video\//.test(f.type)||/\.(mp4|mov|m4v|webm|mkv|3gp)$/i.test(f.name)?'video':/^audio\//.test(f.type)||/\.(mp3|m4a|aac|wav|ogg|opus|flac)$/i.test(f.name)?'audio':'other';
+const el=(tag,props,...kids)=>{const e=document.createElement(tag);Object.assign(e,props||{});kids.forEach(k=>e.append(k));return e;};
+const count=(n,k)=>`${n} ${WORD[k][n===1?0:1]}`;
+function list(parts){return parts.length<2?parts.join(''):parts.slice(0,-1).join(', ')+' and '+parts[parts.length-1];}
+async function peek(){if(!('caches' in window))return[];try{const c=await caches.open('pt-handoff'),out=[];
+  for(const k of await c.keys()){const r=await c.match(k);if(!r)continue;const b=await r.blob();out.push(new File([b],decodeURIComponent(r.headers.get('x-name')||'file'),{type:b.type||r.headers.get('content-type')||''}));}return out;}catch(e){return[];}}
+(async()=>{
+  const files=await peek(),by={};files.forEach(f=>{const k=kindOf(f);(by[k]=by[k]||[]).push(f);});
+  const kinds=Object.keys(by).filter(k=>k!=='other'),apps=document.getElementById('apps');
+  if(!kinds.length){
+    document.getElementById('title').textContent='Nothing to open';
+    document.getElementById('lede').textContent='Share photos, videos or sounds to Photo Tools from your gallery and they show up here. Or open a tool:';
+    TOOLS.forEach(t=>apps.append(el('a',{className:'app',href:t.page},el('h2',{textContent:t.name}),el('p',{textContent:t.does}),el('span',{className:'open',textContent:'Open →'}))));
+    return;}
+  document.getElementById('lede').textContent=`You shared ${list(kinds.map(k=>count(by[k].length,k)))}${by.other?` (and ${count(by.other.length,'other')} the tools can’t open)`:''}. Pick where it goes.`;
+  const th=document.getElementById('thumbs');
+  files.slice(0,12).forEach(f=>{const k=kindOf(f),fig=el('figure',{title:f.name});
+    if(k==='image')fig.append(el('img',{src:URL.createObjectURL(f),alt:f.name}));
+    else if(k==='video'){const v=el('video',{src:URL.createObjectURL(f)+'#t=0.1',muted:true,preload:'metadata',playsInline:true});fig.append(v,el('figcaption',{textContent:'Video'}));}
+    else fig.append(el('span',{className:'ico',textContent:k==='audio'?'♪':'📄'}));
+    th.append(fig);});
+  const fit=TOOLS.map(t=>({t,ok:kinds.filter(k=>t.kinds.includes(k))})).filter(x=>x.ok.length).sort((a,b)=>b.ok.length-a.ok.length);
+  fit.forEach(({t,ok})=>{const a=el('a',{className:'app',href:t.page+'?handoff=1'},el('h2',{textContent:t.name}),el('p',{textContent:t.does}));
+    if(ok.length<kinds.length)a.append(el('span',{className:'part',textContent:`Takes the ${list(ok.map(k=>WORD[k][1]))} only.`}));
+    a.append(el('span',{className:'open',textContent:'Open it here →'}));apps.append(a);});
+})();
+</script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 {
   "name": "Photo Tools",
   "short_name": "Photo Tools",
-  "description": "Frame photos, turn text conversations into videos, and scrub hidden data from images.",
+  "description": "Frame photos, turn text conversations into videos, put pictures and videos together, and scrub hidden data from photos and videos.",
   "id": "./",
   "start_url": "./",
   "scope": "./",
@@ -35,6 +35,36 @@
       "purpose": "maskable"
     }
   ],
+  "share_target": {
+    "action": "share.html",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "files": [
+        {
+          "name": "media",
+          "accept": [
+            "image/*",
+            "video/*",
+            "audio/*",
+            ".jpg",
+            ".jpeg",
+            ".png",
+            ".webp",
+            ".gif",
+            ".mp4",
+            ".mov",
+            ".webm",
+            ".mp3",
+            ".m4a",
+            ".wav"
+          ]
+        }
+      ]
+    }
+  },
   "shortcuts": [
     {
       "name": "Photo Frame Studio",

@@ -1,10 +1,10 @@
 /* Photo Tools offline support: keeps the apps, icons and fonts on the device so they open without internet */
-const VERSION='88c0f25a00b0';
+const VERSION='fe137e30e7b7';
 const APP='photo-tools-app-'+VERSION, FONTS='photo-tools-fonts-v1';
-const FILES=['./','index.html','photo-frame-studio.html','chat-reel.html','metadata-scrubber.html','video-layers.html','manifest.webmanifest',
+const FILES=['./','index.html','share.html','photo-frame-studio.html','chat-reel.html','metadata-scrubber.html','video-layers.html','manifest.webmanifest',
   'icons/icon-192.png','icons/icon-512.png','icons/icon-maskable-192.png','icons/icon-maskable-512.png','icons/icon-180.png','icons/favicon-32.png'];
 const FONT_CSS=[
- "https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Anton&family=Archivo+Black&family=Bangers&family=Bebas+Neue&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;1,6..96,400&family=Bowlby+One&family=Caveat:wght@600&family=Cinzel:wght@700&family=Comic+Neue:ital,wght@0,700;1,700&family=DM+Serif+Display:ital@0;1&family=Familjen+Grotesk:wght@400;500;600&family=Josefin+Sans:wght@600&family=Jost:wght@400;500&family=Kalam:wght@700&family=Luckiest+Guy&family=Montserrat:wght@600&family=Oswald:wght@400;500;700&family=Permanent+Marker&family=Playfair+Display:ital,wght@0,900;1,700&family=Roboto:wght@400;500&family=Shadows+Into+Light&family=Share+Tech+Mono&family=Shrikhand&family=Unbounded:wght@600&display=swap",
+ "https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Anton&family=Archivo+Black&family=Bangers&family=Bebas+Neue&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;1,6..96,400&family=Bowlby+One&family=Caveat:wght@600&family=Cinzel:wght@700&family=Comic+Neue:ital,wght@0,700;1,700&family=DM+Serif+Display:ital@0;1&family=Familjen+Grotesk:wght@400;500;600&family=Josefin+Sans:wght@600&family=Jost:wght@400;500&family=Kalam:wght@700&family=Luckiest+Guy&family=Montserrat:wght@600&family=Oswald:wght@400;500;700&family=Permanent+Marker&family=Playfair+Display:ital,wght@0,900;1,700&family=Roboto:wght@400;500&family=Shadows+Into+Light&family=Share+Tech+Mono&family=Shrikhand&family=Unbounded:wght@600&family=UnifrakturMaguntia&family=VT323&display=swap",
  "https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600&family=Roboto:wght@400;500&family=Unbounded:wght@600&display=swap",
  "https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600&family=Unbounded:wght@600&display=swap",
  "https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Unbounded:wght@600&family=Anton&family=Bebas+Neue&family=Playfair+Display:ital,wght@0,700;1,700&family=DM+Serif+Display:ital@0;1&family=Permanent+Marker&family=Caveat:wght@700&family=Pacifico&family=Bangers&family=Fredoka:wght@600&family=Special+Elite&family=Space+Mono:ital,wght@0,700;1,700&display=swap"
@@ -37,7 +37,9 @@ self.addEventListener('activate',e=>{e.waitUntil((async()=>{
 })());});
 
 self.addEventListener('fetch',e=>{
-  const req=e.request;if(req.method!=='GET')return;
+  const req=e.request;
+  if(req.method==='POST'&&new URL(req.url).pathname.endsWith('/share.html')){e.respondWith(receiveShare(req));return;}
+  if(req.method!=='GET')return;
   const url=new URL(req.url);
   if(url.origin==='https://fonts.googleapis.com'||url.origin==='https://fonts.gstatic.com'){e.respondWith(fontFirst(req));return;}
   if(url.origin!==self.location.origin)return;
@@ -59,4 +61,13 @@ async function appFile(req,e){
   const r=await net;if(r)return r;
   if(req.mode==='navigation'){const home=await c.match('index.html');if(home)return home;}
   return new Response('You’re offline and this file isn’t saved on this device yet.',{status:503,headers:{'Content-Type':'text/plain; charset=utf-8'}});
+}
+
+/* the phone's Share menu sends photos and videos here; keep them for the page that opens next */
+async function receiveShare(req){
+  try{const fd=await req.formData(),files=fd.getAll('media').filter(f=>f&&typeof f!=='string'&&f.size);
+    const c=await caches.open('pt-handoff');for(const k of await c.keys())await c.delete(k);let i=0;
+    for(const f of files)await c.put(new Request(new URL('handoff/'+Date.now()+'-'+(i++),self.registration.scope)),new Response(f,{headers:{'content-type':f.type||'application/octet-stream','x-name':encodeURIComponent(f.name||'file')}}));
+  }catch(err){}
+  return Response.redirect(new URL('share.html?shared=1',self.registration.scope).href,303);
 }

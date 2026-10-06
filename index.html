@@ -52,16 +52,16 @@ a.app:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 <main>
   <header>
     <h1>Photo <span>Tools</span></h1>
-    <p class="lede">Frame photos to look like posts, phone screens, covers and prints, turn a text conversation into a video, put pictures and videos together, or scrub the hidden data out of your images.</p>
+    <p class="lede">Frame photos to look like posts, phone screens, covers and prints, turn a text conversation into a video, put pictures and videos together, or scrub the hidden data out of your photos and videos.</p>
   </header>
   <div class="apps">
     <a class="app" href="photo-frame-studio.html">
       <h2>Photo Frame Studio</h2>
       <p>Drop in a photo, pick a frame, edit the words and export an image.</p>
       <ul>
-        <li>Stories, posts, short videos, chats, video pages and camera screens</li>
-        <li>Polaroid, Instax, manga, magazine, poster and book covers</li>
-        <li>Animated chats you can save as video or GIF</li>
+        <li>Stories, posts, chats, forum and Discord-style posts, lock screens, music players and camera screens</li>
+        <li>Polaroid, Instax, film strips, VHS, manga, magazine, poster, book covers and newspapers</li>
+        <li>Frame a whole batch at once, or save animated chats as video or GIF</li>
       </ul>
       <span class="open">Open the studio →</span>
     </a>
@@ -69,19 +69,20 @@ a.app:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
       <h2>Chat Reel</h2>
       <p>Write a conversation, time every message on a timeline, and export it as a video.</p>
       <ul>
-        <li>iPhone, Android and social DM styles</li>
-        <li>Typing on the keyboard, message sounds, photos that open full screen</li>
-        <li>WebM, MP4 or GIF</li>
+        <li>iPhone, Android, DM, WhatsApp-style, Discord-style and lock-screen looks</li>
+        <li>Group chats, reactions, replies, voice notes and unsent messages</li>
+        <li>Keyboard typing and message sounds, saved as WebM, MP4 or GIF</li>
       </ul>
       <span class="open">Open Chat Reel →</span>
     </a>
     <a class="app" href="metadata-scrubber.html">
       <h2>Metadata Scrubber</h2>
-      <p>Remove prompts, settings and hidden data from images and save clean copies under new random names.</p>
+      <p>Remove prompts, location and hidden data from photos and videos and save clean copies under new random names.</p>
       <ul>
         <li>NovelAI prompts, seeds and the hidden copy in the transparency layer</li>
         <li>Stable Diffusion and ComfyUI settings, EXIF, GPS and XMP</li>
-        <li>Many images at once, downloaded one by one or as a ZIP</li>
+        <li>GPS and phone details out of MP4 and MOV videos, with no quality loss</li>
+        <li>An optional size limit, and many files at once as a ZIP</li>
       </ul>
       <span class="open">Open the scrubber →</span>
     </a>
@@ -89,9 +90,9 @@ a.app:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
       <h2>Video Layers</h2>
       <p>Put pictures, videos, text and music together and export a new video.</p>
       <ul>
-        <li>Drag, resize and fade each layer, and set when it appears</li>
-        <li>9:16, 1:1, 4:5 or 16:9, with a blurred fill behind</li>
-        <li>MP4 or WebM, with a size limit when you need one</li>
+        <li>Crop, resize, green screen, color and text styles for every layer</li>
+        <li>Motion paths with keyframes, one-tap layouts and voiceover</li>
+        <li>Any size in pixels, saved as MP4, WebM or GIF</li>
       </ul>
       <span class="open">Open the editor →</span>
     </a>
@@ -100,7 +101,7 @@ a.app:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
     <p>Install Photo Tools on this device. It gets its own icon and works without internet.</p>
     <button type="button" id="installBtn">Install app</button>
   </div>
-  <p class="note">Everything runs in your browser. Your photos and videos stay on your device. To use it offline on Android, open this page in Chrome, tap ⋮ and choose <strong>Add to Home screen</strong> or <strong>Install app</strong>. Open each tool once while you’re online so everything gets saved to your phone.</p>
+  <p class="note">Everything runs in your browser. Your photos and videos stay on your device. To use it offline on Android, open this page in Chrome, tap ⋮ and choose <strong>Add to Home screen</strong> or <strong>Install app</strong>. Open each tool once while you’re online so everything gets saved to your phone. Once it’s installed, Photo Tools also shows up when you tap <strong>Share</strong> on a photo or video in your gallery.</p>
 </main>
 <script>
 let installEvt=null;
