@@ -303,6 +303,39 @@ function render(){
   renderPieces();
 }
 
+/* ================= leaving nothing behind in what you save ================= */
+/* random short codes for file names, so names don't carry your original file name or the time */
+const rndCode=(n=6)=>{const a='abcdefghjkmnpqrstuvwxyz23456789',u=new Uint8Array(n);crypto.getRandomValues(u);return[...u].map(x=>a[x%a.length]).join('');};
+/* JPG: keep the picture, drop everything else the browser adds (its color profile, notes) */
+async function cleanJpeg(blob){try{const b=new Uint8Array(await blob.arrayBuffer());if(b[0]!==0xFF||b[1]!==0xD8)return blob;const parts=[b.subarray(0,2)];let p=2;
+  while(p+4<=b.length&&b[p]===0xFF){const m=b[p+1];if(m===0xDA){parts.push(b.subarray(p));return new Blob(parts,{type:'image/jpeg'});}
+    const n=(b[p+2]<<8)|b[p+3];if(!((m>=0xE1&&m<=0xEF)||m===0xFE))parts.push(b.subarray(p,p+2+n));p+=2+n;}
+  return blob;}catch(e){return blob;}}
+/* WebM: the browser writes its own name into the file; turn those two entries into blank padding of the same size */
+const ebmlLen=b=>{let l=1,m=0x80;while(l<=8&&!(b&m)){m>>=1;l++;}return l;};
+async function cleanWebm(blob){try{const buf=new Uint8Array(await blob.arrayBuffer());let p=-1;
+  for(let i=0;i<Math.min(buf.length-4,65536);i++)if(buf[i]===0x15&&buf[i+1]===0x49&&buf[i+2]===0xA9&&buf[i+3]===0x66){p=i;break;}
+  if(p<0)return blob;const sl=ebmlLen(buf[p+4]);let size=buf[p+4]&(0xFF>>sl);for(let i=1;i<sl;i++)size=size*256+buf[p+4+i];
+  let q=p+4+sl,changed=false;const end=Math.min(buf.length,q+size);
+  while(q<end){const il=ebmlLen(buf[q]);if(il>4)break;let id=0;for(let i=0;i<il;i++)id=id*256+buf[q+i];
+    const zl=ebmlLen(buf[q+il]);if(zl>8)break;let n=buf[q+il]&(0xFF>>zl);for(let i=1;i<zl;i++)n=n*256+buf[q+il+i];const tot=il+zl+n;
+    if((id===0x4D80||id===0x5741)&&il===2&&n+1<Math.pow(2,7*zl)-1){buf[q]=0xEC;let v=n+1;for(let i=zl-1;i>=0;i--){buf[q+1+i]=v&255;v=Math.floor(v/256);}buf[q+1]|=(0x80>>(zl-1));buf.fill(0,q+1+zl,q+tot);changed=true;}
+    q+=tot;}
+  return changed?new Blob([buf],{type:blob.type}):blob;}catch(e){return blob;}}
+/* MP4: blank any notes and names, and zero the creation dates */
+async function cleanMp4(blob){try{const buf=new Uint8Array(await blob.arrayBuffer()),dv=new DataView(buf.buffer);let changed=false;
+  const T=i=>String.fromCharCode(buf[i],buf[i+1],buf[i+2],buf[i+3]);
+  const walk=(s,e)=>{let p=s;while(p+8<=e){let n=dv.getUint32(p),h=8;const t=T(p+4);if(n===1){n=Number(dv.getBigUint64(p+8));h=16;}else if(n===0)n=e-p;if(n<h||p+n>e)break;
+    if(t==='udta'||t==='meta'||t==='uuid'){buf.set([0x66,0x72,0x65,0x65],p+4);buf.fill(0,p+h,p+n);changed=true;}
+    else if(t==='mvhd'||t==='tkhd'||t==='mdhd'){buf.fill(0,p+h+4,p+h+(buf[p+h]===1?20:12));changed=true;}
+    else if(t==='hdlr'&&p+h+24<p+n){buf.fill(0,p+h+24,p+n);changed=true;}
+    else if(t==='stsd'){let q=p+h+8;const cnt=dv.getUint32(p+h+4);for(let k=0;k<cnt&&q+8<=p+n;k++){const en=dv.getUint32(q),et=T(q+4);if(en<8)break;
+      if(['avc1','avc3','hvc1','hev1','vp09','av01','mp4v'].includes(et)&&en>=82){buf.fill(0,q+50,q+82);changed=true;}q+=en;}}/* the encoder's name inside the video track */
+    else if(['moov','trak','mdia','minf','stbl'].includes(t))walk(p+h,p+n);
+    p+=n;}};
+  walk(0,buf.length);return changed?new Blob([buf],{type:blob.type}):blob;}catch(e){return blob;}}
+async function cleanOut(blob){if(!blob)return blob;const t=blob.type||'';const out=t.includes('jpeg')?await cleanJpeg(blob):t.includes('webm')?await cleanWebm(blob):t.includes('mp4')?await cleanMp4(blob):blob;if(blob.over)out.over=blob.over;return out;}
+
 /* ================= the pieces ================= */
 let pieceCache=null;
 const sig=()=>JSON.stringify([S,NAME,iw(),ih(),SAMPLE]);
@@ -313,14 +346,16 @@ function renderPieces(){
     ol.append(h('li',{},c,h('div',{class:'pmeta'},h('b',{},String(k+1)),h('span',{},`${b.w} × ${b.h}`),h('button',{type:'button','aria-label':`Save photo ${k+1}`,onclick:()=>saveOne(k)},'Save'))));});
   const n=bs.length;$('saveEach').textContent=`Save the ${n} photos`;
 }
-const baseName=()=>(String(NAME||'photo').replace(/\.[a-z0-9]+$/i,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,30)||'photo');
+/* pieces are named with a random code, never your photo's own file name */
+let NAMECODE=rndCode();
+const baseName=()=>'split-'+NAMECODE;
 async function makePieces(){
   const s=sig();if(pieceCache&&pieceCache.sig===s)return pieceCache.files;
   const[W,H]=outSize(),full=document.createElement('canvas');full.width=W;full.height=H;drawBox(full.getContext('2d'),W,H);
   const png=S.fmt==='png',type=png?'image/png':'image/jpeg',ext=png?'png':'jpg',bs=pieceBoxes(W,H),files=[];
   const ord=postOrder();
   for(let k=0;k<bs.length;k++){const i=ord[k],b=bs[i],c=document.createElement('canvas');c.width=b.w;c.height=b.h;const g=c.getContext('2d');
-    g.drawImage(full,b.x,b.y,b.w,b.h,0,0,b.w,b.h);const blob=await new Promise(r=>c.toBlob(r,type,.92));if(!blob)throw new Error('the picture is too big for this browser');
+    g.drawImage(full,b.x,b.y,b.w,b.h,0,0,b.w,b.h);const blob=await cleanOut(await new Promise(r=>c.toBlob(r,type,.92)));if(!blob)throw new Error('the picture is too big for this browser');
     files.push(new File([blob],`${baseName()}-${k+1}-of-${bs.length}.${ext}`,{type}));}
   full.width=full.height=0;pieceCache={sig:s,files};return files;}
 
@@ -338,7 +373,7 @@ async function withPieces(fn){if(busy)return;busy=true;say('Cutting the pieces�
 async function saveOne(i){await withPieces(async fs=>{say(`Photo ${i+1}: `+await saveFile(fs[i],fs[i].name));});}
 $('saveEach').onclick=()=>withPieces(async fs=>{let last='';for(let i=0;i<fs.length;i++){say(`Saving photo ${i+1} of ${fs.length}…`);last=await saveFile(fs[i],fs[i].name);if(/Not saved|isn’t available|too big/.test(last))break;await new Promise(r=>setTimeout(r,DL?0:350));}
   say(/Saved/.test(last)?`Saved ${fs.length} photos. Post them in order, 1 to ${fs.length}.`:last);});
-$('saveZip').onclick=()=>withPieces(async fs=>{say('Putting the ZIP together…');const zip=await makeZip(await Promise.all(fs.map(async f=>({name:f.name,blob:f}))));say(await saveFile(zip,`${baseName()}-split.zip`));});
+$('saveZip').onclick=()=>withPieces(async fs=>{say('Putting the ZIP together…');const zip=await makeZip(await Promise.all(fs.map(async f=>({name:f.name,blob:f}))));say(await saveFile(zip,`${baseName()}.zip`));});
 $('shareBtn').onclick=()=>withPieces(async fs=>{try{await navigator.share({files:fs,title:'Split photo'});say('Shared.');}catch(err){say(err&&err.name==='AbortError'?'':'Sharing didn’t work here. Save the photos instead.');}});
 function syncSave(){
   let share=false;try{share=topLevel&&!!navigator.canShare&&navigator.canShare({files:[new File([new Blob(['x'],{type:'image/jpeg'})],'a.jpg',{type:'image/jpeg'})]});}catch(e){}
@@ -403,7 +438,7 @@ cv.addEventListener('wheel',e=>{if(!IMG)return;e.preventDefault();S.z=clamp(S.z*
 async function loadBlob(blob,name,keep){
   let im=null;try{im=await createImageBitmap(blob);}catch(e){im=await new Promise(res=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>res(null);i.src=URL.createObjectURL(blob);});}
   if(!im||!im.width){toast('That file couldn’t be opened as a picture. Try JPG or PNG.');return false;}
-  IMG=im;BLOB=blob;NAME=name||'photo';SAMPLE=false;if(!keep){S.z=1;S.px=S.py=0;}
+  IMG=im;BLOB=blob;NAME=name||'photo';SAMPLE=false;if(!keep)NAMECODE=rndCode();if(!keep){S.z=1;S.px=S.py=0;}
   $('thumb').src=URL.createObjectURL(blob);$('pName').textContent=NAME;$('pInfo').textContent=`${im.width} × ${im.height} pixels`;$('cta').hidden=true;
   pieceCache=null;renderOpts();render();if(!keep)save();return true;}
 function addFile(f){if(!f)return;if(!/^image\//.test(f.type)&&!/\.(png|jpe?g|webp|gif|avif|bmp)$/i.test(f.name)){toast('That isn’t a picture.');return;}loadBlob(f,f.name);}
@@ -437,7 +472,7 @@ async function restore(){try{const st=await DB.tx('readonly',s=>s.get('current')
 
 const CRC_T=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0;}return t;})();
 function crc32(u8){let c=0xFFFFFFFF;for(let i=0;i<u8.length;i++)c=CRC_T[(c^u8[i])&255]^(c>>>8);return(c^0xFFFFFFFF)>>>0;}
-async function makeZip(entries){const parts=[],central=[];let off=0;const d=new Date(),time=(d.getHours()<<11)|(d.getMinutes()<<5)|(d.getSeconds()>>1),date=((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate();
+async function makeZip(entries){const parts=[],central=[];let off=0;const time=0,date=33;/* every file in the ZIP is dated 1 Jan 1980, the earliest a ZIP can say, so the ZIP doesn't record when you made it */
   for(const en of entries){const data=new Uint8Array(await en.blob.arrayBuffer()),name=new TextEncoder().encode(en.name),crc=crc32(data);
     const lh=new DataView(new ArrayBuffer(30));lh.setUint32(0,0x04034b50,true);lh.setUint16(4,20,true);lh.setUint16(6,0x0800,true);lh.setUint16(10,time,true);lh.setUint16(12,date,true);lh.setUint32(14,crc,true);lh.setUint32(18,data.length,true);lh.setUint32(22,data.length,true);lh.setUint16(26,name.length,true);
     parts.push(new Uint8Array(lh.buffer),name,data);

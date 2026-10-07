@@ -286,6 +286,16 @@ Puts pictures, videos, text, music and your voice together and makes a new video
 
 ---
 
+## What's in the files you save
+
+Nothing that points back to you or your originals:
+- **Pictures** (PNG and JPG) are drawn fresh, so no location, camera, phone or date from your photos comes along. JPGs also have the browser's color profile removed, leaving only the picture.
+- **Videos** (WebM and MP4) are recorded fresh too. The browser's name, any titles, handler names and creation dates are blanked out.
+- **GIFs** carry nothing but the loop setting.
+- **File names** use a random code (like `story-rmwhbr.png` or `split-jmss3w-1-of-3.jpg`), never your original file name or the time.
+- **ZIP files** date every file 1 January 1980, so they don't record when you made them.
+- **Project files** (`.json`) are for your own use: they hold what you typed, your photos (already cleaned) and when you saved. Chat Reel's include any sound files you added exactly as they were.
+
 ## Install it as an app (works offline)
 
 - **Android (Chrome):** open the site, tap **⋮** and choose **Install app** or **Add to Home screen**.
