@@ -298,8 +298,13 @@ function wrap(text,maxW){const out=[];String(text).split('\n').forEach(para=>{co
   words.forEach(w=>{const t=line?line+' '+w:w;if(ctx.measureText(t).width>maxW&&line){out.push(line);line=w;}else line=t;});out.push(line);});return out;}
 const maxWidth=lines=>Math.max(0,...lines.map(l=>ctx.measureText(l).width));
 function rr(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h);}
-const imgOf=m=>m.img||SAMPLE,ratio=src=>(src.naturalWidth||src.width)/(src.naturalHeight||src.height);
-function drawCover(src,r){const iw=src.naturalWidth||src.width,ih=src.naturalHeight||src.height,s=Math.max(r.w/iw,r.h/ih),dw=iw*s,dh=ih*s;ctx.save();ctx.beginPath();ctx.rect(r.x,r.y,r.w,r.h);ctx.clip();ctx.drawImage(src,r.x+(r.w-dw)/2,r.y+(r.h-dh)/2,dw,dh);ctx.restore();}
+/* a video message can hold a real clip; it's drawn wherever the photo would be */
+const VIDS={};
+const vidOf=m=>m&&m.kind==='video'&&m.vkey&&VIDS[m.vkey]&&VIDS[m.vkey].ready?VIDS[m.vkey]:null;
+const dimsOf=src=>src.videoWidth?[src.videoWidth,src.videoHeight]:[src.naturalWidth||src.width,src.naturalHeight||src.height];
+const imgOf=m=>{const v=vidOf(m);return v?v.el:(m.img||SAMPLE);},ratio=src=>{const[a,b]=dimsOf(src);return a/b;};
+const holdOf=m=>{const v=vidOf(m);return v&&m.holdVid!==false?v.dur:m.openHold;};
+function drawCover(src,r){const[iw,ih]=dimsOf(src),s=Math.max(r.w/iw,r.h/ih),dw=iw*s,dh=ih*s;ctx.save();ctx.beginPath();ctx.rect(r.x,r.y,r.w,r.h);ctx.clip();ctx.drawImage(src,r.x+(r.w-dw)/2,r.y+(r.h-dh)/2,dw,dh);ctx.restore();}
 function fitTail(t,maxW){if(ctx.measureText(t).width<=maxW)return t;let s=t;while(s.length>1&&ctx.measureText('…'+s).width>maxW)s=s.slice(1);return '…'+s;}
 function shadow(on,blur=14,a=.4){ctx.shadowColor=on?`rgba(0,0,0,${a})`:'transparent';ctx.shadowBlur=on?blur:0;ctx.shadowOffsetY=on?2:0;}
 const initials=n=>(n||'').trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase()||'?';
@@ -351,7 +356,7 @@ function postHeader(m,x,y,w){
 let uid=1;
 const rkey=()=>Math.random().toString(36).slice(2,9);
 function mk(o={}){return{from:'them',kind:'text',text:'',img:null,postUser:'',delay:.8,typing:1.2,typingAuto:true,keyboard:true,open:false,openHold:2,sound:'default',
-  who:'',react:'',reactBy:'',reactDelay:1,replyTo:'',unsend:false,unsendAfter:2,voice:'',voiceLen:'0:08',voiceDur:0,voicePlay:true,voiceWait:true,...o,key:o.key||rkey(),id:uid++};}
+  who:'',react:'',reactBy:'',reactDelay:1,replyTo:'',unsend:false,unsendAfter:2,voice:'',voiceLen:'0:08',voiceDur:0,voicePlay:true,voiceWait:true,vkey:'',vidInline:true,vidSound:true,holdVid:true,...o,key:o.key||rkey(),id:uid++};}
 function DEFAULT(){return{style:'ios',mode:'light',name:'Maya',status:'Active now',time:'9:41',receipt:'',iosColor:'Blue',dmColor:'Purple',avColor:'Green',kbSpeed:'Normal',startPause:.5,endHold:1.5,avatar:null,
   group:false,groupName:'',people:[],myName:'You',myColor:'#F0B232',color0:'#E5484D',ticks:'Read',lockPhone:'iPhone',lockApp:'Messages',lockDate:'Tuesday, October 6',wall:null,
   sound:{on:true,volume:.7,send:'Pop',receive:'Chime',keys:true,keySound:'Click',tap:'Tap',react:'Bubble'},
@@ -366,7 +371,7 @@ function reelDoc(withSounds){const d={app:'chat-reel',version:1,savedAt:new Date
   project:{...P,avatar:imgToData(P.avatar),wall:imgToData(P.wall),people:(P.people||[]).map(pp=>({...pp,avatar:imgToData(pp.avatar)})),msgs:P.msgs.map(({id,...m})=>({...m,img:imgToData(m.img)}))}};
   if(withSounds)d.sounds=LIB.map(it=>({id:it.id,name:it.name,data:abToB64(it.data)}));return d;}
 function writeState(){try{localStorage.setItem(KEY,JSON.stringify({...P,avatar:null,wall:null,people:(P.people||[]).map(pp=>({...pp,avatar:null})),msgs:P.msgs.map(m=>({...m,img:null}))}));}catch(e){}
-  return restored?IDB.putState(reelDoc(false)):Promise.resolve();}
+  if(restored)pruneClips();return restored?IDB.putState(reelDoc(false)):Promise.resolve();}
 function save(){clearTimeout(save.t);save.t=setTimeout(writeState,400);}
 function flushAutosave(){clearTimeout(save.t);return writeState();}
 function load(){try{const o=JSON.parse(localStorage.getItem(KEY)||'null');if(o&&Array.isArray(o.msgs)&&o.msgs.length){const d=DEFAULT();P={...d,...o,sound:{...d.sound,...(o.sound||{})},avatar:null,wall:null,people:(o.people||[]).map(pp=>({...pp,avatar:null})),msgs:o.msgs.map(m=>mk({...m,img:null}))};if(!LAY[P.style])P.style='ios';}}catch(e){}}
@@ -391,7 +396,7 @@ function build(){
       if(m.kind==='voice'&&m.voice&&m.voicePlay&&!lock){e.voiceStart=e.popEnd+.3;e.voiceEnd=e.voiceStart+voiceSecs(m);snd.push({t:e.voiceStart,type:'voice',i});if(m.voiceWait!==false)end=Math.max(end,e.voiceEnd);}
       if(m.react){const by=m.reactBy||(m.from==='me'?'them':'me');e.reactAt=e.arrive+Math.max(.2,m.reactDelay);if(!(lock&&(m.from!=='me'||by==='me')))snd.push({t:e.reactAt,type:'react',i});end=Math.max(end,e.reactAt+.35);}
       if(m.unsend){e.unsendAt=e.arrive+Math.max(.3,m.unsendAfter);end=Math.max(end,e.unsendAt+.5);}}
-    if(m.open&&m.kind!=='text'&&m.kind!=='voice'&&m.from!=='divider'&&!lock&&!m.unsend){e.openTap=end+.4;e.openStart=e.openTap+.35;e.openFull=e.openStart+.55;e.closeStart=e.openFull+m.openHold;e.closeEnd=e.closeStart+.45;e.end=e.closeEnd;snd.push({t:e.openTap,type:'tap',i});}
+    if(m.open&&m.kind!=='text'&&m.kind!=='voice'&&m.from!=='divider'&&!lock&&!m.unsend){e.openTap=end+.4;e.openStart=e.openTap+.35;e.openFull=e.openStart+.55;e.closeStart=e.openFull+holdOf(m);e.closeEnd=e.closeStart+.45;e.end=e.closeEnd;snd.push({t:e.openTap,type:'tap',i});}
     else e.end=end;
     if(e.keys)kb.push([e.kbUp,e.arrive+.45]);
     ev.push(e);t=e.end;
@@ -545,7 +550,7 @@ function drawThread(L,c,t){
         yy+=above;const by=yy;
         if(m.isTyping){bubble(m,x,by,w,bh,first,lst,c);for(let k=0;k<3;k++){const ph=t*Math.PI*2*1.3-k*.75,up=Math.max(0,Math.sin(ph));ctx.save();ctx.globalAlpha*=(.35+.65*up);ctx.fillStyle=c.dots;ctx.beginPath();ctx.arc(x+w/2+(k-1)*L.lh*.56,by+bh/2-6*up,L.lh*.17,0,Math.PI*2);ctx.fill();ctx.restore();}}
         else if(media){ctx.save();rr(x,by,w,bh,L.photoR);ctx.clip();drawCover(imgOf(m),{x,y:by,w,h:bh});
-          if(m.kind!=='photo'){ctx.fillStyle='rgba(0,0,0,.12)';ctx.fillRect(x,by,w,bh);shadow(true,18,.35);icon('play',x+w/2,by+bh/2,150,'#fff');shadow(false);}
+          if(m.kind!=='photo'&&!vidRolling(m,e,t)){ctx.fillStyle='rgba(0,0,0,.12)';ctx.fillRect(x,by,w,bh);shadow(true,18,.35);icon('play',x+w/2,by+bh/2,150,'#fff');shadow(false);}
           if(m.kind==='post')postHeader(m,x,by,w);
           if(st==='dm'&&m.kind!=='photo'){ctx.fillStyle='#fff';rr(x+34,by+bh-102,62,62,14);ctx.fill();icon('play',x+66,by+bh-71,40,'#111');}
           ctx.restore();
@@ -595,7 +600,7 @@ function drawDiscord(L,c,t){
       const nw=ctx.measureText(nameOf(m)).width;ctx.font=F(24,400,'sys');ctx.fillStyle=c.mu;ctx.fillText('Today at '+timeLabel(e.i),x0+nw+16,yy+38);yy+=headH;}
     if(lines){ctx.font=L.font;ctx.fillStyle=c.fg;ctx.textAlign='left';ctx.textBaseline='middle';lines.forEach((l,k)=>ctx.fillText(l,x0,yy+L.lh*(k+.5)));}
     else if(m.kind==='voice'){ctx.fillStyle=c.them;rr(x0,yy+6,600,88,14);ctx.fill();drawVoice(m,e,x0,yy+6,600,88,false,c,t);}
-    else{const r={x:x0,y:yy+6,w:ph.w,h:ph.h};ctx.save();rr(r.x,r.y,r.w,r.h,16);ctx.clip();drawCover(imgOf(m),r);if(m.kind!=='photo'){ctx.fillStyle='rgba(0,0,0,.15)';ctx.fillRect(r.x,r.y,r.w,r.h);icon('play',r.x+r.w/2,r.y+r.h/2,130,'#fff');}if(m.kind==='post')postHeader(m,r.x,r.y,r.w);ctx.restore();rects[e.i]=r;}
+    else{const r={x:x0,y:yy+6,w:ph.w,h:ph.h};ctx.save();rr(r.x,r.y,r.w,r.h,16);ctx.clip();drawCover(imgOf(m),r);if(m.kind!=='photo'&&!vidRolling(m,e,t)){ctx.fillStyle='rgba(0,0,0,.15)';ctx.fillRect(r.x,r.y,r.w,r.h);icon('play',r.x+r.w/2,r.y+r.h/2,130,'#fff');}if(m.kind==='post')postHeader(m,r.x,r.y,r.w);ctx.restore();rects[e.i]=r;}
     if(rp>0){const ry=yy+ch+10,mine=(m.reactBy||(m.from==='me'?'them':'me'))==='me';ctx.save();ctx.globalAlpha*=Math.min(1,rp*2);ctx.font=F(28,600,'sys');const pw=110;
       ctx.fillStyle=mine?'rgba(88,101,242,.16)':c.them;rr(x0,ry,pw,52,10);ctx.fill();ctx.strokeStyle=mine?'#5865F2':c.line;ctx.lineWidth=2;ctx.stroke();ctx.textAlign='left';ctx.textBaseline='middle';ctx.font=F(30,400,'sys');ctx.fillStyle=c.fg;ctx.fillText(m.react,x0+14,ry+27);ctx.font=F(26,600,'sys');ctx.fillStyle=mine?'#949CF7':c.mu;ctx.fillText('1',x0+70,ry+27);ctx.restore();}
     ctx.restore();
@@ -767,14 +772,43 @@ const BUILTIN={
 /* your own sound files, kept in this browser (IndexedDB) */
 let LIB=[];
 const IDB={db:null,
-  open(){if(IDB.opening)return IDB.opening;return IDB.opening=new Promise(res=>{try{const r=indexedDB.open('chat-reel',2);
-    r.onupgradeneeded=()=>{const db=r.result;if(!db.objectStoreNames.contains('sounds'))db.createObjectStore('sounds',{keyPath:'id'});if(!db.objectStoreNames.contains('state'))db.createObjectStore('state');};
+  open(){if(IDB.opening)return IDB.opening;return IDB.opening=new Promise(res=>{try{const r=indexedDB.open('chat-reel',3);
+    r.onupgradeneeded=()=>{const db=r.result;if(!db.objectStoreNames.contains('sounds'))db.createObjectStore('sounds',{keyPath:'id'});if(!db.objectStoreNames.contains('state'))db.createObjectStore('state');if(!db.objectStoreNames.contains('clips'))db.createObjectStore('clips',{keyPath:'id'});};
     r.onsuccess=()=>{IDB.db=r.result;res(r.result);};r.onerror=r.onblocked=()=>res(null);}catch(e){res(null);}});},
   async getState(){const db=IDB.db||await IDB.open();if(!db)return null;return new Promise(res=>{try{const q=db.transaction('state').objectStore('state').get('current');q.onsuccess=()=>res(q.result||null);q.onerror=()=>res(null);}catch(e){res(null);}});},
   async putState(doc){const db=IDB.db||await IDB.open();if(!db)return;return new Promise(res=>{try{const tx=db.transaction('state','readwrite');tx.objectStore('state').put(doc,'current');tx.oncomplete=()=>res();tx.onerror=tx.onabort=()=>res();}catch(e){res();}});},
   async all(){const db=IDB.db||await IDB.open();if(!db)return[];return new Promise(res=>{try{const q=db.transaction('sounds').objectStore('sounds').getAll();q.onsuccess=()=>res(q.result||[]);q.onerror=()=>res([]);}catch(e){res([]);}});},
   async put(o){const db=IDB.db||await IDB.open();if(db)try{db.transaction('sounds','readwrite').objectStore('sounds').put(o);}catch(e){}},
-  async del(id){const db=IDB.db||await IDB.open();if(db)try{db.transaction('sounds','readwrite').objectStore('sounds').delete(id);}catch(e){}}};
+  async del(id){const db=IDB.db||await IDB.open();if(db)try{db.transaction('sounds','readwrite').objectStore('sounds').delete(id);}catch(e){}},
+  async clips(){const db=IDB.db||await IDB.open();if(!db)return[];return new Promise(res=>{try{const q=db.transaction('clips').objectStore('clips').getAll();q.onsuccess=()=>res(q.result||[]);q.onerror=()=>res([]);}catch(e){res([]);}});},
+  async putClip(o){const db=IDB.db||await IDB.open();if(db)try{db.transaction('clips','readwrite').objectStore('clips').put(o);}catch(e){}},
+  async delClip(id){const db=IDB.db||await IDB.open();if(db)try{db.transaction('clips','readwrite').objectStore('clips').delete(id);}catch(e){}}};
+const waitEvt=(el,ev,ms)=>new Promise(res=>{let done=false;const f=()=>{if(done)return;done=true;el.removeEventListener(ev,f);res(true);};el.addEventListener(ev,f);setTimeout(()=>{if(!done){done=true;el.removeEventListener(ev,f);res(false);}},ms||3000);});
+async function makeClip(id,name,blob){
+  const el=document.createElement('video');el.playsInline=true;el.setAttribute('playsinline','');el.preload='auto';el.muted=true;el.src=URL.createObjectURL(blob);
+  let ok=el.readyState>=2||await waitEvt(el,'loadeddata',12000);if(!ok&&el.readyState<2){try{await el.play();el.pause();}catch(e){}ok=el.readyState>=2||await waitEvt(el,'loadeddata',3000);}
+  if(!el.videoWidth){URL.revokeObjectURL(el.src);return null;}
+  let dur=el.duration;if(!isFinite(dur)||dur<=0){el.currentTime=1e7;await waitEvt(el,'durationchange',4000);dur=isFinite(el.duration)?el.duration:0;el.currentTime=0;await waitEvt(el,'seeked',2000);}
+  const v={id,name,blob,el,dur:Math.max(.2,dur||1),ready:true};el.addEventListener('seeked',()=>{if(!state.playing&&!busy)drawFrame(state.t);});VIDS[id]=v;if(AC)clipAudio();return v;}
+async function addClip(file){const id='v'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name=(file.name||'Video').replace(/\.[a-z0-9]+$/i,'').slice(0,40)||'Video';
+  const v=await makeClip(id,name,file);if(!v){toast('That video couldn’t be opened here. Try an MP4 or WebM file.');return null;}IDB.putClip({id,name,blob:file});return id;}
+async function loadClips(){const rows=await IDB.clips();for(const r of rows)if(r&&r.id&&r.blob&&!VIDS[r.id])await makeClip(r.id,r.name||'Video',r.blob);if(rows.length){SCH=build();refresh({side:tab==='msg'});}}
+/* clips nobody uses any more are cleared out when your work is saved */
+function pruneClips(){const used=new Set(P.msgs.map(m=>m.vkey).filter(Boolean));Object.keys(VIDS).forEach(id=>{if(used.has(id))return;const v=VIDS[id];try{v.el.pause();}catch(e){}if(v.node){try{v.node.disconnect();}catch(e){}}delete VIDS[id];IDB.delClip(id);});}
+/* where a clip is at time t: playing silently in its bubble after it arrives, or from the start with sound once it's opened full screen */
+function clipTime(m,e,t){const v=vidOf(m);if(!v||!e)return{lt:0,run:false,loud:false};const d=v.dur;
+  if(e.openTap!=null&&t>=e.openStart&&t<e.closeEnd){if(t<e.openFull)return{lt:0,run:false,loud:false};const k=t-e.openFull;
+    if(t<e.closeStart)return{lt:Math.min(d-.03,k),run:k<d-.03,loud:m.vidSound!==false};return{lt:Math.min(d-.03,e.closeStart-e.openFull),run:false,loud:false};}
+  if(m.vidInline!==false&&t>=e.arrive){const from=e.closeEnd!=null&&t>=e.closeEnd?e.closeEnd:e.arrive;return{lt:(t-from)%d,run:true,loud:false};}
+  return{lt:0,run:false,loud:false};}
+const vidRolling=(m,e,t)=>!!vidOf(m)&&clipTime(m,e,t).run;
+function clipAudio(){if(!AC)return;Object.values(VIDS).forEach(v=>{if(v.el&&!v.node){try{v.node=AC.createMediaElementSource(v.el);v.gain=AC.createGain();v.gain.gain.value=0;v.node.connect(v.gain);v.gain.connect(master);v.el.muted=false;}catch(e){}}});}
+function syncClips(t,playing){(SCH.ev||[]).forEach(e=>{const m=e.m,v=vidOf(m);if(!v)return;const{lt,run,loud}=clipTime(m,e,t),el=v.el;
+  if(v.gain&&AC)v.gain.gain.setTargetAtTime(loud&&playing?1:0,AC.currentTime,.02);
+  if(playing&&run){if(el.paused){try{el.currentTime=lt;}catch(err){}const p=el.play();if(p&&p.catch)p.catch(()=>{});}else if(Math.abs(el.currentTime-lt)>.3){try{el.currentTime=lt;}catch(err){}}}
+  else{if(!el.paused)el.pause();if(Math.abs(el.currentTime-lt)>.04&&!el.seeking){try{el.currentTime=lt;}catch(err){}}}});}
+async function seekClips(t){for(const e of SCH.ev||[]){const v=vidOf(e.m);if(!v)continue;const{lt}=clipTime(e.m,e,t),el=v.el;if(!el.paused)el.pause();
+  if(Math.abs(el.currentTime-lt)>.004||el.seeking){el.currentTime=lt;await waitEvt(el,'seeked',2500);}}}
 const decodeAB=ab=>new Promise((res,rej)=>{try{const pr=AC.decodeAudioData(ab.slice(0),res,rej);if(pr&&pr.catch)pr.catch(rej);}catch(e){rej(e);}});
 async function decodeAll(){if(!audio())return;for(const it of LIB)if(!it.buf&&!it.bad){try{it.buf=await decodeAB(it.data);}catch(e){it.bad=true;}}}
 const libItem=v=>typeof v==='string'&&v.startsWith('lib:')?LIB.find(x=>x.id===v.slice(4)):null;
@@ -797,12 +831,12 @@ async function loadLibrary(){const rows=await IDB.all();LIB=rows.filter(r=>r&&r.
 
 /* ================= playback ================= */
 const state={t:0,playing:false,start:0};let busy=false;
-async function play(){const ac=audio();if(ac&&ac.state==='suspended')ac.resume();await decodeAll();if(state.t>=SCH.dur-.02)state.t=0;state.start=performance.now()-state.t*1000;state.playing=true;cancelSounds();scheduleSounds(state.t);syncTransport();requestAnimationFrame(tick);}
-function pause(){state.playing=false;cancelSounds();syncTransport();}
+async function play(){const ac=audio();if(ac&&ac.state==='suspended')ac.resume();await decodeAll();clipAudio();if(state.t>=SCH.dur-.02)state.t=0;state.start=performance.now()-state.t*1000;state.playing=true;cancelSounds();scheduleSounds(state.t);syncTransport();requestAnimationFrame(tick);}
+function pause(){state.playing=false;cancelSounds();syncClips(state.t,false);syncTransport();}
 function tick(){if(!state.playing||busy)return;let t=(performance.now()-state.start)/1000;
   if(t>=SCH.dur){if($('loop').checked){state.start=performance.now();t=0;cancelSounds();scheduleSounds(0);}else{state.t=SCH.dur;state.playing=false;drawNow();syncTransport();return;}}
-  state.t=t;drawNow(true);requestAnimationFrame(tick);}
-function drawNow(follow){state.t=clamp(state.t,0,SCH.dur);drawFrame(state.t);$('clock').textContent=`${state.t.toFixed(1)}s / ${SCH.dur.toFixed(1)}s`;moveHead(follow);}
+  state.t=t;syncClips(t,true);drawNow(true);requestAnimationFrame(tick);}
+function drawNow(follow){state.t=clamp(state.t,0,SCH.dur);if(!state.playing&&!busy)syncClips(state.t,false);drawFrame(state.t);$('clock').textContent=`${state.t.toFixed(1)}s / ${SCH.dur.toFixed(1)}s`;moveHead(follow);}
 function syncTransport(){$('playLbl').textContent=state.playing?'Pause':'Play';$('playIco').textContent=state.playing?'❚❚':'▶';}
 $('play').onclick=()=>state.playing?pause():play();
 $('restart').onclick=()=>{const was=state.playing;pause();state.t=0;drawNow();if(was)play();};
@@ -838,7 +872,7 @@ tlRuler.addEventListener('pointermove',e=>{if(td&&td.mode==='scrub')scrub(e);});
 tlRuler.addEventListener('pointerup',()=>{td=null;});
 tlTrack.addEventListener('pointerdown',e=>{
   const hd=e.target.closest('.hdl'),b=e.target.closest('.blk,.tdiv');
-  if(hd){const i=+hd.dataset.i,m=P.msgs[i],op=hd.classList.contains('h-open');td={mode:op?'open':'type',i,x0:e.clientX,v0:op?m.openHold:typ(m),moved:false};}
+  if(hd){const i=+hd.dataset.i,m=P.msgs[i],op=hd.classList.contains('h-open');td={mode:op?'open':'type',i,x0:e.clientX,v0:op?holdOf(m):typ(m),moved:false};}
   else if(b){const i=+b.dataset.i;td={mode:'move',i,x0:e.clientX,v0:P.msgs[i].delay,moved:false};}
   else{if(e.pointerType==='touch')return;td={mode:'scrub'};scrub(e);}
   tlTrack.setPointerCapture(e.pointerId);e.preventDefault();});
@@ -848,7 +882,7 @@ tlTrack.addEventListener('pointermove',e=>{if(!td)return;if(td.mode==='scrub'){s
   const dx=(e.clientX-td.x0)/pps,m=P.msgs[td.i],snap=v=>Math.round(v*20)/20;
   if(td.mode==='move')m.delay=clamp(snap(td.v0+dx),0,15);
   else if(td.mode==='type'){m.typingAuto=false;m.typing=clamp(snap(td.v0+dx),m.from==='them'?0:.3,12);}
-  else m.openHold=clamp(snap(td.v0+dx),.3,15);
+  else{m.openHold=clamp(snap(td.v0+dx),.3,60);m.holdVid=false;}
   refresh({list:false,side:false});});
 tlTrack.addEventListener('pointerup',()=>{if(!td)return;const d=td;td=null;if(d.mode==='scrub')return;if(!d.moved)select(d.i);else refresh();});
 $('tlZoom').oninput=e=>{pps=+e.target.value;renderTimeline();};
@@ -877,7 +911,7 @@ function renderList(){
     if(m.from==='divider'||m.kind==='text'){body=h('input',{type:'text',class:'mtext',id:'mt-'+m.id,value:m.text,placeholder:m.from==='divider'?'Today 4:12 PM':'Type a message','aria-label':`Message ${i+1} text`});
       body.oninput=()=>{m.text=body.value;refresh({list:false,side:false});syncInspectorText();};body.onfocus=()=>{if(sel!==i){sel=i;markSel();renderSide();renderTimeline();}};}
     else if(m.kind==='voice')body=h('span',{class:'mmedia'},'🎤 Voice note '+(m.voiceLen||''));
-    else body=h('span',{class:'mmedia'},m.img?h('img',{src:m.img.src,alt:''}):h('span',{class:'ph'}),cap(m.kind));
+    else body=h('span',{class:'mmedia'},m.img&&!vidOf(m)?h('img',{src:m.img.src,alt:''}):h('span',{class:'ph'}),vidOf(m)?'🎥 '+vidOf(m).name:cap(m.kind));
     const e=SCH.ev[i],meta=h('span',{class:'mmeta','data-meta':i},metaText(m,e));
     const btns=h('span',{class:'mbtns'},
       h('button',{type:'button',class:'ib','aria-label':'Move up',title:'Move up',disabled:i===0,onclick:()=>move(i,-1)},'↑'),
@@ -886,7 +920,7 @@ function renderList(){
     li.append(who,body,btns,meta);ol.append(li);
   });
 }
-function metaText(m,e){if(!e)return'';const parts=[`at ${e.arrive.toFixed(1)}s`];if(m.replyTo)parts.push('reply');if(m.react)parts.push(m.react);if(m.unsend)parts.push('unsent');if(m.from==='them'&&e.dots)parts.push(`typing ${typ(m).toFixed(1)}s`);if(e.keys)parts.push(`keyboard ${typ(m).toFixed(1)}s`);if(e.openTap!=null)parts.push(`opens ${m.openHold.toFixed(1)}s`);return parts.join(' · ');}
+function metaText(m,e){if(!e)return'';const parts=[`at ${e.arrive.toFixed(1)}s`];if(m.replyTo)parts.push('reply');if(m.react)parts.push(m.react);if(m.unsend)parts.push('unsent');if(m.from==='them'&&e.dots)parts.push(`typing ${typ(m).toFixed(1)}s`);if(e.keys)parts.push(`keyboard ${typ(m).toFixed(1)}s`);if(e.openTap!=null)parts.push(`opens ${holdOf(m).toFixed(1)}s`);return parts.join(' · ');}
 function updateListMeta(){document.querySelectorAll('[data-meta]').forEach(el=>{const i=+el.dataset.meta;el.textContent=metaText(P.msgs[i],SCH.ev[i]);});$('count').textContent=`${P.msgs.length} items · ${SCH.dur.toFixed(1)} s`;}
 function markSel(){document.querySelectorAll('.msg').forEach(li=>li.classList.toggle('sel',+li.dataset.i===sel));}
 function move(i,d){const j=i+d;if(j<0||j>=P.msgs.length)return;[P.msgs[i],P.msgs[j]]=[P.msgs[j],P.msgs[i]];sel=j;refresh();}
@@ -924,9 +958,16 @@ function msgPanel(p){
       if(m.voicePlay)p.append(checkF('i-vwait','Wait until it finishes before the next message',m.voiceWait!==false,v=>{m.voiceWait=v;refresh();}));}
   }
   else{
+    if(m.kind==='video'){const v=vidOf(m),vin=h('input',{type:'file',id:'i-vid',accept:'video/*,.mp4,.mov,.m4v,.webm'});
+      vin.onchange=async()=>{const f=vin.files[0];vin.value='';if(!f)return;$('i-vidst').textContent='Opening the video…';const id=await addClip(f);if(id){m.vkey=id;m.holdVid=true;refresh();}else $('i-vidst').textContent='';};
+      const vrow=h('div',{class:'row'},v?h('span',{class:'small'},`${v.name} · ${v.dur.toFixed(1)} s`):null,h('label',{class:'btn primary',for:'i-vid'},v?'Change video':'Choose video',vin));
+      if(v)vrow.append(h('button',{type:'button',onclick:()=>{m.vkey='';refresh();}},'Remove'));
+      p.append(h('div',{class:'field'},h('span',{class:'flabel'},'Video clip'),vrow,h('p',{class:'help',id:'i-vidst'},v?'It plays in the chat. The photo below only shows if you remove the video.':'Add a real clip and it plays in the chat, then full screen with its sound if it’s opened. Without one, the photo below stands in.')));
+      if(v){p.append(checkF('i-vin','Play it in the bubble, without sound',m.vidInline!==false,val=>{m.vidInline=val;refresh();}));
+        p.append(checkF('i-vsnd','Play its sound when it’s opened full screen',m.vidSound!==false,val=>{m.vidSound=val;refresh();}));}}
     const row=h('div',{class:'row'},m.img?h('img',{class:'thumb',src:m.img.src,alt:''}):h('span',{class:'thumb'}),pickImage('i-img',m.img?'Change photo':'Choose photo',im=>{m.img=im;refresh();}));
     if(m.img)row.append(h('button',{type:'button',onclick:()=>{m.img=null;refresh();}},'Remove'));
-    p.append(h('div',{class:'field'},h('span',{class:'flabel'},'Photo'),row,h('p',{class:'help'},'Without a photo, the sample sunset stands in.')));
+    p.append(h('div',{class:'field'},h('span',{class:'flabel'},m.kind==='video'?'Photo instead of a clip':'Photo'),row,h('p',{class:'help'},'Without a photo, the sample sunset stands in.')));
     if(m.kind==='post')p.append(textF('i-post','Account name on the post',m.postUser,v=>{m.postUser=v;soft();},'coastal.views'));
   }
   p.append(h('h4',{class:'fhead'},'Timing'));
@@ -958,7 +999,8 @@ function msgPanel(p){
   }
   if(m.from!=='divider'&&m.kind!=='text'&&m.kind!=='voice'){
     p.append(checkF('i-open','Tap to open it full screen after it arrives',m.open,v=>{m.open=v;refresh();}));
-    if(m.open)p.append(rangeF('i-hold','Stays open for',.3,10,.05,m.openHold,fmtS,v=>{m.openHold=v;soft();}));
+    if(m.open&&vidOf(m))p.append(checkF('i-hvid','Stay open for the whole video',m.holdVid!==false,v=>{m.holdVid=v;if(!v)m.openHold=Math.min(10,vidOf(m).dur);refresh();}));
+    if(m.open&&!(vidOf(m)&&m.holdVid!==false))p.append(rangeF('i-hold','Stays open for',.3,vidOf(m)?Math.max(10,Math.ceil(vidOf(m).dur)):10,.05,m.openHold,fmtS,v=>{m.openHold=v;soft();}));
   }
   p.append(h('div',{class:'row'},h('button',{type:'button',onclick:()=>{const c=mk({...m});P.msgs.splice(sel+1,0,c);sel++;refresh();}},'Duplicate'),
     h('button',{type:'button',onclick:()=>{P.msgs.splice(sel,1);sel=Math.min(sel,P.msgs.length-1);refresh();}},'Delete')));
@@ -1114,14 +1156,14 @@ async function recordVideo(mime,onProg,o){
   o=o||{};const sc=o.scale||1,withSound=!!o.withSound;
   let src=cv,copy=null;if(sc<1){src=document.createElement('canvas');src.width=Math.round(W*sc/2)*2;src.height=Math.round(H*sc/2)*2;const sg=src.getContext('2d');copy=()=>sg.drawImage(cv,0,0,src.width,src.height);}
   const vs=src.captureStream(30),tracks=[...vs.getVideoTracks()];let dest=null;
-  if(withSound&&audio()){await AC.resume();await decodeAll();dest=AC.createMediaStreamDestination();master.connect(dest);tracks.push(...dest.stream.getAudioTracks());}
+  if(withSound&&audio()){await AC.resume();await decodeAll();clipAudio();dest=AC.createMediaStreamDestination();master.connect(dest);tracks.push(...dest.stream.getAudioTracks());}
   const opts={mimeType:mime,videoBitsPerSecond:Math.round(o.vbps||8e6)};if(dest)opts.audioBitsPerSecond=o.abps||128000;
   const rec=new MediaRecorder(new MediaStream(tracks),opts),chunks=[];rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
-  const stopped=new Promise(r=>rec.onstop=r),d=SCH.dur;drawFrame(0);if(copy)copy();
+  const stopped=new Promise(r=>rec.onstop=r),d=SCH.dur;await seekClips(0);drawFrame(0);if(copy)copy();
   rec.start(250);const t0=performance.now();
   if(dest){cancelSounds();scheduleSounds(0,AC.currentTime);}
-  await new Promise(res=>{const step=()=>{const t=(performance.now()-t0)/1000;drawFrame(Math.min(t,d));if(copy)copy();onProg(Math.min(1,t/d));state.t=Math.min(t,d);moveHead();if(t>=d+.3)return res();requestAnimationFrame(step);};requestAnimationFrame(step);});
-  const ms=performance.now()-t0;rec.stop();await stopped;if(dest){try{master.disconnect(dest);}catch(e){}}tracks.forEach(t=>t.stop());
+  await new Promise(res=>{const step=()=>{const t=(performance.now()-t0)/1000;syncClips(Math.min(t,d),t<d);drawFrame(Math.min(t,d));if(copy)copy();onProg(Math.min(1,t/d));state.t=Math.min(t,d);moveHead();if(t>=d+.3)return res();requestAnimationFrame(step);};requestAnimationFrame(step);});
+  const ms=performance.now()-t0;syncClips(d,false);rec.stop();await stopped;if(dest){try{master.disconnect(dest);}catch(e){}}tracks.forEach(t=>t.stop());
   const blob=new Blob(chunks,{type:mime.split(';')[0]});return mime.includes('webm')?fixWebmDuration(blob,ms):blob;
 }
 async function fixWebmDuration(blob,ms){
@@ -1181,11 +1223,11 @@ function gifEncoder(w,h,pal,loop,nc){
 }
 async function makeGif(onProg,o){
   o=o||GIF_STEPS[0];const d=SCH.dur,fps=o.fps,gw=Math.round(W*o.s/2)*2,gh=Math.round(H*o.s/2)*2,off=document.createElement('canvas');off.width=gw;off.height=gh;const og=off.getContext('2d',{willReadFrequently:true});
-  const grab=t=>{drawFrame(t);og.drawImage(cv,0,0,gw,gh);return og.getImageData(0,0,gw,gh).data;};
-  const hist=new Uint32Array(32768);for(let k=0;k<=10;k++){const px=grab(d*k/10);for(let j=0;j<px.length;j+=8)hist[((px[j]>>3)<<10)|((px[j+1]>>3)<<5)|(px[j+2]>>3)]++;await new Promise(r=>setTimeout(r,0));}
+  const grab=async t=>{await seekClips(t);drawFrame(t);og.drawImage(cv,0,0,gw,gh);return og.getImageData(0,0,gw,gh).data;};
+  const hist=new Uint32Array(32768);for(let k=0;k<=10;k++){const px=await grab(d*k/10);for(let j=0;j<px.length;j+=8)hist[((px[j]>>3)<<10)|((px[j+1]>>3)<<5)|(px[j+2]>>3)]++;await new Promise(r=>setTimeout(r,0));}
   const enc=gifEncoder(gw,gh,gifPalette(hist,o.c),$('loop').checked,o.c),n=Math.ceil(d*fps);let pend=null,pendT=0;
   const same=(a,b)=>{const x=new Uint32Array(a.buffer),y=new Uint32Array(b.buffer);for(let i=0;i<x.length;i++)if(x[i]!==y[i])return false;return true;};
-  for(let f=0;f<=n;f++){const t=Math.min(d,f/fps),px=grab(t);if(pend&&same(px,pend))continue;if(pend)await enc.add(pend,Math.round(t*100)-Math.round(pendT*100));
+  for(let f=0;f<=n;f++){const t=Math.min(d,f/fps),px=await grab(t);if(pend&&same(px,pend))continue;if(pend)await enc.add(pend,Math.round(t*100)-Math.round(pendT*100));
     pend=new Uint8Array(px.buffer.slice(0));pendT=t;onProg(f/n*.97);if(f%2===0)await new Promise(r=>setTimeout(r,0));}
   await enc.add(pend,Math.round((d+.5)*100)-Math.round(pendT*100));const blob=await enc.finish();onProg(1);return blob;
 }
@@ -1231,8 +1273,8 @@ function abToB64(ab){const u=new Uint8Array(ab);let s='';for(let i=0;i<u.length;
 function b64ToAb(b){const s=atob(b),u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u.buffer;}
 $('saveProj').onclick=async()=>{
   try{const doc=reelDoc(true);
-    const blob=new Blob([JSON.stringify(doc)],{type:'application/json'});
-    toast(savedMsg(await saveFile(blob,`chat-reel-${slugify(P.name)||'project'}-${todayStr()}.json`)));}
+    const blob=new Blob([JSON.stringify(doc)],{type:'application/json'}),m=savedMsg(await saveFile(blob,`chat-reel-${slugify(P.name)||'project'}-${todayStr()}.json`));
+    toast(/^Project saved/.test(m)&&P.msgs.some(x=>vidOf(x))?m+' Video clips aren’t in the file; add them again after you open it.':m);}
   catch(err){toast('The project couldn’t be saved: '+(err&&err.message||err));}
 };
 $('openProj').onchange=async e=>{
@@ -1263,13 +1305,14 @@ const HANDOFF={name:'pt-handoff',
   async send(files,page){try{await this.put(files);}catch(e){toast('Couldn’t pass it along. Save it and add it there instead.');return;}
     try{await Promise.race([flushAutosave(),new Promise(r=>setTimeout(r,1500))]);}catch(e){}location.href=page+'?handoff=1';}};
 $('xToVL').onclick=()=>{if(xResult)HANDOFF.send([new File([xResult],`chat-reel.${xFormat}`,{type:xResult.type})],'video-layers.html');};
-async function handoffIn(){const fs=await HANDOFF.take();if(!fs.length)return;let ph=0,sn=0,other=0;
+async function handoffIn(){const fs=await HANDOFF.take();if(!fs.length)return;let ph=0,sn=0,other=0,vc=0;
   for(const f of fs){
     if(/^image\//.test(f.type)){const url=await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.onerror=()=>r(null);fr.readAsDataURL(f);});const im=await dataToImg(url);if(im){P.msgs.push(mk({from:'me',kind:'photo',img:im,delay:.6}));ph++;}}
     else if(/^audio\//.test(f.type)||/\.(mp3|m4a|aac|wav|ogg)$/i.test(f.name)){if(await addSound(f))sn++;}
+    else if(/^video\//.test(f.type)||/\.(mp4|mov|m4v|webm)$/i.test(f.name)){const id=await addClip(f);if(id){P.msgs.push(mk({from:'me',kind:'video',vkey:id,delay:.6,open:true}));vc++;}else other++;}
     else other++;}
-  if(ph){sel=P.msgs.length-1;tab='msg';}refresh();
-  toast([ph?`Added ${ph} photo${ph>1?'s':''} at the end, sent by you.`:'',sn?`Added ${sn} sound${sn>1?'s':''} to My sounds.`:'',other?'Videos can’t go in a chat. Try Video Layers.':''].filter(Boolean).join(' '));}
+  if(ph||vc){sel=P.msgs.length-1;tab='msg';}refresh();
+  toast([ph?`Added ${ph} photo${ph>1?'s':''} at the end, sent by you.`:'',vc?`Added ${vc} video message${vc>1?'s':''} at the end.`:'',sn?`Added ${sn} sound${sn>1?'s':''} to My sounds.`:'',other?'Some files couldn’t be used.':''].filter(Boolean).join(' '));}
 
 /* ================= boot ================= */
 load();SCH=build();state.t=SCH.ev[2]?SCH.ev[2].popEnd+.05:0;
@@ -1278,7 +1321,7 @@ loadLibrary();
 IDB.getState().then(async doc=>{
   if(doc&&doc.app==='chat-reel'&&doc.project&&Array.isArray(doc.project.msgs)&&doc.project.msgs.length){
     const keep=sel;await applyReel(doc);sel=Math.min(keep,P.msgs.length-1);SCH=build();state.t=SCH.ev[2]?SCH.ev[2].popEnd+.05:0;refresh();}
-}).catch(()=>{}).finally(()=>{restored=true;handoffIn();});
+}).catch(()=>{}).finally(async()=>{await loadClips();restored=true;handoffIn();});
 /* ---------- switching tools: save first, then go; inside Claude each tool is its own page, so open it in a new tab ---------- */
 (function(){
   const ART={'photo-frame-studio.html':'https://claude.ai/artifact/BTFF4oB7m8EHQMWNwCo2Uw','chat-reel.html':'https://claude.ai/artifact/Tzehgnj1qjBYtpZ6oxKAhG','metadata-scrubber.html':'https://claude.ai/artifact/8kwiNFdeFAR3uZ8NTzKVnX','video-layers.html':'https://claude.ai/artifact/HMnHFrAaDUyaiSg7H8uxwN','photo-splitter.html':'https://claude.ai/artifact/ENVcKXEpCdopL6rRfj1fT9'};

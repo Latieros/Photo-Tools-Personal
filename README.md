@@ -13,7 +13,7 @@ A small set of personal browser tools for dressing up photos, making short video
 
 | Tool | What it does |
 |---|---|
-| [Photo Frame Studio](#photo-frame-studio) | Puts a photo inside a frame: social posts, phone screens, chats, camera screens, prints, comics, covers and newspapers. Frames one photo or a whole batch. Exports an image, or a video for the chat frames. |
+| [Photo Frame Studio](#photo-frame-studio) | Puts a photo inside a frame: social posts, phone screens, chats, camera screens, prints, comics, covers and newspapers. Takes a photo or a video. Frames one photo or a whole batch. Exports an image, or a video for videos and the animated chats. |
 | [Photo Splitter](#photo-splitter) | Cuts one photo into 2, 3 or 4 pieces that join back into the whole picture as you swipe through a post on X, with your own cut lines and your choice of which piece comes first. |
 | [Chat Reel](#chat-reel) | Turns a text conversation into a video, timing every message on a timeline. Group chats, reactions, replies, voice notes and unsent messages, in iPhone, Android, DM, WhatsApp-style, Discord-style or lock-screen looks. |
 | [Metadata Scrubber](#metadata-scrubber) | Strips prompts, location and hidden data out of photos and videos and saves clean copies under random names, optionally under a size limit. |
@@ -86,14 +86,21 @@ The frames sit in four categories: **Social & phone**, **Cameras**, **Prints** a
 - **Newspaper front page:** Classic or Tabloid, with paper name, motto, date, price, edition, headline, subheadline, byline, your photo with caption, and story columns.
 
 ### Editing
-- **Add a photo:** with the button, by dropping it on the preview, or by pasting it.
-- **Move things:** zoom and drag the photo, drag text and bubbles where you want them, or reset everything with **Re-center**.
+- **Add a photo or video:** with the button or by dropping it on the preview. Photos can also be pasted.
+- **Move things:** zoom and drag the photo or video, drag text and bubbles where you want them, or reset everything with **Re-center**.
 - **Second photo:** frames with a profile or contact picture can take one, and it's shared by every frame that uses one.
 
 ### Animated chats
 - **Play it:** the iPhone, Android and Social DM frames can play like a real conversation, with typing dots and messages popping in. At the end, a photo can be tapped open full screen.
 - **Settings:** speed, typing dots, which photo opens, how long to hold at the end, and looping.
 - **Make video:** saves it as **WebM**, **MP4** or **GIF**, at best quality, half size, or under a size limit you choose (for example, under 5 MB).
+
+### Videos in a frame
+- **Any frame takes a video:** add one in place of the photo and it plays inside the frame. **Play** and the slider under the preview watch it in place.
+- **Frames that move with it:** the progress bar on **Short video** and **Video page** (with the player's time), the recording timer on **Phone camera**, the timestamp on **Security camera**, the tape counter on **VHS camcorder** and the time played on **Now playing** all count along with the video.
+- **Sound:** turn the video's sound on or off for the preview. Exports can include it either way.
+- **Make video:** saves the framed video as **MP4** or **WebM** with its sound, or as a **GIF**, at best quality, half size or under a size limit.
+- **Remove video** goes back to your photo. Your video is kept in the browser with the rest of your work, but it isn't saved in project files, and **Batch** stays photos only.
 
 ### Batch
 - **Batch** puts the frame you have open on many photos at once, each centered in the frame with the same words, and gives them all back in one ZIP (PNG or smaller JPG).
@@ -138,6 +145,7 @@ A timeline editor for text conversations that you export as a video.
 - **Adding:** add their messages, your messages, photos and time dividers.
 - **Editing each message:** reorder it, duplicate it or switch who sent it.
 - **Photo messages:** can show as a photo, a video or a shared post (with an account name). They can be tapped open full screen after they arrive.
+- **Real video messages:** give a video message an actual clip. It plays silently in its bubble after it arrives, then from the start with its sound when it's tapped open full screen, staying open for the whole clip (or as long as you choose). Its sound is recorded into WebM and MP4 exports. Clips are kept in the browser with your work but aren't saved in project files.
 - **Group chats:** add up to six more people, each with a name, color and photo, and pick who sends each message. Names show over their bubbles and the header shows the group.
 - **Reactions:** a heart, laugh, thumbs up or any emoji pops onto a bubble a moment after it arrives, from them or from you, with its own sound.
 - **Replies:** a message can quote an earlier one, the way each app shows it.
@@ -288,7 +296,7 @@ Open each tool once while you're online so everything, fonts included, is saved 
 
 ## Sharing into the tools
 
-- **Android:** after installing the app, open a photo, video or sound in your gallery (or any app), tap **Share** and choose **Photo Tools**. A page shows what you shared and which tools can take it: Frame Studio and the Splitter for photos, the Scrubber for photos and videos, Video Layers for all three, Chat Reel for photos and sounds.
+- **Android:** after installing the app, open a photo, video or sound in your gallery (or any app), tap **Share** and choose **Photo Tools**. A page shows what you shared and which tools can take it: the Splitter for photos, Frame Studio and the Scrubber for photos and videos, Video Layers and Chat Reel for all three.
 - **iPhone:** iOS doesn't let web apps appear in the Share menu. Use **Add photo** in any tool, which opens your photo library.
 - **Between tools:** after exporting in Photo Frame Studio, tap **Split for X** or **Use in Video Layers**; after exporting in Chat Reel, tap **Use in Video Layers**. The result is carried straight over. This works on the website and in the installed app.
 
