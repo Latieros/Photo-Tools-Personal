@@ -1320,7 +1320,11 @@ function cutNeeds(L){const m=M[L.id],c=L.crop;let ar=1;if(m)ar=(m.w*Math.max(.02
 const cutHas=L=>cutNeeds(L).every(n=>CUT.segs[n]);
 /* download with a progress count */
 async function cutGet(path){const size=CUT_SIZE[path]||0;CUT.total+=size;let n=0;
-  const r=await fetch(cutUrl(path));if(!r.ok)throw new Error(`a file didn’t download (${r.status})`);
+  const r=await fetch(cutUrl(path));
+  /* where .tflite files can't be served (inside Claude), each model sits next to it as base64 text instead */
+  if(!r.ok&&/\.tflite$/.test(path)){const r2=await fetch(cutUrl(path+'.txt')).catch(()=>null);
+    if(r2&&r2.ok){const t=(await r2.text()).replace(/\s+/g,''),bs=atob(t),out=new Uint8Array(bs.length);for(let i=0;i<bs.length;i++)out[i]=bs.charCodeAt(i);CUT.got+=size;cutStatus();return out;}}
+  if(!r.ok)throw new Error(`a file didn’t download (${r.status})`);
   let out;if(r.body&&r.body.getReader){const rd=r.body.getReader(),parts=[];
     for(;;){const{done,value}=await rd.read();if(done)break;parts.push(value);n+=value.length;CUT.got+=value.length;cutStatus();}
     out=new Uint8Array(n);let o=0;for(const p of parts){out.set(p,o);o+=p.length;}}
