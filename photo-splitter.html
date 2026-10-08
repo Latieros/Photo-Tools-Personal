@@ -107,6 +107,23 @@ canvas#cv.dragging{cursor:grabbing}
   canvas#cv{max-height:62vh}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* phone touches */
+@media (max-width:900px){
+  body{padding-inline:12px}
+  .top p{display:none}
+  .field input[type=text],.field input[type=number],.field select{font-size:16px}
+  .seg button,.row button{padding:10px 12px;font-size:14px}
+  .field input[type=range]{height:30px}
+
+  .fsec{border-top:1px solid var(--line);margin:4px 0 0}
+  .fold{width:100%;justify-content:space-between;border:0;background:transparent;padding:14px 0;font:600 14px/1.2 var(--f-display);border-radius:0;color:var(--ink)}
+  .fold .chev{width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);transition:transform .15s;margin-right:4px;flex:none}
+  .fold[aria-expanded="true"] .chev{transform:rotate(45deg)}
+  .fold .on{font:600 11px/1 var(--f-body);color:var(--accent);margin-left:8px;margin-right:auto;text-transform:uppercase;letter-spacing:.06em}
+  .foldbody{display:flex;flex-direction:column;gap:14px;padding-bottom:14px}
+  .fsec{margin:4px -16px 0;padding:0 16px}
+}
+
 </style>
 
 </head>
@@ -169,6 +186,34 @@ canvas#cv.dragging{cursor:grabbing}
 </main>
 
 <script>
+
+/* ================= phones: a list of choices that slides up, and fold-out sections ================= */
+const phoneMQ=matchMedia('(max-width:900px)'),isPhone=()=>phoneMQ.matches;
+function actionSheet(title,items){closeSheet();const opened=Date.now();
+  const box=document.createElement('div');box.className='asbox';box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');box.setAttribute('aria-label',title);
+  const t=document.createElement('h3');t.textContent=title;box.append(t);
+  for(const it of items){if(!it)continue;const b=document.createElement('button');b.type='button';b.textContent=it.lab;
+    if(it.on!=null){const s=document.createElement('span');s.className='tick';s.textContent=it.on?'✓ On':'Off';b.append(s);}
+    b.onclick=()=>{if(Date.now()-opened<350)return;closeSheet();it.fn();};box.append(b);}
+  const c=document.createElement('button');c.type='button';c.className='cancel';c.textContent='Cancel';c.onclick=closeSheet;box.append(c);
+  const wrap=document.createElement('div');wrap.className='asheet';wrap.id='asheet';wrap.append(box);wrap.onclick=e=>{if(e.target===wrap&&Date.now()-opened>450)closeSheet();};
+  document.body.append(wrap);box.querySelector('button').focus();}
+function closeSheet(){const s=document.getElementById('asheet');if(s)s.remove();}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('asheet'))closeSheet();});
+const openSecs=new Set();
+/* section headings (sel) fold their section away on a phone; tap one to open it */
+function foldSections(p,sel,stop){let body=null;
+  for(const el of[...p.children]){
+    if(el.matches(sel)){const name=el.textContent.trim(),open=openSecs.has(name);
+      const b=document.createElement('button');b.type='button';b.className='fold';b.setAttribute('aria-expanded',String(open));if(el.id)b.id=el.id;b.append(name);
+      const ch=document.createElement('span');ch.className='chev';ch.setAttribute('aria-hidden','true');ch.textContent='';b.append(ch);
+      body=document.createElement('div');body.className='foldbody';body.hidden=!open;const bd=body;
+      b.onclick=()=>{const o=bd.hidden;bd.hidden=!o;b.setAttribute('aria-expanded',String(o));if(o)openSecs.add(name);else openSecs.delete(name);};
+      const sec=document.createElement('div');sec.className='fsec';sec.append(b,body);el.replaceWith(sec);continue;}
+    if(body&&!(stop&&el.matches(stop)))body.append(el);}}
+
+if(isPhone())foldSections(document.querySelector('.opts'),'h4.fhead');
+
 /* ================= basics ================= */
 const $=id=>document.getElementById(id);
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));

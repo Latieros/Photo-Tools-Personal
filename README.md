@@ -277,6 +277,7 @@ Puts pictures, videos, text, music and your voice together and makes a new video
 
 ### Video size
 - Found under **Size & layout**.
+- **Drag to resize:** tap **⤢ Resize** on the preview, then drag any edge or corner of the video. Layers keep their size and place, so dragging an edge out adds space (filled by the blurred or solid background) and dragging it in trims. It snaps to 9:16, 1:1, 4:5, 16:9 and other common shapes, and to the edges of the bottom layer. **Fit the bottom layer** makes the video exactly the size of the bottom picture or video.
 - **Exact pixels:** type any width and height (up to 4096) and the video is exactly that size. A link button keeps the shape while you type if you want it to.
 - **Quick sizes:** Auto (follows the bottom layer), 9:16, 1:1, 4:5, 16:9, 4:3, 3:4, and a button to turn it sideways.
 - **Stretch to this size:** squeezes the main video to fill any size you pick.
@@ -303,6 +304,24 @@ Nothing that points back to you or your originals:
 - **File names** use a random code (like `story-rmwhbr.png` or `split-jmss3w-1-of-3.jpg`), never your original file name or the time.
 - **ZIP files** date every file 1 January 1980, so they don't record when you made them.
 - **Project files** (`.json`) are for your own use: they hold what you typed, your photos (already cleaned) and when you saved. Chat Reel's include any sound files you added exactly as they were.
+
+## On a phone
+
+The desktop layout stays as it is. On a phone (or a tablet held upright) the tools rearrange themselves:
+- **Video Layers:**
+  - The preview stays at the top while you scroll, and tabs along the bottom switch between **Layers**, **Edit**, **Timeline** and **Size**.
+  - Under the preview, a row holds the main quick edits; **More ▾** has the rest.
+  - **Press and hold** a layer in the preview, on the timeline or in the layer list for its menu: settings, crop, duplicate, split, bring forward, send back, hide or delete.
+  - Settings are grouped into sections you tap to open, so the list stays short.
+  - **⋯** next to the playback buttons has Loop, Mute and a bigger preview.
+  - Picking a layer on the preview opens its settings. In the layer list, tap a picked layer again to edit it.
+- **Chat Reel:** the preview stays at the top, and tabs along the bottom switch between **Chat** (the messages), **Message**, **Look**, **Sound** and **Timeline**. The ✎ on a message opens its settings.
+- **Photo Frame Studio:** the preview stays in view while you edit the words, and **⤢ Bigger** makes it larger.
+- **All of them:**
+  - The preview shrinks while you type, so the keyboard doesn't cover the field.
+  - Fields use a text size that phones don't zoom into.
+  - Buttons are bigger to tap.
+  - Long settings fold into sections.
 
 ## Install it as an app (works offline)
 

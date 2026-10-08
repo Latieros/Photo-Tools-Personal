@@ -134,6 +134,46 @@ button:disabled{opacity:.5;cursor:not-allowed}
   canvas{max-height:70vh}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.asheet{position:fixed;inset:0;z-index:40;background:rgba(10,8,18,.5);display:flex;align-items:flex-end;justify-content:center}
+.asbox{background:var(--panel);width:min(480px,100%);border-radius:16px 16px 0 0;padding:8px 10px calc(10px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:1px;max-height:82vh;overflow:auto;box-shadow:0 -8px 30px rgba(0,0,0,.25)}
+.asbox h3{font:600 13px/1.2 var(--f-body);margin:8px 10px 6px;color:var(--muted)}
+.asbox button{justify-content:flex-start;border:0;background:transparent;padding:13px 12px;font-size:16px;border-radius:10px;width:100%;min-height:48px}
+.asbox button:hover,.asbox button:focus-visible{background:var(--bg)}
+.asbox button .tick{margin-left:auto;color:var(--accent);font-weight:600}
+.asbox button.cancel{justify-content:center;margin-top:6px;background:var(--bg);font-weight:600}
+.dock,.ph{display:none}
+
+@media (max-width:900px){
+  body{padding-inline:12px;padding-block:10px 40px}
+  .top p{display:none}
+  .stage{position:sticky;top:0;z-index:6;background:var(--bg);margin:0 -12px;padding:8px 12px;gap:8px;box-shadow:0 10px 14px -14px rgba(0,0,0,.45)}
+  .canvas-wrap{min-height:0;padding:6px}
+  #cv{max-height:38vh}
+  .stage.big #cv{max-height:64vh}
+  .stage>.bar,.anim-bar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .stage>.bar::-webkit-scrollbar,.anim-bar::-webkit-scrollbar{display:none}
+  .stage>.bar>*,.anim-bar>*{flex:none}
+  .stage>.bar .spacer{display:none}
+  #export{order:-1}
+  .stage>.bar>label.btn{order:-2}
+  .zoom input{width:96px}
+  .hint{display:none}
+  .ph{display:inline-flex}
+  .fields input,.fields textarea,.fields select{font-size:16px}
+  .seg button,.fields .row button{padding:10px 12px;font-size:14px}
+  /* a small preview while typing, so the keyboard leaves room for the field */
+  .app:has(.panel :is(textarea,input[type=text],input:not([type])):focus) #cv{max-height:16vh}
+  .app:has(.panel :is(textarea,input[type=text],input:not([type])):focus) .stage :is(.bar,.anim-bar){display:none}
+
+  .fsec{border-top:1px solid var(--line);margin:4px 0 0}
+  .fold{width:100%;justify-content:space-between;border:0;background:transparent;padding:14px 0;font:600 14px/1.2 var(--f-display);border-radius:0;color:var(--ink)}
+  .fold .chev{width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);transition:transform .15s;margin-right:4px;flex:none}
+  .fold[aria-expanded="true"] .chev{transform:rotate(45deg)}
+  .fold .on{font:600 11px/1 var(--f-body);color:var(--accent);margin-left:8px;margin-right:auto;text-transform:uppercase;letter-spacing:.06em}
+  .foldbody{display:flex;flex-direction:column;gap:14px;padding-bottom:14px}
+
+}
+@media (max-width:900px) and (max-height:560px){.stage{position:static;box-shadow:none}#cv{max-height:70vh}}
 </style>
 
 </head>
@@ -161,6 +201,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
       <label class="btn primary" for="file">Add photo or video<input type="file" id="file" accept="image/*,video/*,.mp4,.mov,.m4v,.webm"></label>
       <div class="zoom"><label for="zoom">Zoom</label><input type="range" id="zoom" min="1" max="3" step="0.01" value="1"></div>
       <button type="button" id="reset">Re-center</button>
+      <button type="button" id="bigPrev" class="ph" aria-pressed="false" title="A bigger preview">⤢ Bigger</button>
       <span class="spacer"></span>
       <button type="button" id="batchBtn" title="Put this frame on many photos at once">Batch</button>
       <button type="button" id="export" class="primary">Export image</button>
@@ -239,6 +280,32 @@ button:disabled{opacity:.5;cursor:not-allowed}
 </div>
 
 <script>
+
+/* ================= phones: a list of choices that slides up, and fold-out sections ================= */
+const phoneMQ=matchMedia('(max-width:900px)'),isPhone=()=>phoneMQ.matches;
+function actionSheet(title,items){closeSheet();const opened=Date.now();
+  const box=document.createElement('div');box.className='asbox';box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');box.setAttribute('aria-label',title);
+  const t=document.createElement('h3');t.textContent=title;box.append(t);
+  for(const it of items){if(!it)continue;const b=document.createElement('button');b.type='button';b.textContent=it.lab;
+    if(it.on!=null){const s=document.createElement('span');s.className='tick';s.textContent=it.on?'✓ On':'Off';b.append(s);}
+    b.onclick=()=>{if(Date.now()-opened<350)return;closeSheet();it.fn();};box.append(b);}
+  const c=document.createElement('button');c.type='button';c.className='cancel';c.textContent='Cancel';c.onclick=closeSheet;box.append(c);
+  const wrap=document.createElement('div');wrap.className='asheet';wrap.id='asheet';wrap.append(box);wrap.onclick=e=>{if(e.target===wrap&&Date.now()-opened>450)closeSheet();};
+  document.body.append(wrap);box.querySelector('button').focus();}
+function closeSheet(){const s=document.getElementById('asheet');if(s)s.remove();}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('asheet'))closeSheet();});
+const openSecs=new Set();
+/* section headings (sel) fold their section away on a phone; tap one to open it */
+function foldSections(p,sel,stop){let body=null;
+  for(const el of[...p.children]){
+    if(el.matches(sel)){const name=el.textContent.trim(),open=openSecs.has(name);
+      const b=document.createElement('button');b.type='button';b.className='fold';b.setAttribute('aria-expanded',String(open));if(el.id)b.id=el.id;b.append(name);
+      const ch=document.createElement('span');ch.className='chev';ch.setAttribute('aria-hidden','true');ch.textContent='';b.append(ch);
+      body=document.createElement('div');body.className='foldbody';body.hidden=!open;const bd=body;
+      b.onclick=()=>{const o=bd.hidden;bd.hidden=!o;b.setAttribute('aria-expanded',String(o));if(o)openSecs.add(name);else openSecs.delete(name);};
+      const sec=document.createElement('div');sec.className='fsec';sec.append(b,body);el.replaceWith(sec);continue;}
+    if(body&&!(stop&&el.matches(stop)))body.append(el);}}
+
 const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
 const FAM={
   sys:'-apple-system,"SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif',
@@ -1789,6 +1856,7 @@ function selectTpl(k){
     }
     fieldsEl.appendChild(w);
   });
+  if(isPhone())foldSections(fieldsEl,'h3.fhead');
   render();
 }
 
@@ -2278,6 +2346,9 @@ const specs=['400 40px "Archivo Black"','400 40px Bangers','700 40px "Bodoni Mod
   '400 40px "Abril Fatface"','400 40px Anton','400 40px "Bebas Neue"','400 40px "Bowlby One"','600 40px Caveat','700 40px Cinzel','600 40px "Josefin Sans"','700 40px Kalam','400 40px "Luckiest Guy"','600 40px Montserrat','400 40px "Permanent Marker"','900 40px "Playfair Display"','italic 700 40px "Playfair Display"','400 40px "Shadows Into Light"','400 40px Shrikhand','400 40px "Share Tech Mono"','400 40px VT323','400 40px UnifrakturMaguntia'];
 Promise.all(specs.map(s=>document.fonts.load(s).catch(()=>{}))).then(render);
 if(document.fonts.addEventListener)document.fonts.addEventListener('loadingdone',render);
+
+document.getElementById('bigPrev').onclick=e=>{const st=document.querySelector('.stage'),on=st.classList.toggle('big');e.currentTarget.setAttribute('aria-pressed',String(on));e.currentTarget.textContent=on?'⤡ Smaller':'⤢ Bigger';};
+phoneMQ.addEventListener&&phoneMQ.addEventListener('change',()=>selectTpl(S.tpl));
 </script>
 
 </body>
