@@ -338,6 +338,7 @@ input[type=color]{width:40px;height:32px;border:1px solid var(--line);border-rad
     <h3 id="fTitle">Frame</h3>
     <img id="fImg" class="xprev" alt="The picture at the playhead">
     <div class="field"><span class="flabel" id="ffmt-l">Format</span><div class="seg" id="ffmt" role="group" aria-labelledby="ffmt-l"></div></div>
+    <div class="field" id="fbgF"><span class="flabel" id="fbg-l">Empty space</span><div class="seg" id="fbg" role="group" aria-labelledby="fbg-l"></div></div>
     <p class="help" id="fHelp"></p>
     <div class="row">
       <button type="button" id="fDl" class="primary">Save picture</button>
@@ -381,6 +382,7 @@ const VIS=L=>L&&(L.type==='video'||L.type==='image');
 const isMedia=L=>L.type==='video'||L.type==='audio';
 const FX0={b:100,c:100,s:100,warm:0,h:0,gray:0,blur:0,vig:0};
 const KEY0={on:false,color:'#00B140',tol:.38,soft:.2,spill:.6};
+const CUT0={on:false,what:'people',bg:'remove',blur:.5,fit:0,edge:.35,steady:.5};
 const LOOKS={none:['Original',{}],bw:['B&W',{gray:100,c:115}],vintage:['Vintage',{warm:45,c:90,s:80,b:106,vig:35}],warm:['Warm',{warm:45,s:112}],cool:['Cool',{warm:-45,s:95,b:103}],
   vivid:['Vivid',{s:155,c:112}],fade:['Faded',{c:78,b:112,s:75}],noir:['Noir',{gray:100,c:160,b:88,vig:50}],dramatic:['Dramatic',{c:140,s:115,b:94,vig:30}],dream:['Dreamy',{blur:2,b:110,s:120}]};
 const BLENDS=[['source-over','Normal'],['screen','Screen'],['multiply','Multiply'],['overlay','Overlay'],['lighten','Lighten'],['darken','Darken']];
@@ -404,7 +406,7 @@ function norm(L){
   if(VIS(L)){
     d('w',1);d('crop',{l:0,t:0,r:0,b:0});d('sy',1);d('lock',true);d('flipX',false);d('flipY',false);d('radius',0);d('shape',L.radius>0?'round':'rect');
     d('shadow',false);d('border',0);d('borderColor','#FFFFFF');d('blend','source-over');d('fx',{...FX0});d('look','none');d('motion','none');d('motionAmt',.15);
-    L.fx={...FX0,...L.fx};L.key={...KEY0,...(L.key||{})};}
+    L.fx={...FX0,...L.fx};L.key={...KEY0,...(L.key||{})};L.cut={...CUT0,...(L.cut||{})};}
   if(isMedia(L)){d('speed',1);d('volume',1);d('muted',false);d('aFadeIn',0);d('aFadeOut',0);d('trimIn',0);d('trimOut',0);}
   if(L.type==='video')d('endMode','hide');
   if(L.type==='image'||L.type==='text')d('dur',5);
@@ -560,8 +562,9 @@ function drawVisual(L,t,b,W){
   const m=M[L.id],c=L.crop,x=-b.w/2,y=-b.h/2;
   let src=m.el,sx=c.l*m.w,sy=c.t*m.h,sw=Math.max(1,m.w*(1-c.l-c.r)),sh=Math.max(1,m.h*(1-c.t-c.b));
   const kc=L.key&&L.key.on?keyed(L,m,sx,sy,sw,sh,b):null;if(kc){src=kc;sx=0;sy=0;sw=kc.width;sh=kc.height;}
+  const cc=L.cut&&L.cut.on?cutout(L,m,src,sx,sy,sw,sh,b):null;if(cc){src=cc;sx=0;sy=0;sw=cc.width;sh=cc.height;}
   if(L.shadow&&L.blend==='source-over'){const sb=Math.min(b.w,b.h)*.06,so=Math.min(b.w,b.h)*.02;ctx.save();ctx.shadowColor='rgba(0,0,0,.5)';ctx.shadowBlur=sb;
-    if(m.alpha||kc){/* draw the picture far off to the side and pull only its shadow back into place */
+    if(m.alpha||kc||(cc&&L.cut.bg==='remove')){/* draw the picture far off to the side and pull only its shadow back into place */
       const D=Math.max(W,b.w)*3+2000,T=ctx.getTransform();ctx.shadowOffsetX=-T.a*D;ctx.shadowOffsetY=-T.b*D+so;ctx.translate(D,0);
       if(L.flipX||L.flipY)ctx.scale(L.flipX?-1:1,L.flipY?-1:1);try{ctx.drawImage(src,sx,sy,sw,sh,x,y,b.w,b.h);}catch(e){}}
     else{ctx.shadowOffsetY=so;ctx.fillStyle='#000';shapePath(L,x,y,b.w,b.h);ctx.fill();}
@@ -620,13 +623,13 @@ function hexA(hex,a){const n=parseInt(String(hex).slice(1),16)||0;return`rgba(${
 function drawBackground(W,H,t){
   ctx.fillStyle=P.bg==='color'?P.bgColor:'#000';ctx.fillRect(0,0,W,H);
   if(P.bg!=='blur')return;
-  const base=P.layers.find(L=>VIS(L)&&!(L.key&&L.key.on)&&visibleAt(L,t)&&frameReady(L));if(!base)return;
+  const base=P.layers.find(L=>VIS(L)&&!(L.key&&L.key.on)&&!(L.cut&&L.cut.on&&L.cut.bg==='remove')&&visibleAt(L,t)&&frameReady(L));if(!base)return;
   const m=M[base.id],c=base.crop,ar=dispAR(base)*base.sy,sw=48,sh=Math.max(2,Math.round(sw*H/W));small.width=sw;small.height=sh;
   let dw=sw,dh=sw/ar;if(dh<sh){dh=sh;dw=sh*ar;}
   try{sg.drawImage(m.el,c.l*m.w,c.t*m.h,Math.max(1,m.w*(1-c.l-c.r)),Math.max(1,m.h*(1-c.t-c.b)),(sw-dw)/2,(sh-dh)/2,dw,dh);}catch(e){return;}
   ctx.save();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(small,0,0,W,H);ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(0,0,W,H);ctx.restore();
 }
-let exporting=false,guides={xs:[],ys:[]};
+let exporting=false,clearBg=false,guides={xs:[],ys:[]};
 function uiK(){const r=cv.getBoundingClientRect();return r.width?cv.width/r.width:1;}
 const ROT_GAP=34;
 function handlesOf(L,b,k){const w=b.w/2,hh=b.h/2,out=[];
@@ -640,7 +643,7 @@ function render(t){
   kfCapture();kfApply(t);
   const[W,H]=canvasSize();if(cv.width!==W||cv.height!==H){cv.width=W;cv.height=H;}
   if(!P.layers.length){ctx.clearRect(0,0,W,H);return;}
-  drawBackground(W,H,t);
+  if(clearBg)ctx.clearRect(0,0,W,H);else drawBackground(W,H,t);
   for(const L of P.layers)if(visibleAt(L,t))drawLayer(L,t);
   if(exporting||state.playing)return;
   const k=uiK();
@@ -803,7 +806,7 @@ function renderSelBar(){const bar=$('selbar');bar.innerHTML='';const L=selL();if
   if(VIS(L))bar.append(B('✂ Crop',()=>openCrop(L),'Crop'),B('Fit',()=>{fitLayer(L,'fit');soft();renderSide();},'Fit the whole thing in the video'),B('Fill',()=>{fitLayer(L,'fill');soft();renderSide();},'Fill the whole video'),B('Stretch',()=>{stretchFill(L);soft();renderSide();},'Fill the whole video exactly, squeezing it if needed'),
     B('⇋ Flip',()=>{L.flipX=!L.flipX;soft();renderSide();},'Mirror left to right',L.flipX),B('↻ 90°',()=>{L.rot=nrm180(L.rot+90);soft();renderSide();},'Turn a quarter'));
   if(L.type==='text')bar.append(B('✎ Edit text',()=>{sub.text='text';renderSide();const ta=$('p-text');if(ta){ta.focus();if(innerWidth<1100)ta.scrollIntoView({block:'center',behavior:'smooth'});}}));
-  if(VIS(L))bar.append(B('Green screen',()=>keyQuick(L),'Remove a background color',L.key.on));
+  if(VIS(L))bar.append(B('Remove background',()=>cutQuick(L),'Hide the background automatically',L.cut.on),B('Green screen',()=>keyQuick(L),'Remove a background color',L.key.on));
   if(L.type!=='audio'){const on=hasKf(L)&&kfIndex(L,state.t-L.start)>=0;bar.append(B(on?'◆ Keyframe':'◇ Keyframe',()=>kfToggle(L),on?'Remove the keyframe at the playhead (K)':'Add a keyframe at the playhead, so it can move along a path (K)',on));}
   bar.append(B('Split',()=>splitAt(L,state.t),'Cut in two at the playhead (S)'),B('Duplicate',()=>duplicate(L)));}
 
@@ -899,6 +902,7 @@ function lookPanel(p,L){
   p.append(checkF('p-sh','Drop shadow',L.shadow,v=>{L.shadow=v;soft();}));
   p.append(segF('p-blend','Blend with what’s underneath',BLENDS,L.blend,v=>{L.blend=v;renderSide();soft();}));
   p.append(h('p',{class:'help'},'Screen hides black backgrounds (sparkles, fire, light leaks). Multiply hides white backgrounds (logos, drawings, signatures).'));
+  cutPanel(p,L);
   keyPanel(p,L);
   p.append(h('h4',{class:'fhead'},'Color'));
   if(!HAS_FILTER)p.append(h('p',{class:'help'},'This browser can’t show color changes. They work in Chrome, Edge and Firefox.'));
@@ -1223,6 +1227,7 @@ $('xStart').onclick=async()=>{
   const say=m=>{$('xStatus').textContent=m;},gif=xFormat==='gif',q=gif&&xQual==='half'?'best':xQual;
   try{
     const limit=q==='limit'?Math.max(.5,parseFloat($('xlim').value)||25)*MB:0;
+    await cutPrepare(say,xprog);
     if(gif){xResult=await gifFit(limit,say,xprog);$('xGif').src=URL.createObjectURL(xResult);$('xGif').hidden=false;}
     else{const snd=hasSound(),mime=pickMime(xFormat,snd)||pickMime(xFormat);if(!mime)throw new Error('This browser cannot record video');
       xResult=await videoFit(mime,limit,q,say,xprog,projDur(),snd?(limit?96000:160000):0,{withSound:snd});$('xVid').src=URL.createObjectURL(xResult);$('xVid').hidden=false;}
@@ -1230,7 +1235,7 @@ $('xStart').onclick=async()=>{
     $('xStart').textContent='Make it again';$('xDl').hidden=!canSave();$('xSave').hidden=false;
     $('xSave').textContent=canSave()?(gif?'Save GIF puts it in your downloads. On a phone it shows up in your gallery or Files app.':'Save video puts it in your downloads. On a phone it shows up in your gallery or Files app.')
       :(gif?'Right-click the GIF and choose “Save image as…”, or press and hold it on a phone.':'Right-click the video and choose “Save video as…” to keep it.');
-  }catch(err){say('That didn’t work: '+(err&&err.message||err)+'. Try another format, or open the app in Chrome.');}
+  }catch(err){say('That didn’t work: '+(err&&err.message||err)+(err&&err.cut?'. Turn off Remove background for now, or try again later.':'. Try another format, or open the app in Chrome.'));}
   finally{busy=false;exporting=false;$('xStart').disabled=false;$('xClose').disabled=false;state.playing=false;syncTransport();state.t=0;syncMedia(0,false);drawNow();}
 };
 $('xDl').onclick=async()=>{if(!xResult)return;const n=new Uint32Array(1);crypto.getRandomValues(n);$('xStatus').textContent=await saveFile(xResult,`video-${n[0].toString(36)}.${xResult.type==='image/gif'?'gif':xFormat}`);};
@@ -1300,6 +1305,149 @@ async function fixWebmDuration(blob,ms){
     const dur=new Uint8Array(11);dur[0]=0x44;dur[1]=0x89;dur[2]=0x88;new DataView(dur.buffer).setFloat64(3,ms);const sv=new Uint8Array(8);sv[0]=0x01;let v=content.length+11;for(let i=7;i>=1;i--){sv[i]=v&255;v=Math.floor(v/256);}
     return new Blob([buf.subarray(0,p+4),sv,content,dur,buf.subarray(ce)],{type:blob.type});}catch(e){return blob;}
 }
+
+/* ================= remove the background: an AI model finds the people (or animals) and hides the rest ================= */
+/* It runs on this device with Google's MediaPipe. Its files come from this site's vendor folder the first time
+   (about 14 MB) and are kept for next time. Nothing about your videos leaves the device. */
+const CUT_DIR='vendor/mediapipe/',CUT_FPS=30,CUT_MAX=1800,CUT_PX=256;
+const CUT_SIZE={'wasm/vision_wasm_internal.wasm':12997248,'wasm/vision_wasm_nosimd_internal.wasm':12168316,'models/selfie_segmenter.tflite':249537,'models/selfie_segmenter_landscape.tflite':250177,'models/deeplab_v3.tflite':2780176};
+const CUT={st:'off',err:'',busy:0,got:0,total:0,boot:null,mp:null,fs:null,segs:{},pend:{},keep:[]};
+const cutUrl=p=>new URL(CUT_DIR+p,document.baseURI).href;
+const cutOn=L=>VIS(L)&&L.cut&&L.cut.on;
+/* the people model comes in an upright and a wide version; animals also need the bigger model that knows cats, dogs and so on */
+function cutNeeds(L){const m=M[L.id],c=L.crop;let ar=1;if(m)ar=(m.w*Math.max(.02,1-c.l-c.r))/(m.h*Math.max(.02,1-c.t-c.b));
+  const pm=ar>1.15?'selfie_segmenter_landscape':'selfie_segmenter';return L.cut.what==='animals'?[pm,'deeplab_v3']:[pm];}
+const cutHas=L=>cutNeeds(L).every(n=>CUT.segs[n]);
+/* download with a progress count */
+async function cutGet(path){const size=CUT_SIZE[path]||0;CUT.total+=size;let n=0;
+  const r=await fetch(cutUrl(path));if(!r.ok)throw new Error(`a file didn’t download (${r.status})`);
+  let out;if(r.body&&r.body.getReader){const rd=r.body.getReader(),parts=[];
+    for(;;){const{done,value}=await rd.read();if(done)break;parts.push(value);n+=value.length;CUT.got+=value.length;cutStatus();}
+    out=new Uint8Array(n);let o=0;for(const p of parts){out.set(p,o);o+=p.length;}}
+  else{out=new Uint8Array(await r.arrayBuffer());n=out.length;CUT.got+=n;}
+  CUT.got+=Math.max(0,size-n);cutStatus();return out;}
+function cutBootUp(){
+  if(!CUT.boot)CUT.boot=(async()=>{let mp;
+    try{mp=await import(cutUrl('vision_bundle.mjs'));}catch(e){throw new Error('its files didn’t load');}
+    const simd=await mp.FilesetResolver.isSimdSupported(),w='wasm/vision_wasm_'+(simd?'':'nosimd_')+'internal',bin=await cutGet(w+'.wasm');
+    CUT.fs={wasmLoaderPath:cutUrl(w+'.js'),wasmBinaryPath:URL.createObjectURL(new Blob([bin],{type:'application/wasm'}))};CUT.mp=mp;})().catch(e=>{CUT.boot=null;throw e;});
+  return CUT.boot;}
+function cutModel(n){if(CUT.segs[n])return Promise.resolve(CUT.segs[n]);
+  if(!CUT.pend[n])CUT.pend[n]=(async()=>{await cutBootUp();const buf=await cutGet('models/'+n+'.tflite');
+    const seg=await CUT.mp.ImageSegmenter.createFromOptions(CUT.fs,{baseOptions:{modelAssetBuffer:buf,delegate:'CPU'},runningMode:'IMAGE',outputConfidenceMasks:true,outputCategoryMask:false});
+    if(n==='deeplab_v3'){const lab=seg.getLabels().map(x=>String(x).toLowerCase());CUT.keep=['cat','dog','horse','sheep','cow','bird'].map(x=>lab.indexOf(x)).filter(i=>i>0);}
+    CUT.segs[n]=seg;return seg;})().catch(e=>{delete CUT.pend[n];throw e;});
+  return CUT.pend[n];}
+async function cutEnsure(ns){
+  if(ns.every(n=>CUT.segs[n]))return true;if(CUT.st==='failed')return false;
+  CUT.busy++;CUT.st='loading';cutStatus(true);
+  try{await Promise.all(ns.map(cutModel));return true;}
+  catch(e){console.warn('background remover',e);CUT.st='failed';CUT.err=String(e&&e.message||e);return false;}
+  finally{CUT.busy--;if(CUT.st!=='failed'&&!CUT.busy){CUT.st='ready';CUT.got=CUT.total=0;}cutStatus(true);if(!exporting)drawNow();}}
+function cutWake(L){if(!L||!M[L.id]||!cutOn(L)||CUT.st==='failed')return;const ns=cutNeeds(L);if(ns.every(n=>CUT.segs[n]||CUT.pend[n]))return;cutEnsure(ns);}
+function cutRetry(){CUT.st='off';CUT.err='';CUT.got=CUT.total=0;for(const n of Object.keys(CUT.pend))if(!CUT.segs[n])delete CUT.pend[n];P.layers.forEach(cutWake);renderSide();}
+function cutMsg(){
+  if(CUT.st==='loading')return CUT.total?`Getting the background remover ready… ${Math.min(99,Math.round(CUT.got/CUT.total*100))}% of ${Math.max(1,Math.round(CUT.total/1e6))} MB. It only downloads once.`:'Getting the background remover ready…';
+  if(CUT.st==='failed')return topLevel?`The background remover couldn’t start: ${CUT.err}. Check your internet connection and try again.`:'Background removal can’t start inside Claude. Open Video Layers on the Photo Tools website or app to use it.';
+  return '';}
+/* show progress in the panel, and redraw the panel when it finishes */
+function cutStatus(full){const el=$('p-cut-st');
+  if(full&&tab==='layer'&&sub.visual==='look'&&cutOn(selL())){renderSide();return;}
+  if(el){const t=cutMsg();el.textContent=t;el.hidden=!t;}}
+
+/* each layer keeps the model's answer for every frame it has seen: 0-255, how sure it is that a spot is a person (or animal) */
+function cutStore(L,m){const c=L.crop,sig=[L.cut.what,c.l,c.t,c.r,c.b,m.w,m.h].join(',');
+  if(!m.cut||m.cut.sig!==sig)m.cut={sig,frames:new Map(),fps:L.type==='video'?Math.min(CUT_FPS,CUT_MAX/Math.max(.1,L.trimOut-L.trimIn)):1};return m.cut;}
+function cutPut(s,f,fr){s.frames.set(f,fr);if(s.frames.size>CUT_MAX+60){const it=s.frames.keys();for(let i=0;i<60;i++)s.frames.delete(it.next().value);}}
+function cutRun(L,m,el){
+  const ns=cutNeeds(L);if(!ns.every(n=>CUT.segs[n]))return null;
+  const c=L.crop,sx=c.l*m.w,sy=c.t*m.h,sw=Math.max(1,m.w*(1-c.l-c.r)),sh=Math.max(1,m.h*(1-c.t-c.b)),k=CUT_PX/Math.max(sw,sh);
+  const w=Math.max(8,Math.round(sw*k)),hh=Math.max(8,Math.round(sh*k));
+  const ic=CUT.inp||(CUT.inp=document.createElement('canvas'));if(ic.width!==w||ic.height!==hh){ic.width=w;ic.height=hh;}
+  const g=ic.getContext('2d');g.clearRect(0,0,w,hh);try{g.drawImage(el,sx,sy,sw,sh,0,0,w,hh);}catch(e){return null;}
+  let fr=null;
+  try{for(const n of ns)CUT.segs[n].segment(ic,r=>{const ms=r.confidenceMasks||[];if(!ms.length)return;const mw=ms[0].width,mh=ms[0].height;
+      if(!fr)fr={w:mw,h:mh,a:new Uint8Array(mw*mh)};if(fr.w!==mw||fr.h!==mh)return;const out=fr.a;
+      const arrs=n==='deeplab_v3'?CUT.keep.map(i=>ms[i]&&ms[i].getAsFloat32Array()).filter(Boolean):[ms[0].getAsFloat32Array()];
+      for(let i=0;i<out.length;i++){let v=0;for(const a of arrs)v+=a[i];v=v>=1?255:v<=0?0:(v*255+.5)|0;if(v>out[i])out[i]=v;}});}
+  catch(e){console.warn('background remover',e);CUT.st='failed';CUT.err='the model stopped working';cutStatus(true);return null;}
+  return fr;}
+/* turn the model's answer into a see-through mask: blend in nearby frames so edges don't flicker, then set how tight and soft the edge is */
+function cutShape(L,m,s,f){
+  const k=L.cut,fr=s.frames.get(f),W=fr.w,H=fr.h,n=W*H,use=[[fr.a,1]];let bits='';
+  if(L.type==='video'&&k.steady>0)for(const d of[-2,-1,1,2]){const o=s.frames.get(f+d),ok=o&&o.w===W&&o.h===H;bits+=ok?1:0;if(ok)use.push([o.a,Math.pow(k.steady*.9,Math.abs(d))]);}
+  const sig=[s.sig,f,k.edge,k.fit,k.steady,bits].join(',');if(m.cutMk&&m.cutSig===sig)return m.cutMk;
+  if(!CUT.p||CUT.p.length<n){CUT.p=new Float32Array(n);CUT.q=new Float32Array(n);}
+  const p=CUT.p,q=CUT.q;let ws=0;for(const u of use)ws+=u[1];
+  if(use.length===1){const a=fr.a;for(let i=0;i<n;i++)p[i]=a[i]/255;}
+  else{for(let i=0;i<n;i++)p[i]=0;for(const[a,w]of use){const kk=w/(ws*255);for(let i=0;i<n;i++)p[i]+=a[i]*kk;}}
+  /* blurring first lets the cut line move: a lower cut-off takes in more around the edge, a higher one less */
+  const r=Math.round(k.edge*2+Math.abs(k.fit)*6);
+  if(r>0){const box=(src,dst,len,stride,lines,lstride)=>{for(let l=0;l<lines;l++){const o=l*lstride;for(let i=0;i<len;i++){let v=0;for(let j=-r;j<=r;j++){const t=i+j<0?0:i+j>=len?len-1:i+j;v+=src[o+t*stride];}dst[o+i*stride]=v/(2*r+1);}}};
+    box(p,q,W,1,H,W);box(q,p,H,W,W,1);}
+  const mid=.5-k.fit*.42,hw=.04+k.edge*.2,lo=mid-hw,span=2*hw;
+  if(!m.cutMk){m.cutMk=document.createElement('canvas');m.cutMg=m.cutMk.getContext('2d');}
+  const mc=m.cutMk;if(mc.width!==W||mc.height!==H){mc.width=W;mc.height=H;m.cutId=null;}
+  if(!m.cutId)m.cutId=m.cutMg.createImageData(W,H);const d=m.cutId.data;
+  for(let i=0;i<n;i++){let a=(p[i]-lo)/span;a=a<=0?0:a>=1?1:a*a*(3-2*a);d[i*4+3]=a*255;}
+  m.cutMg.putImageData(m.cutId,0,0);m.cutSig=sig;return mc;}
+function cutFrame(L,m){
+  const s=cutStore(L,m),f=L.type==='video'?Math.round(m.el.currentTime*s.fps):0;
+  if(!s.frames.has(f)){if(!cutHas(L)){cutWake(L);return null;}const fr=cutRun(L,m,m.el);if(!fr)return null;cutPut(s,f,fr);}
+  return cutShape(L,m,s,f);}
+/* the layer's picture with the background gone (or blurred), at about the size it shows */
+function cutout(L,m,src,sx,sy,sw,sh,b){
+  const mk=cutFrame(L,m);if(!mk)return null;
+  const cap=exporting?1280:860,sc=Math.min(1,cap/Math.max(sw,sh),Math.max(b.w/sw,b.h/sh,96/Math.max(sw,sh)));
+  const w=Math.max(2,Math.round(sw*sc)),hh=Math.max(2,Math.round(sh*sc));
+  if(!m.cc){m.cc=document.createElement('canvas');m.cg=m.cc.getContext('2d');}
+  const c=m.cc,g=m.cg;if(c.width!==w||c.height!==hh){c.width=w;c.height=hh;}
+  g.globalCompositeOperation='source-over';g.filter='none';g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';g.clearRect(0,0,w,hh);
+  try{g.drawImage(src,sx,sy,sw,sh,0,0,w,hh);}catch(e){return null;}
+  g.globalCompositeOperation='destination-in';g.drawImage(mk,0,0,w,hh);
+  if(L.cut.bg==='blur'){g.globalCompositeOperation='destination-over';
+    if(HAS_FILTER){const r=Math.max(1,L.cut.blur*.035*Math.max(w,hh)),pd=r*2;g.filter=`blur(${r.toFixed(1)}px)`;try{g.drawImage(src,sx,sy,sw,sh,-pd,-pd,w+pd*2,hh+pd*2);}catch(e){}g.filter='none';}
+    else{const tw=Math.max(4,Math.round(72-60*L.cut.blur)),th=Math.max(4,Math.round(tw*hh/w)),t=CUT.tiny||(CUT.tiny=document.createElement('canvas'));t.width=tw;t.height=th;
+      const tg=t.getContext('2d');tg.imageSmoothingEnabled=true;tg.imageSmoothingQuality='high';try{tg.drawImage(src,sx,sy,sw,sh,0,0,tw,th);g.drawImage(t,0,0,w,hh);}catch(e){}}}
+  g.globalCompositeOperation='source-over';return c;}
+/* before a video or GIF is made, run the model on every frame ahead of time, so the recording plays smoothly */
+const cutErr=m=>Object.assign(new Error(m),{cut:true});
+async function cutWait(){const list=P.layers.filter(L=>cutOn(L)&&!L.hidden&&M[L.id]);if(!list.length)return true;return cutEnsure([...new Set(list.flatMap(cutNeeds))]);}
+async function cutPrepare(say,onProg){
+  const list=P.layers.filter(L=>cutOn(L)&&!L.hidden&&M[L.id]);if(!list.length)return;
+  if(!list.every(cutHas)){say('Getting the background remover ready…');if(!await cutWait())throw cutErr(topLevel?'the background remover couldn’t start':'background removal can’t run inside Claude');}
+  const jobs=[];let total=0,done=0;
+  for(const L of list){const m=M[L.id],s=cutStore(L,m);
+    if(L.type==='image'){if(!s.frames.has(0)){const fr=cutRun(L,m,m.el);if(fr)cutPut(s,0,fr);}continue;}
+    const a=Math.max(0,Math.round(L.trimIn*s.fps)),z=Math.round(Math.min(L.trimOut,m.dur||L.trimOut)*s.fps),need=[];
+    for(let f=a;f<=z;f++)if(!s.frames.has(f))need.push(f);if(need.length){jobs.push({L,m,s,need});total+=need.length;}}
+  if(!total)return;
+  say('Removing the background from each frame first…');onProg(0);
+  const v=document.createElement('video');v.muted=true;v.playsInline=true;v.preload='auto';
+  try{for(const j of jobs){v.src=j.m.url;if(v.readyState<2)await waitEvt(v,'loadeddata',10000);
+      for(const f of j.need){const t=Math.min(f/j.s.fps,Math.max(0,(j.m.dur||1e9)-.02));
+        if(Math.abs(v.currentTime-t)>1e-4){v.currentTime=t;await waitEvt(v,'seeked',4000);}
+        const fr=cutRun(j.L,j.m,v);if(!fr&&CUT.st==='failed')throw cutErr('the background remover stopped working');if(fr)cutPut(j.s,f,fr);
+        done++;if(done%4===0||done===total){onProg(done/total);await new Promise(r=>setTimeout(r,0));}}}}
+  finally{v.removeAttribute('src');try{v.load();}catch(e){}}
+  onProg(0);}
+function cutQuick(L){L.cut.on=!L.cut.on;if(L.cut.on)cutWake(L);sub.visual='look';tab='layer';soft();renderSide();
+  if(L.cut.on){const hd=$('p-cut-h');if(hd)hd.scrollIntoView({block:'start',behavior:'smooth'});}}
+function cutPanel(p,L){const k=L.cut,vid=L.type==='video';
+  p.append(h('h4',{class:'fhead',id:'p-cut-h'},'Remove background'));
+  p.append(checkF('p-cut','Remove the background automatically',k.on,v=>{k.on=v;if(v)cutWake(L);renderSide();soft();}));
+  if(!k.on){p.append(h('p',{class:'help'},`Finds the people in this ${vid?'video':'picture'} and hides everything else, no green screen needed. It runs on your device, so nothing is uploaded.`));return;}
+  const msg=cutMsg(),st=h('p',{class:'kfnote',id:'p-cut-st',role:'status'},msg);st.hidden=!msg;p.append(st);
+  if(CUT.st==='failed'&&topLevel)p.append(h('div',{class:'row'},btn('Try again',cutRetry)));
+  p.append(segF('p-cut-w','Keep',[['people','People'],['animals','People and animals']],k.what,v=>{k.what=v;cutWake(L);renderSide();soft();}));
+  p.append(segF('p-cut-bg','Background',[['remove','Remove it'],['blur','Blur it']],k.bg,v=>{k.bg=v;renderSide();soft();}));
+  if(k.bg==='blur')p.append(rangeF('p-cut-bl','How blurry',.1,1,.01,k.blur,pct,v=>{k.blur=v;drawNow();save();}));
+  p.append(rangeF('p-cut-fit','Edge: tighter or looser',-1,1,.01,k.fit,v=>Math.abs(v)<.02?'Middle':(v<0?'Tighter ':'Looser ')+Math.round(Math.abs(v)*100)+'%',v=>{k.fit=v;drawNow();save();}));
+  p.append(rangeF('p-cut-e','Soft edges',0,1,.01,k.edge,pct,v=>{k.edge=v;drawNow();save();}));
+  if(vid)p.append(rangeF('p-cut-s','Steadier edges',0,1,.01,k.steady,v=>v?pct(v):'Off',v=>{k.steady=v;drawNow();save();}));
+  p.append(h('p',{class:'help'},(k.bg==='remove'?'The layers underneath show through, so put a picture or video below this one for a new background. ':'')+
+    'If bits of the background stay, move the edge toward tighter. If hair or hands go missing, move it toward looser.'+(vid?' Steadier edges stop the outline flickering. Before a video is saved, every frame is done once, which takes a little while.':'')));
+  p.append(h('p',{class:'help'},'People works best with one or a few people in view. People and animals also finds cats, dogs, horses, sheep, cows and birds, but it’s slower.'));}
 
 /* ================= green screen: knock out one color ================= */
 let picking=null;
@@ -1465,13 +1613,15 @@ function layoutPanel(p){
 async function seekAll(t){syncMedia(t,false);
   for(const L of P.layers){if(L.type!=='video'||!M[L.id])continue;const el=M[L.id].el,{lt,show}=localTime(L,t);if(!show)continue;
     if(Math.abs(el.currentTime-lt)>.015&&!el.seeking){try{el.currentTime=lt;}catch(e){}}if(el.seeking)await waitEvt(el,'seeked',2500);}}
-let fBlob=null,fFmt='png';
-async function grabFrame(){exporting=true;try{render(state.t);return await cleanOut(await new Promise(r=>cv.toBlob(r,fFmt==='jpg'?'image/jpeg':'image/png',.92)));}catch(e){return null;}finally{exporting=false;drawNow();}}
+let fBlob=null,fFmt='png',fBg='keep';
+async function grabFrame(){exporting=true;clearBg=fFmt==='png'&&fBg==='clear';try{render(state.t);return await cleanOut(await new Promise(r=>cv.toBlob(r,fFmt==='jpg'?'image/jpeg':'image/png',.92)));}catch(e){return null;}finally{exporting=false;clearBg=false;drawNow();}}
 async function openFrame(){if(!P.layers.length){toast('Add a video or picture first.');return;}if(state.playing)pause();
+  if(P.layers.some(L=>cutOn(L)&&!L.hidden)&&!P.layers.every(L=>!cutOn(L)||cutHas(L))){toast('Getting the background remover ready…');await cutWait();}
   await seekAll(state.t);fBlob=await grabFrame();if(!fBlob){toast('Couldn’t save that frame.');return;}
   const[W,H]=canvasSize();$('fTitle').textContent=`Frame at ${fmtS(state.t)}`;$('fImg').src=URL.createObjectURL(fBlob);$('fStatus').textContent='';
   const g=$('ffmt');g.innerHTML='';[['png','PNG'],['jpg','JPG']].forEach(([k,l])=>g.append(h('button',{type:'button','aria-pressed':String(k===fFmt),onclick:async()=>{fFmt=k;await openFrame();}},l)));
-  $('fHelp').textContent=`${W} × ${H} pixels, ${mbs(fBlob.size)}. ${fFmt==='png'?'PNG keeps every detail.':'JPG makes a smaller file.'} `+(canSave()?'':'Right-click the picture and choose “Save image as…”, or press and hold it on a phone.');
+  const gb=$('fbg');gb.innerHTML='';$('fbgF').hidden=fFmt!=='png';[['keep','Keep it'],['clear','See-through']].forEach(([k,l])=>gb.append(h('button',{type:'button','aria-pressed':String(k===fBg),onclick:async()=>{fBg=k;await openFrame();}},l)));
+  $('fHelp').textContent=`${W} × ${H} pixels, ${mbs(fBlob.size)}. ${fFmt==='png'?(fBg==='clear'?'The empty space is see-through, so what’s left can go on top of anything.':'PNG keeps every detail.'):'JPG makes a smaller file.'} `+(canSave()?'':'Right-click the picture and choose “Save image as…”, or press and hold it on a phone.');
   $('fDl').hidden=!canSave();$('fmodal').hidden=false;$('fClose').focus();}
 $('snapBtn').onclick=openFrame;
 $('fClose').onclick=()=>{$('fmodal').hidden=true;};

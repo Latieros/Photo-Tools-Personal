@@ -1,6 +1,8 @@
 /* Photo Tools offline support: keeps the apps, icons and fonts on the device so they open without internet */
-const VERSION='f96174c7ea00';
+const VERSION='190ffe5d2f54';
 const APP='photo-tools-app-'+VERSION, FONTS='photo-tools-fonts-v1';
+/* the background remover's files (about 13 MB) are kept apart, only fetched once, and survive app updates */
+const CUTOUT='photo-tools-cutout-1.1.0';
 const FILES=['./','index.html','share.html','photo-frame-studio.html','photo-splitter.html','chat-reel.html','metadata-scrubber.html','video-layers.html','manifest.webmanifest',
   'icons/icon-192.png','icons/icon-512.png','icons/icon-maskable-192.png','icons/icon-maskable-512.png','icons/icon-180.png','icons/favicon-32.png'];
 const FONT_CSS=[
@@ -33,7 +35,7 @@ async function cacheFonts(){
 }
 
 self.addEventListener('activate',e=>{e.waitUntil((async()=>{
-  for(const k of await caches.keys())if(k.startsWith('photo-tools-')&&k!==APP&&k!==FONTS)await caches.delete(k);
+  for(const k of await caches.keys())if(k.startsWith('photo-tools-')&&k!==APP&&k!==FONTS&&k!==CUTOUT)await caches.delete(k);
   await self.clients.claim();
 })());});
 
@@ -44,6 +46,7 @@ self.addEventListener('fetch',e=>{
   const url=new URL(req.url);
   if(url.origin==='https://fonts.googleapis.com'||url.origin==='https://fonts.gstatic.com'){e.respondWith(fontFirst(req));return;}
   if(url.origin!==self.location.origin)return;
+  if(url.pathname.includes('/vendor/')){e.respondWith(vendorFile(req,e));return;}
   e.respondWith(appFile(req,e));
 });
 async function fontFirst(req){
@@ -52,6 +55,11 @@ async function fontFirst(req){
   if(hit)return hit;
   try{const r=await fetch(req);if(r&&(r.ok||r.type==='opaque'))c.put(req,r.clone());return r;}
   catch(err){return new Response('',{status:504});}
+}
+async function vendorFile(req,e){
+  const c=await caches.open(CUTOUT);const hit=await c.match(req,{ignoreSearch:true});if(hit)return hit;
+  try{const r=await fetch(req);if(r&&r.ok&&r.type==='basic')e.waitUntil(c.put(req,r.clone()).catch(()=>{}));return r;}
+  catch(err){return new Response('You’re offline and the background remover isn’t saved on this device yet.',{status:503,headers:{'Content-Type':'text/plain; charset=utf-8'}});}
 }
 /* show the saved copy straight away, and quietly fetch a newer one for next time */
 async function appFile(req,e){

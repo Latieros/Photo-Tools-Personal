@@ -17,7 +17,7 @@ A small set of personal browser tools for dressing up photos, making short video
 | [Photo Splitter](#photo-splitter) | Cuts one photo into 2, 3 or 4 pieces that join back into the whole picture as you swipe through a post on X, with your own cut lines and your choice of which piece comes first. |
 | [Chat Reel](#chat-reel) | Turns a text conversation into a video, timing every message on a timeline. Group chats, reactions, replies, voice notes and unsent messages, in iPhone, Android, DM, WhatsApp-style, Discord-style or lock-screen looks. |
 | [Metadata Scrubber](#metadata-scrubber) | Strips prompts, location and hidden data out of photos and videos and saves clean copies under random names, optionally under a size limit. |
-| [Video Layers](#video-layers) | Puts pictures, videos, text, music and your voice together and exports a new video or GIF. Green screen, motion paths with keyframes and one-tap layouts. |
+| [Video Layers](#video-layers) | Puts pictures, videos, text, music and your voice together and exports a new video or GIF. Automatic background removal, green screen, motion paths with keyframes and one-tap layouts. |
 
 Every tool has a switcher at the top to jump to another tool. Your work is saved before it switches.
 
@@ -228,6 +228,13 @@ Puts pictures, videos, text, music and your voice together and makes a new video
   - Filters: B&W, Vintage, Warm, Cool, Vivid, Faded, Noir, Dramatic and Dreamy.
   - Sliders for brightness, contrast, saturation, warmth, hue, black and white, blur and dark edges.
 - **Slow movement:** a slow zoom in or out, or a drift in any direction, over the time the layer shows.
+- **Remove background (automatic):**
+  - Finds the people in a video or picture and hides everything else, with no green screen needed. An AI model does this on your device; nothing is uploaded.
+  - **Keep:** People, or People and animals (also cats, dogs, horses, sheep, cows and birds; slower).
+  - **Background:** remove it so the layers underneath show through, or blur it like a phone's portrait mode.
+  - Sliders for a tighter or looser edge, soft edges, and steadier edges so the outline doesn't flicker.
+  - The first time, it downloads about 13 MB (more for People and animals). After that it's kept on your device and works offline in the app.
+  - Before a video or GIF is saved, every frame is done once ahead of time, so the result plays smoothly. This takes a little while for long videos.
 - **Green screen:**
   - Removes one color so the layers underneath show through. The screen color is guessed from the edges, or picked by tapping the background in the preview.
   - Sliders for how much to remove, soft edges and cleaning up colored edges.
@@ -276,9 +283,9 @@ Puts pictures, videos, text, music and your voice together and makes a new video
 
 ### Editing comforts
 - **Undo and redo:** Ctrl+Z and Ctrl+Shift+Z.
-- **Quick-edit bar** under the preview: Crop, Fit, Fill, Stretch, Flip, 90°, Green screen, Keyframe, Split and Duplicate.
+- **Quick-edit bar** under the preview: Crop, Fit, Fill, Stretch, Flip, 90°, Remove background, Green screen, Keyframe, Split and Duplicate.
 - **Keyboard:** arrow keys nudge (Shift for bigger steps), Delete removes, Ctrl+D duplicates, K adds a keyframe, Space plays and pauses.
-- **Save frame:** saves the picture at the playhead as a PNG or JPG.
+- **Save frame:** saves the picture at the playhead as a PNG or JPG. A PNG can have a see-through background, which turns a cut-out person into a sticker.
 
 ### Export
 - **Formats:** **MP4** or **WebM**, with sound, at best quality, half size or under a size limit. Or a looping **GIF** (no sound), standard or under a size limit.
@@ -302,7 +309,7 @@ Nothing that points back to you or your originals:
 - **iPhone (Safari):** open the site, tap **Share** and choose **Add to Home Screen**.
 - **Computer (Chrome or Edge):** click the install icon in the address bar, or use **Install app** on the start page.
 
-Open each tool once while you're online so everything, fonts included, is saved for offline use. Updates download on their own the next time you open the app online.
+Open each tool once while you're online so everything, fonts included, is saved for offline use. The background remover in Video Layers is saved the first time you use it. Updates download on their own the next time you open the app online.
 
 ## Sharing into the tools
 
@@ -333,5 +340,8 @@ Open each tool once while you're online so everything, fonts included, is saved 
 | `manifest.webmanifest` | App name, icons, shortcuts and the Share menu entry for installing |
 | `sw.js` | Offline support: keeps the tools and fonts on your device, and receives files shared from other apps |
 | `icons/` | App icons |
+| `vendor/mediapipe/` | The background remover: Google's MediaPipe vision library (Apache 2.0) and its people and animal models. Its usage reporting to Google is switched off in this copy. See the README in that folder. |
 
-Each tool is a single self-contained HTML file with no build step and no server code.
+Each tool is a single self-contained HTML file with no build step and no server code. The background remover's files are the only ones loaded from elsewhere in the site, and only when you turn it on.
+
+`.github/workflows/fetch-models.yml` downloads newer copies of the background remover's files when run from the Actions tab and puts them on the `cutout-files` branch.
