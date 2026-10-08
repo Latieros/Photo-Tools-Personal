@@ -163,8 +163,17 @@ A timeline editor for text conversations that you export as a video.
 ### Look
 - **Phone style:** iPhone, Android, Social DM, WhatsApp-style (wallpaper, ticks and times inside bubbles) or Discord-style (names, avatars and time stamps), light or dark.
 - **Lock screen:** their messages arrive as notifications over a wallpaper, newest on top, with the app name, date and your own wallpaper photo.
+- **Start on the lock screen** (any chat style):
+  - Their first messages pop up as notifications on the lock screen.
+  - You choose how many, from their messages before your first reply.
+  - After a pause you set, the top notification is tapped and the chat opens out of it.
+  - The rest of the conversation then plays in the chat. The timeline marks where it opens.
 - **Contact:** name or username, contact photo, status line, avatar color and clock.
-- **Bubbles:** your bubble color (blue, green for SMS, purple or gradient) and the line under your last message (Delivered, Read, Seen…).
+- **Bubbles:** your bubble color (blue, green for SMS, purple or gradient) and the line under your last message (Delivered, Read, Seen…), which always sits clear of the message box.
+- **Message box at the bottom:**
+  - **Auto** hides it when none of your messages are typed out on the keyboard, so the messages just appear and send on their own.
+  - **Always** keeps it, like the real app.
+  - **Only while typing** slides it up with the keyboard.
 
 ### Sound
 - **Built-in sounds:** for sending, replying, keyboard typing and opening a photo (Pop, Chime, Click, Tap or silent), with a volume control.
@@ -173,6 +182,7 @@ A timeline editor for text conversations that you export as a video.
 
 ### Export and projects
 - **Formats:** WebM, MP4 or GIF, at best quality, half size or under a size limit. Sound, voice notes included, can be included in WebM and MP4.
+- **File name:** starts as a random name (like `chat-k3m9qx.mp4`) that doesn't give anything away. Type your own, or tap 🎲 for a new random one.
 - **Use in Video Layers:** sends the finished video straight into Video Layers.
 - **Projects:** save and open them as files. Work is also kept automatically.
 
@@ -301,7 +311,7 @@ Nothing that points back to you or your originals:
 - **Pictures** (PNG and JPG) are drawn fresh, so no location, camera, phone or date from your photos comes along. JPGs also have the browser's color profile removed, leaving only the picture.
 - **Videos** (WebM and MP4) are recorded fresh too. The browser's name, any titles, handler names and creation dates are blanked out.
 - **GIFs** carry nothing but the loop setting.
-- **File names** use a random code (like `story-rmwhbr.png` or `split-jmss3w-1-of-3.jpg`), never your original file name or the time.
+- **File names** use a random code (like `story-rmwhbr.png` or `split-jmss3w-1-of-3.jpg`), never your original file name or the time. In Chat Reel you can type your own name instead.
 - **ZIP files** date every file 1 January 1980, so they don't record when you made them.
 - **Project files** (`.json`) are for your own use: they hold what you typed, your photos (already cleaned) and when you saved. Chat Reel's include any sound files you added exactly as they were.
 

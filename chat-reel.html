@@ -96,6 +96,7 @@ canvas{display:block;max-width:100%;max-height:min(60vh,760px);width:auto;height
 .rv{font-variant-numeric:tabular-nums;color:var(--muted);font-weight:400}
 .field select{font:15px/1.4 var(--f-body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 11px;width:100%}
 .field input[type=number]{font:15px/1.4 var(--f-body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 11px;width:100%}
+.namerow{display:flex;align-items:center;gap:6px}.namerow input{flex:1;min-width:0}.namerow .ext{color:var(--muted);font-size:14px}.namerow button{padding:8px 10px}
 .field input[type=text],.field textarea{font:15px/1.4 var(--f-body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 11px;width:100%}
 .field textarea{resize:vertical;min-height:70px}
 .field input[type=range]{accent-color:var(--accent);width:100%}
@@ -146,6 +147,8 @@ canvas{display:block;max-width:100%;max-height:min(60vh,760px);width:auto;height
 .tdiv{position:absolute;top:4px;bottom:4px;width:2px;margin-left:-1px;background:var(--muted);cursor:grab}
 .tdiv span{position:absolute;bottom:0;left:6px;font-size:11px;white-space:nowrap;color:var(--muted);background:var(--bg);padding:1px 4px;border-radius:4px}
 .tdiv.sel{background:var(--ink)} .tdiv.sel span{color:var(--ink)}
+.lockmark{position:absolute;top:4px;bottom:4px;width:2px;margin-left:-1px;background:#34C759;pointer-events:none}
+.lockmark span{position:absolute;top:0;left:6px;font-size:11px;white-space:nowrap;color:#1E8E3E;background:var(--bg);padding:1px 4px;border-radius:4px}
 .sk{position:absolute;top:10px;width:10px;height:10px;border-radius:50%;margin-left:-5px}
 .sk.send{background:var(--accent)} .sk.receive{background:var(--them)} .sk.tap{background:var(--ink)}
 .sk.voice{background:#30A46C} .sk.react{background:#E5484D}
@@ -322,6 +325,8 @@ canvas{display:block;max-width:100%;max-height:min(60vh,760px);width:auto;height
     <div class="field" id="xsizeF"><span class="flabel" id="xsize-l">Quality</span><div class="seg" id="xsize" role="group" aria-labelledby="xsize-l"></div></div>
     <div class="field" id="xlimF" hidden><label for="xlim">Keep the file under (MB)</label><input type="number" id="xlim" min="0.5" max="500" step="0.5" value="5" inputmode="decimal"></div>
     <label class="chk" id="xsoundL"><input type="checkbox" id="xsound" checked> Include sound</label>
+    <div class="field"><label for="xName">File name</label><div class="namerow"><input type="text" id="xName" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="80"><span class="ext" id="xExt">.webm</span><button type="button" id="xRand" title="Pick a new random name" aria-label="Pick a new random name">🎲</button></div>
+      <p class="help">Starts as a random name that doesn’t give anything away. Type your own if you like.</p></div>
     <p class="help" id="xHelp"></p>
     <div class="vprog" id="xProg" hidden><div id="xBar"></div></div>
     <video id="xVid" controls loop playsinline hidden></video>
@@ -449,7 +454,7 @@ const rkey=()=>Math.random().toString(36).slice(2,9);
 function mk(o={}){return{from:'them',kind:'text',text:'',img:null,postUser:'',delay:.8,typing:1.2,typingAuto:true,keyboard:true,open:false,openHold:2,sound:'default',
   who:'',react:'',reactBy:'',reactDelay:1,replyTo:'',unsend:false,unsendAfter:2,voice:'',voiceLen:'0:08',voiceDur:0,voicePlay:true,voiceWait:true,vkey:'',vidInline:true,vidSound:true,holdVid:true,...o,key:o.key||rkey(),id:uid++};}
 function DEFAULT(){return{style:'ios',mode:'light',name:'Maya',status:'Active now',time:'9:41',receipt:'',iosColor:'Blue',dmColor:'Purple',avColor:'Green',kbSpeed:'Normal',startPause:.5,endHold:1.5,avatar:null,
-  group:false,groupName:'',people:[],myName:'You',myColor:'#F0B232',color0:'#E5484D',ticks:'Read',lockPhone:'iPhone',lockApp:'Messages',lockDate:'Tuesday, October 6',wall:null,
+  group:false,groupName:'',people:[],myName:'You',myColor:'#F0B232',color0:'#E5484D',ticks:'Read',lockPhone:'iPhone',lockApp:'Messages',lockDate:'Tuesday, October 6',wall:null,inputBar:'auto',lockIntro:false,lockCount:1,lockHold:1.2,
   sound:{on:true,volume:.7,send:'Pop',receive:'Chime',keys:true,keySound:'Click',tap:'Tap',react:'Bubble'},
   msgs:[mk({from:'divider',text:'Today 4:12 PM',delay:.2}),mk({from:'them',text:'are you still at the beach??',delay:.4}),mk({from:'me',text:'yes!! look at this',delay:.8}),
     mk({from:'me',kind:'photo',delay:.5,open:true,openHold:2.2}),mk({from:'them',text:'ok that is unreal',delay:.7}),mk({from:'them',text:'save me a sunset please',delay:.4}),
@@ -472,9 +477,14 @@ const CPS={Slow:7,Normal:11,Fast:16};
 function autoTyping(m){if(m.from==='them')return m.kind==='text'?clamp(.7+m.text.length*.03,.6,2.8):1.2;return Math.max(.4,(m.text||'').length/CPS[P.kbSpeed]);}
 const typ=m=>m.typingAuto?autoTyping(m):m.typing;
 const usesKeyboard=m=>m.from==='me'&&m.kind==='text'&&m.keyboard&&!!m.text;
+/* their messages before your first one can open on the lock screen (the phone is locked, so you haven't replied yet) */
+function leadThem(){let n=0;for(const m of P.msgs){if(m.from==='me')break;if(m.from==='them')n++;}return n;}
+/* the last message that's part of the lock screen opening: up to and including their Nth message */
+function introLast(){if(!P.lockIntro||P.style==='lock')return -1;const want=Math.min(Math.max(1,P.lockCount||1),leadThem());let n=0;
+  if(want<1)return -1;for(let i=0;i<P.msgs.length;i++)if(P.msgs[i].from==='them'&&++n>=want)return i;return -1;}
 function build(){
-  const ev=[],snd=[],kb=[],lock=P.style==='lock';let t=P.startPause;
-  P.msgs.forEach((m,i)=>{
+  const ev=[],snd=[],kb=[],iL=introLast();let t=P.startPause,intro=null;
+  P.msgs.forEach((m,i)=>{const lock=P.style==='lock'||i<=iL;
     const e={m,i};t+=m.delay;e.start=t;
     if(m.from==='divider'){e.typeStart=e.typeEnd=e.arrive=t;}
     else if(m.from==='them'){const ty=lock?0:typ(m);e.typeStart=t;e.typeEnd=t+ty;e.arrive=e.typeEnd;e.dots=ty>0;}
@@ -491,9 +501,10 @@ function build(){
     else e.end=end;
     if(e.keys)kb.push([e.kbUp,e.arrive+.45]);
     ev.push(e);t=e.end;
+    if(i===iL){const tap=t+Math.max(.3,P.lockHold==null?1.2:+P.lockHold);intro={tap,open:tap+.4,full:tap+1.15};snd.push({t:tap,type:'tap',i});t=intro.full;}
   });
   const kbm=[];kb.forEach(iv=>{const l=kbm[kbm.length-1];if(l&&iv[0]-l[1]<.9)l[1]=Math.max(l[1],iv[1]);else kbm.push([...iv]);});
-  return{ev,snd:snd.sort((a,b)=>a.t-b.t),kb:kbm,dur:t+P.endHold};
+  return{ev,snd:snd.sort((a,b)=>a.t-b.t),kb:kbm,dur:t+P.endHold,intro};
 }
 let SCH=build();
 function kbAt(t){let k=0;for(const[a,b]of SCH.kb){if(t<a||t>b+.3)continue;k=Math.max(k,t<a+.3?smooth((t-a)/.3):t<=b?1:1-smooth((t-b)/.3));}return k;}
@@ -504,11 +515,11 @@ function typedAt(t){for(const e of SCH.ev){if(!e.keys||t<e.kbUp||t>=e.arrive)con
   return{active:kbAt(t)>.01,text:'',pressed:null,send:false};}
 
 /* ================= phone styles ================= */
-const LAY={ios:{font:F(44,400,'sys'),lh:54,padX:34,padY:22,maxW:740,left:40,right:W-40,top:350,photoW:620,photoR:40,gapSame:8,gapDiff:26,inBase:H-160,inGap:80,receipt:'Delivered'},
-  android:{font:F(42,400,'rob'),lh:54,padX:38,padY:26,maxW:720,left:132,right:W-36,top:300,photoW:600,photoR:44,gapSame:6,gapDiff:30,inBase:H-160,inGap:90,receipt:'Read'},
-  dm:{font:F(44,400,'sys'),lh:54,padX:40,padY:28,maxW:700,left:150,right:W-28,top:300,photoW:470,photoR:46,gapSame:8,gapDiff:34,inBase:H-142,inGap:108,receipt:'Seen'},
-  wa:{font:F(42,400,'sys'),lh:54,padX:30,padY:18,maxW:780,left:36,right:W-36,top:290,photoW:620,photoR:20,gapSame:6,gapDiff:22,inBase:H-150,inGap:96,receipt:''},
-  discord:{font:F(38,400,'sys'),lh:52,padX:0,padY:0,maxW:W-200,left:150,right:W-40,top:270,photoW:700,photoR:16,gapSame:6,gapDiff:34,inBase:H-150,inGap:150,receipt:''}};
+const LAY={ios:{font:F(44,400,'sys'),lh:54,padX:34,padY:22,maxW:740,left:40,right:W-40,top:350,photoW:620,photoR:40,gapSame:8,gapDiff:26,inBase:H-160,inGap:116,bare:150,receipt:'Delivered'},
+  android:{font:F(42,400,'rob'),lh:54,padX:38,padY:26,maxW:720,left:132,right:W-36,top:300,photoW:600,photoR:44,gapSame:6,gapDiff:30,inBase:H-160,inGap:112,bare:170,receipt:'Read'},
+  dm:{font:F(44,400,'sys'),lh:54,padX:40,padY:28,maxW:700,left:150,right:W-28,top:300,photoW:470,photoR:46,gapSame:8,gapDiff:34,inBase:H-142,inGap:112,bare:150,receipt:'Seen'},
+  wa:{font:F(42,400,'sys'),lh:54,padX:30,padY:18,maxW:780,left:36,right:W-36,top:290,photoW:620,photoR:20,gapSame:6,gapDiff:22,inBase:H-150,inGap:96,bare:130,receipt:''},
+  discord:{font:F(38,400,'sys'),lh:52,padX:0,padY:0,maxW:W-200,left:150,right:W-40,top:270,photoW:700,photoR:16,gapSame:6,gapDiff:34,inBase:H-150,inGap:150,bare:190,receipt:''}};
 LAY.lock={...LAY.ios};
 function colors(){const d=P.mode==='dark';
   if(P.style==='ios')return{bg:d?'#000':'#fff',fg:d?'#fff':'#000',hdr:d?'#1C1C1E':'#F6F6F8',mu:'#8E8E93',me:P.iosColor==='Green'?'#34C759':'#0A84FF',meText:'#fff',them:d?'#26252A':'#E9E9EB',line:d?'#333':'#D8D8DC',pill:d?'#3A3A3C':'#C7C7CC',plus:d?'#2C2C2E':'#E9E9EB',dots:'#8E8E93'};
@@ -712,12 +723,12 @@ function drawLock(t){
   for(const e of SCH.ev){const m=e.m;if(m.from==='them'&&t>=e.arrive)items.push({t0:e.arrive,m,e,kind:'msg'});
     if(m.react&&e.reactAt!=null&&t>=e.reactAt&&m.from==='me'&&(m.reactBy||'them')==='them')items.push({t0:e.reactAt,m,e,kind:'react'});}
   items.sort((a,b)=>b.t0-a.t0);
-  const cw=W-64,x=32,grp=isGroup();let y=ios?640:900;
+  const cw=W-64,x=32,grp=isGroup();let y=ios?640:900,topCard=null;
   for(const it of items.slice(0,6)){const m=it.m,p=clamp((t-it.t0)/.35,0,1),u=it.kind==='msg'&&it.e.unsendAt!=null?clamp((t-it.e.unsendAt)/.35,0,1):0;if(u>=1)continue;
     const who=it.kind==='react'?P.name:nameOf(m),body=it.kind==='react'?`Reacted ${m.react} to “${quoteText(m)}”`:(m.kind==='text'?m.text:quoteText(m)),title=grp?groupTitle():who,txt=grp&&it.kind==='msg'?`${who}: ${body}`:body;
     const thumb=it.kind==='msg'&&m.kind!=='text'&&m.kind!=='voice';ctx.font=F(33,400,fam);let ls=wrap(txt,cw-(thumb?300:180));if(ls.length>2){ls=ls.slice(0,2);ls[1]=fitEnd(ls[1]+' …',cw-(thumb?300:180));}
     const hc=(ios?118:132)+ls.length*44,eff=(hc+16)*easeO(p)*(1-u);if(y+hc>H-330)break;
-    ctx.save();ctx.globalAlpha=Math.min(1,p*1.6)*(1-u);const cy=y-(1-easeO(p))*50,col=appColor(P.lockApp);
+    ctx.save();ctx.globalAlpha=Math.min(1,p*1.6)*(1-u);const cy=y-(1-easeO(p))*50,col=appColor(P.lockApp);if(!topCard)topCard={x,y:cy,w:cw,h:hc};
     if(ios){ctx.save();rr(x,cy,cw,hc,40);ctx.clip();ctx.filter='blur(30px) saturate(1.4)';drawCover(wall,R);ctx.filter='none';ctx.fillStyle='rgba(242,242,247,.6)';ctx.fillRect(x,cy,cw,hc);ctx.restore();
       ctx.fillStyle=col;rr(x+26,cy+28,84,84,20);ctx.fill();ctx.fillStyle=col==='#FFFC00'?'#111':'#fff';ctx.font=F(40,700,'sys');ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText((P.lockApp[0]||'?').toUpperCase(),x+68,cy+71);
       ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.fillStyle='#111';ctx.font=F(32,700,'sys');ctx.fillText(fitEnd(title,cw-(thumb?380:330)),x+134,cy+64);
@@ -730,6 +741,7 @@ function drawLock(t){
     ctx.restore();y+=eff;}
   if(ios){[[150,'flashlight'],[W-150,'camera']].forEach(([cx,ic])=>{ctx.fillStyle='rgba(30,30,30,.45)';ctx.beginPath();ctx.arc(cx,H-190,52,0,Math.PI*2);ctx.fill();icon(ic,cx,H-190,48,'#fff');});homeBar('#fff');}
   else{icon('call',110,H-150,52,'#fff');icon('camera',W-110,H-150,52,'#fff');icon('lock',W/2,H-160,44,'#fff');homeBar('#fff',220);}
+  return topCard;
 }
 function drawHeader(c){
   const grp=isGroup(),title=grp?groupTitle():P.name;
@@ -832,15 +844,36 @@ function drawViewer(e,r0,t,c){
     ctx.fillStyle='rgba(255,255,255,.3)';rr(120,by-4,W-240,8,4);ctx.fill();ctx.fillStyle=wh;rr(120,by-4,(W-240)*pr,8,4);ctx.fill();ctx.beginPath();ctx.arc(120+(W-240)*pr,by,12,0,Math.PI*2);ctx.fill();icon('pause',70,by,44,wh);}
   ctx.restore();
 }
+/* the message box at the bottom: always there, or only while you type (Auto hides it when nothing is typed out) */
+function barMode(){const v=P.inputBar||'auto';if(v==='auto')return SCH.ev.some(e=>e.keys)?'always':'typing';return v;}
+/* start on the lock screen: their first messages arrive as notifications, the top one is tapped, and the chat opens */
+const OFF={};function offCv(n){if(!OFF[n]){const c=document.createElement('canvas');c.width=W;c.height=H;OFF[n]={c,g:c.getContext('2d')};}return OFF[n];}
 function drawFrame(t){
   if(P.style==='lock'){ctx.save();drawLock(t);ctx.restore();return;}
+  const I=SCH.intro;
+  if(I&&t<I.open){ctx.save();const card=drawLock(t);ctx.restore();
+    if(card&&t>=I.tap){const q=clamp((t-I.tap)/(I.open-I.tap),0,1);ctx.save();rr(card.x,card.y,card.w,card.h,40);ctx.clip();ctx.fillStyle=`rgba(0,0,0,${.16*Math.sin(Math.PI*Math.min(1,q*1.4))})`;ctx.fillRect(card.x,card.y,card.w,card.h);ctx.restore();
+      ctx.save();ctx.globalAlpha=.55*(1-q);ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(card.x+card.w*.5,card.y+card.h*.55,44+70*q,0,Math.PI*2);ctx.fill();ctx.restore();}
+    return;}
+  if(I&&t<I.full){const q=smooth(clamp((t-I.open)/(I.full-I.open),0,1));
+    ctx.save();const card=drawLock(t)||{x:32,y:640,w:W-64,h:200};ctx.restore();const o1=offCv(1);o1.g.clearRect(0,0,W,H);o1.g.drawImage(cv,0,0);
+    drawChat(t);const o2=offCv(2);o2.g.clearRect(0,0,W,H);o2.g.drawImage(cv,0,0);
+    const lp=(a,b)=>a+(b-a)*q,sc=lp(card.w/W,1),cx=lp(card.x+card.w/2,W/2),cy=lp(card.y+card.h/2,H/2);
+    ctx.save();ctx.clearRect(0,0,W,H);ctx.drawImage(o1.c,0,0);ctx.fillStyle=`rgba(0,0,0,${.45*q})`;ctx.fillRect(0,0,W,H);
+    rr(lp(card.x,0),lp(card.y,0),lp(card.w,W),lp(card.h,H),lp(40,0));ctx.clip();ctx.globalAlpha=Math.min(1,.3+q*2);ctx.drawImage(o2.c,cx-W*sc/2,cy-H*sc/2,W*sc,H*sc);ctx.restore();return;}
+  drawChat(t);
+}
+function drawChat(t){
   const c=colors(),L0=LAY[P.style];
   if(c.grad){c.gradFill=ctx.createLinearGradient(0,L0.top,0,H-250);c.gradFill.addColorStop(0,'#B02BFF');c.gradFill.addColorStop(1,'#3A6BFF');}
-  const k=kbAt(t),inC=L0.inBase+(H-KBH-80-L0.inBase)*k,L={...L0,bottom:inC-L0.inGap};
+  const k=kbAt(t),bm=barMode(),kTop=H-KBH-80;let inC,bottom;
+  if(bm==='always'){inC=L0.inBase+(kTop-L0.inBase)*k;bottom=inC-L0.inGap;}
+  else{inC=(H+130)+(kTop-(H+130))*k;bottom=(H-L0.bare)+((kTop-L0.inGap)-(H-L0.bare))*k;}
+  const L={...L0,bottom};
   if(isGroup()&&(P.style==='ios'||P.style==='wa'))L.left=118;
   ctx.save();ctx.clearRect(0,0,W,H);ctx.fillStyle=P.style==='wa'?wallPattern(c):c.bg;ctx.fillRect(0,0,W,H);
   const rects=drawThread(L,c,t);drawHeader(c);
-  const ty=typedAt(t);drawInput(c,inC,ty,t);drawKeyboard(k,ty);
+  const ty=typedAt(t);if(bm==='always'||k>.001)drawInput(c,inC,ty,t);drawKeyboard(k,ty);
   if(P.style==='android')homeBar(c.fg,220);else homeBar(k>.5&&P.mode!=='dark'?'#111':c.fg);
   for(const e of SCH.ev)if(e.openTap!==undefined&&t>=e.openTap&&t<e.closeEnd){drawViewer(e,rects[e.i],t,c);break;}
   ctx.restore();
@@ -950,6 +983,7 @@ function renderTimeline(){
       `<div class="seg-main" style="left:${tw}px;right:${ow}px"><span>${esc(label)}</span></div>`+
       (ow?`<div class="seg-open" style="width:${ow}px">open</div><div class="hdl h-open" data-i="${i}" title="Drag to change how long it stays open"></div>`:'')+
       (tw>2&&(m.from==='them'||e.keys)?`<div class="hdl h-type" data-i="${i}" style="left:${tw-7}px" title="Drag to change how long typing lasts"></div>`:'')+`</div>`;});
+  if(SCH.intro)tr+=`<div class="lockmark" style="left:${PAD+SCH.intro.tap*pps}px" title="The notification is tapped and the chat opens"><span>🔓 Opens chat</span></div>`;
   tlTrack.innerHTML=tr;
   let sl='';if(P.sound.on)SCH.snd.forEach(s=>{const v=resolveSound(s);if(v==='none')return;if(s.type==='key')sl+=`<i class="sk key" style="left:${PAD+s.t*pps}px"></i>`;else sl+=`<i class="sk ${s.type}" style="left:${PAD+s.t*pps}px" title="${esc(soundName(v))}"></i>`;});
   tlSound.innerHTML=sl;moveHead();
@@ -1106,13 +1140,14 @@ function lookPanel(p){
   const r=()=>refresh();
   p.append(segF('l-style','Phone style',[['ios','iPhone'],['android','Android'],['dm','Social DM'],['wa','WhatsApp-style'],['discord','Discord-style'],['lock','Lock screen']],P.style,v=>{if(v==='wa'&&P.status==='Active now')P.status='online';else if(v==='dm'&&P.status==='online')P.status='Active now';P.style=v;r();}));
   const lock=P.style==='lock';
-  if(lock){p.append(h('p',{class:'help'},'Their messages pop up as notifications over a wallpaper, newest on top. Your messages don’t show, but their reactions to yours do.'));
+  const lockFields=()=>{
     p.append(segF('l-lphone','Phone',['iPhone','Android'],P.lockPhone,v=>{P.lockPhone=v;r();}));
     p.append(textF('l-lapp','App name on the notifications',P.lockApp,v=>{P.lockApp=v;drawNow();save();},'Messages'));
     p.append(textF('l-ldate','Date',P.lockDate,v=>{P.lockDate=v;drawNow();save();}));
     const wr=h('div',{class:'row'},P.wall?h('img',{class:'thumb',src:P.wall.src,alt:''}):h('span',{class:'thumb'}),pickImage('l-wall',P.wall?'Change':'Choose photo',im=>{P.wall=im;r();}));
     if(P.wall)wr.append(h('button',{type:'button',onclick:()=>{P.wall=null;r();}},'Remove'));
-    p.append(h('div',{class:'field'},h('span',{class:'flabel'},'Wallpaper'),wr,h('p',{class:'help'},'Without one, the sample sunset stands in.')));}
+    p.append(h('div',{class:'field'},h('span',{class:'flabel'},'Wallpaper'),wr,h('p',{class:'help'},'Without one, the sample sunset stands in.')));};
+  if(lock){p.append(h('p',{class:'help'},'Their messages pop up as notifications over a wallpaper, newest on top. Your messages don’t show, but their reactions to yours do.'));lockFields();}
   else p.append(segF('l-mode','Mode',[['light','Light'],['dark','Dark']],P.mode,v=>{P.mode=v;r();}));
   p.append(textF('l-name',P.style==='dm'?'Contact username':'Contact name',P.name,v=>{P.name=v;drawNow();save();renderList();}));
   if(P.style==='dm'||P.style==='wa')p.append(textF('l-status','Status line',P.status,v=>{P.status=v;drawNow();save();},P.style==='wa'?'online':'Active now'));
@@ -1126,6 +1161,17 @@ function lookPanel(p){
   if(P.style==='discord'){p.append(textF('l-myname','Your name',P.myName,v=>{P.myName=v;drawNow();save();},'You'));
     p.append(h('div',{class:'field'},h('label',{for:'l-mycol'},'Your name color'),h('input',{type:'color',id:'l-mycol',value:(P.myColor||'#f0b232').toLowerCase(),oninput:e=>{P.myColor=e.target.value;drawNow();save();}})));}
   if(['ios','android','dm'].includes(P.style))p.append(textF('l-receipt','Under your last message',P.receipt,v=>{P.receipt=v;drawNow();save();},LAY[P.style].receipt));
+  if(!lock){p.append(segF('l-bar','Message box at the bottom',[['auto','Auto'],['always','Always'],['typing','Only while typing']],P.inputBar||'auto',v=>{P.inputBar=v;r();}));
+    p.append(h('p',{class:'help'},(P.inputBar||'auto')==='auto'?(SCH.ev.some(e=>e.keys)?'Shown, because some of your messages are typed out on the keyboard.':'Hidden, because none of your messages are typed out, so the messages just appear and send on their own.'):(P.inputBar==='always'?'Always shown, like the real app.':'Hidden, and slides up with the keyboard when one of your messages is typed out.')));
+    p.append(h('h4',{class:'fhead'},'Start on the lock screen'));
+    p.append(checkF('l-intro','Open on the lock screen, then tap into the chat',!!P.lockIntro,v=>{P.lockIntro=v;
+      if(v){if(P.lockApp==='Messages'){const d={dm:'Instagram',wa:'WhatsApp',discord:'Discord'}[P.style];if(d)P.lockApp=d;}P.lockPhone=P.style==='android'?'Android':'iPhone';}r();}));
+    if(P.lockIntro){const nThem=Math.min(6,leadThem());
+      p.append(h('p',{class:'help'},'Their first messages arrive as notifications on the lock screen. Then the top one is tapped, the chat opens out of it, and the rest of the conversation plays in the chat.'));
+      if(!nThem)p.append(h('p',{class:'help'},'Your conversation starts with one of your messages. Put one of their messages first: their messages before your first reply are what pop up on the lock screen.'));
+      else{if(nThem>1)p.append(rangeF('l-lcount','How many of their messages show first',1,nThem,1,clamp(P.lockCount||1,1,nThem),v=>v===1?'1 message':v+' messages',v=>{P.lockCount=v;refresh({list:false,side:false});updateListMeta();}));
+        p.append(rangeF('l-lhold','Wait before tapping it',.3,5,.05,P.lockHold==null?1.2:P.lockHold,fmtS,v=>{P.lockHold=v;refresh({list:false,side:false});updateListMeta();}));}
+      lockFields();}}
   p.append(h('h4',{class:'fhead'},'Group chat'));
   p.append(checkF('l-group','This is a group chat',!!P.group,v=>{P.group=v;if(v&&!P.people.length)P.people.push(newPerson());r();}));
   if(P.group){
@@ -1215,10 +1261,16 @@ let xFormat='webm',xQual='best',xResult=null;
 function pickMime(kind,withSound){if(!window.MediaRecorder||!cv.captureStream)return null;
   const c=kind==='mp4'?(withSound?['video/mp4;codecs=avc1,mp4a.40.2','video/mp4']:['video/mp4;codecs=avc1','video/mp4']):(withSound?['video/webm;codecs=vp8,opus','video/webm;codecs=vp9,opus','video/webm']:['video/webm;codecs=vp8','video/webm']);
   return c.find(m=>{try{return MediaRecorder.isTypeSupported(m);}catch(e){return false;}})||null;}
+let xNameMine=false;
+const cleanName=s=>String(s||'').replace(/\.(webm|mp4|gif|mov|m4v)$/i,'').replace(/[\\/:*?"<>|\x00-\x1f]+/g,'-').replace(/\s+/g,' ').trim().replace(/^[.\s-]+/,'').slice(0,80);
+function newName(){$('xName').value='chat-'+rndCode();xNameMine=false;}
+const outExt=()=>xResult&&xResult.type==='image/gif'?'gif':xFormat;
+const outName=()=>(cleanName($('xName').value)||'chat-'+rndCode())+'.'+outExt();
 function openExport(){
+  if($('xmodal').hidden&&(!xNameMine||!cleanName($('xName').value)))newName();
   pause();const fm=[];if(pickMime('webm'))fm.push(['webm','WebM']);if(pickMime('mp4'))fm.push(['mp4','MP4']);fm.push(['gif','GIF']);if(!fm.some(f=>f[0]===xFormat))xFormat=fm[0][0];
   const xf=$('xfmt');xf.innerHTML='';fm.forEach(([k,l])=>xf.append(h('button',{type:'button','aria-pressed':String(k===xFormat),onclick:()=>{if(!busy){xFormat=k;openExport();}}},l)));
-  const gif=xFormat==='gif',q=gif&&xQual==='half'?'best':xQual;
+  const gif=xFormat==='gif',q=gif&&xQual==='half'?'best':xQual;$('xExt').textContent='.'+xFormat;
   const xs=$('xsize');xs.innerHTML='';qualityOptions(xFormat).forEach(([k,l])=>xs.append(h('button',{type:'button','aria-pressed':String(k===q),onclick:()=>{if(!busy){xQual=k;openExport();}}},l)));
   $('xlimF').hidden=q!=='limit';$('xsoundL').hidden=gif||!P.sound.on;
   const d=SCH.dur.toFixed(0);
@@ -1244,7 +1296,8 @@ $('xStart').onclick=async()=>{
   }catch(err){$('xStatus').textContent='That didn’t work: '+(err&&err.message||err)+'. Try GIF, or open the local copy in Chrome.';}
   finally{busy=false;$('xStart').disabled=false;$('xClose').disabled=false;drawNow();}
 };
-$('xDl').onclick=async()=>{if(!xResult)return;$('xStatus').textContent=await saveFile(xResult,`chat-reel.${xFormat}`);};
+$('xDl').onclick=async()=>{if(!xResult)return;$('xStatus').textContent=await saveFile(xResult,outName());};
+$('xName').oninput=()=>{xNameMine=true;};$('xRand').onclick=newName;
 
 /* ================= leaving nothing behind in what you save ================= */
 /* random short codes for file names, so names don't carry your original file name or the time */
@@ -1432,7 +1485,7 @@ const HANDOFF={name:'pt-handoff',
     try{history.replaceState(null,'',location.pathname+location.hash);}catch(e){}return out;},
   async send(files,page){try{await this.put(files);}catch(e){toast('Couldn’t pass it along. Save it and add it there instead.');return;}
     try{await Promise.race([flushAutosave(),new Promise(r=>setTimeout(r,1500))]);}catch(e){}location.href=page+'?handoff=1';}};
-$('xToVL').onclick=()=>{if(xResult)HANDOFF.send([new File([xResult],`chat-reel.${xFormat}`,{type:xResult.type})],'video-layers.html');};
+$('xToVL').onclick=()=>{if(xResult)HANDOFF.send([new File([xResult],outName(),{type:xResult.type})],'video-layers.html');};
 async function handoffIn(){const fs=await HANDOFF.take();if(!fs.length)return;let ph=0,sn=0,other=0,vc=0;
   for(const f of fs){
     if(/^image\//.test(f.type)){const url=await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.onerror=()=>r(null);fr.readAsDataURL(f);});const im=await dataToImg(url);if(im){P.msgs.push(mk({from:'me',kind:'photo',img:im,delay:.6}));ph++;}}
