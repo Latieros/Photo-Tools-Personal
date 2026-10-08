@@ -233,6 +233,7 @@ Puts pictures, videos, text, music and your voice together and makes a new video
   - **Keep:** People, or People and animals (also cats, dogs, horses, sheep, cows and birds; slower).
   - **Background:** remove it so the layers underneath show through, or blur it like a phone's portrait mode.
   - Sliders for a tighter or looser edge, soft edges, and steadier edges so the outline doesn't flicker.
+  - **Plain backgrounds** (a white wall, studio paper or any even color): the edge follows the background's color instead of the model's rough outline. This keeps arms and hair the model misses, drops background showing between arms and soft shadows on the wall, and leaves no light rim around the person. It's on by default; turn off **Sharper edges on a plain background** if it keeps something it shouldn't.
   - The first time, it downloads about 13 MB (more for People and animals). After that it's kept on your device and works offline in the app.
   - Before a video or GIF is saved, every frame is done once ahead of time, so the result plays smoothly. This takes a little while for long videos.
 - **Green screen:**

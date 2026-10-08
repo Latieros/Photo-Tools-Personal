@@ -382,7 +382,7 @@ const VIS=L=>L&&(L.type==='video'||L.type==='image');
 const isMedia=L=>L.type==='video'||L.type==='audio';
 const FX0={b:100,c:100,s:100,warm:0,h:0,gray:0,blur:0,vig:0};
 const KEY0={on:false,color:'#00B140',tol:.38,soft:.2,spill:.6};
-const CUT0={on:false,what:'people',bg:'remove',blur:.5,fit:0,edge:.35,steady:.5};
+const CUT0={on:false,what:'people',bg:'remove',blur:.5,fit:0,edge:.35,steady:.5,plain:true};
 const LOOKS={none:['Original',{}],bw:['B&W',{gray:100,c:115}],vintage:['Vintage',{warm:45,c:90,s:80,b:106,vig:35}],warm:['Warm',{warm:45,s:112}],cool:['Cool',{warm:-45,s:95,b:103}],
   vivid:['Vivid',{s:155,c:112}],fade:['Faded',{c:78,b:112,s:75}],noir:['Noir',{gray:100,c:160,b:88,vig:50}],dramatic:['Dramatic',{c:140,s:115,b:94,vig:30}],dream:['Dreamy',{blur:2,b:110,s:120}]};
 const BLENDS=[['source-over','Normal'],['screen','Screen'],['multiply','Multiply'],['overlay','Overlay'],['lighten','Lighten'],['darken','Darken']];
@@ -1380,11 +1380,12 @@ function cutRun(L,m,el){
 function cutShape(L,m,s,f){
   const k=L.cut,fr=s.frames.get(f),W=fr.w,H=fr.h,n=W*H,use=[[fr.a,1]];let bits='';
   if(L.type==='video'&&k.steady>0)for(const d of[-2,-1,1,2]){const o=s.frames.get(f+d),ok=o&&o.w===W&&o.h===H;bits+=ok?1:0;if(ok)use.push([o.a,Math.pow(k.steady*.9,Math.abs(d))]);}
-  const sig=[s.sig,f,k.edge,k.fit,k.steady,bits].join(',');if(m.cutMk&&m.cutSig===sig)return m.cutMk;
+  const sig=[s.sig,f,k.edge,k.fit,k.steady,bits,k.plain].join(',');if(m.cutOut&&m.cutSig===sig)return m.cutOut;
   if(!CUT.p||CUT.p.length<n){CUT.p=new Float32Array(n);CUT.q=new Float32Array(n);}
   const p=CUT.p,q=CUT.q;let ws=0;for(const u of use)ws+=u[1];
   if(use.length===1){const a=fr.a;for(let i=0;i<n;i++)p[i]=a[i]/255;}
   else{for(let i=0;i<n;i++)p[i]=0;for(const[a,w]of use){const kk=w/(ws*255);for(let i=0;i<n;i++)p[i]+=a[i]*kk;}}
+  if(k.plain){const pm=cutPlain(L,m,p,W,H);if(pm){m.cutSig=sig;m.cutOut=pm;return pm;}}
   /* blurring first lets the cut line move: a lower cut-off takes in more around the edge, a higher one less */
   const r=Math.round(k.edge*2+Math.abs(k.fit)*6);
   if(r>0){const box=(src,dst,len,stride,lines,lstride)=>{for(let l=0;l<lines;l++){const o=l*lstride;for(let i=0;i<len;i++){let v=0;for(let j=-r;j<=r;j++){const t=i+j<0?0:i+j>=len?len-1:i+j;v+=src[o+t*stride];}dst[o+i*stride]=v/(2*r+1);}}};
@@ -1394,7 +1395,78 @@ function cutShape(L,m,s,f){
   const mc=m.cutMk;if(mc.width!==W||mc.height!==H){mc.width=W;mc.height=H;m.cutId=null;}
   if(!m.cutId)m.cutId=m.cutMg.createImageData(W,H);const d=m.cutId.data;
   for(let i=0;i<n;i++){let a=(p[i]-lo)/span;a=a<=0?0:a>=1?1:a*a*(3-2*a);d[i*4+3]=a*255;}
-  m.cutMg.putImageData(m.cutId,0,0);m.cutSig=sig;return mc;}
+  m.cutMg.putImageData(m.cutId,0,0);m.cutSig=sig;m.cutOut=mc;return mc;}
+/* On a plain background (a white wall, studio paper, any even color), the model's rough outline is only a starting point:
+   every spot is compared with the background's color, at a much finer size, so the edge follows the real outline.
+   Arms and hair the model missed are kept as long as they join the person; background showing between arms is dropped. */
+function cutPlain(L,m,p,W,H){
+  const k=L.cut,c=L.crop,sx=c.l*m.w,sy=c.t*m.h,sw=Math.max(1,m.w*(1-c.l-c.r)),sh=Math.max(1,m.h*(1-c.t-c.b));
+  const R=L.type==='video'?480:1600,sc=Math.min(1,R/Math.max(sw,sh)),w=Math.max(16,Math.round(sw*sc)),hh=Math.max(16,Math.round(sh*sc)),n=w*hh;
+  const pc=CUT.pc||(CUT.pc=document.createElement('canvas'));if(pc.width!==w||pc.height!==hh){pc.width=w;pc.height=hh;}
+  const pg=CUT.pg||(CUT.pg=pc.getContext('2d',{willReadFrequently:true}));
+  let d;try{pg.drawImage(m.el,sx,sy,sw,sh,0,0,w,hh);d=pg.getImageData(0,0,w,hh).data;}catch(e){return null;}
+  /* 1. the border: is most of it one color? */
+  const ring=Math.max(2,Math.round(Math.min(w,hh)*.02)),st=Math.max(1,Math.round((w+hh)*2*ring/5000)),sm=[];
+  const take=(x,y)=>{const i=(y*w+x)*4;sm.push(x/w,y/hh,d[i],d[i+1],d[i+2]);};
+  for(let r=0;r<ring;r++){for(let x=0;x<w;x+=st){take(x,r);take(x,hh-1-r);}for(let y=ring;y<hh-ring;y+=st){take(r,y);take(w-1-r,y);}}
+  const ns=sm.length/5,med=[0,0,0];
+  for(let ch=0;ch<3;ch++){const hist=new Uint32Array(256);for(let j=0;j<ns;j++)hist[sm[j*5+2+ch]]++;let acc=0,v=0;for(;v<256;v++){acc+=hist[v];if(acc>=ns/2)break;}med[ch]=v;}
+  const inl=[];for(let j=0;j<ns;j++){const dr=sm[j*5+2]-med[0],dg=sm[j*5+3]-med[1],db=sm[j*5+4]-med[2];if(dr*dr+dg*dg+db*db<26*26)inl.push(j);}
+  if(inl.length<ns*.55||inl.length<12){m.cutPlainBg=null;return null;}
+  /* 2. the background's color across the frame: a smooth surface, so studio paper that's lighter in the middle or darker at the corners still counts */
+  const T=(x,y)=>[1,x,y,x*x,y*y,x*y];
+  const fit=(set,ch)=>{const A=[0,1,2,3,4,5].map(()=>new Float64Array(7));
+    for(const j of set){const t=T(sm[j*5],sm[j*5+1]),v=sm[j*5+2+ch];for(let a=0;a<6;a++){for(let b2=0;b2<6;b2++)A[a][b2]+=t[a]*t[b2];A[a][6]+=t[a]*v;}}
+    for(let a=0;a<6;a++)A[a][a]+=1e-6;
+    for(let c2=0;c2<6;c2++){let pv=c2;for(let r=c2+1;r<6;r++)if(Math.abs(A[r][c2])>Math.abs(A[pv][c2]))pv=r;[A[c2],A[pv]]=[A[pv],A[c2]];
+      const dv=A[c2][c2]||1e-9;for(let r=0;r<6;r++){if(r===c2)continue;const f=A[r][c2]/dv;if(f)for(let k2=c2;k2<7;k2++)A[r][k2]-=f*A[c2][k2];}}
+    return A.map((row,a)=>row[6]/(row[a]||1e-9));};
+  const at=(cf,x,y)=>cf[0]+cf[1]*x+cf[2]*y+cf[3]*x*x+cf[4]*y*y+cf[5]*x*y;
+  let set=inl,pl=null;
+  for(let it=0;it<3;it++){pl=[0,1,2].map(ch=>fit(set,ch));
+    const res=set.map(j=>{const x=sm[j*5],y=sm[j*5+1];let e=0;for(let ch=0;ch<3;ch++)e+=Math.abs(sm[j*5+2+ch]-at(pl[ch],x,y));return e/3;});
+    const srt=[...res].sort((a,b)=>a-b),lim=Math.max(4,srt[srt.length>>1]*3);const nx=set.filter((j,q)=>res[q]<=lim);if(nx.length===set.length||nx.length<12)break;set=nx;}
+  let nz=0;for(const j of set){const x=sm[j*5],y=sm[j*5+1];for(let ch=0;ch<3;ch++)nz+=Math.abs(sm[j*5+2+ch]-at(pl[ch],x,y));}nz/=set.length*3;
+  m.cutPlainBg=med;m.cutPlainPl=pl;
+  /* 3. how different each spot is from the background (shading counts for less than color, so soft shadows go) */
+  const d0=Math.max(13,nz*3.2)*(1-.45*k.fit),dOut=Math.max(d0*2.0,28*(1-.45*k.fit)),cut0=d0*.35;
+  if(!CUT.pa||CUT.pa.length<n){CUT.pa=new Float32Array(n);CUT.pb=new Float32Array(n);CUT.pl=new Int32Array(n);CUT.pq=new Int32Array(n);}
+  const Cm=CUT.pa,Am=CUT.pb,lab=CUT.pl,qu=CUT.pq;
+  const r0=pl[0],g0=pl[1],b0=pl[2];
+  for(let y=0,i=0;y<hh;y++){const fy=y/hh,v=(y+.5)*H/hh-.5,y0=Math.max(0,Math.min(H-1,Math.floor(v))),y1=Math.min(H-1,y0+1),ty=Math.max(0,Math.min(1,v-y0));
+    for(let x=0;x<w;x++,i++){const fx=x/w,j=i*4,dr=d[j]-at(r0,fx,fy),dg=d[j+1]-at(g0,fx,fy),db=d[j+2]-at(b0,fx,fy);
+      const dl=.299*dr+.587*dg+.114*db,dcb=-.169*dr-.331*dg+.5*db,dcr=.5*dr-.419*dg-.081*db,dist=Math.sqrt(dl*dl*.35+(dcb*dcb+dcr*dcr)*2.5);
+      /* the model's answer, scaled up to this size */
+      const u=(x+.5)*W/w-.5,x0=Math.max(0,Math.min(W-1,Math.floor(u))),x1=Math.min(W-1,x0+1),tx=Math.max(0,Math.min(1,u-x0));
+      const pa=p[y0*W+x0]+(p[y0*W+x1]-p[y0*W+x0])*tx,pb=p[y1*W+x0]+(p[y1*W+x1]-p[y1*W+x0])*tx;
+      const am=pa+(pb-pa)*ty;
+      /* away from where the model sees the person, it takes a bigger difference to count, so shadows on the wall go but arms stay */
+      let wa=(am-.1)/.35;wa=wa<=0?0:wa>=1?1:wa;const e0=dOut+(d0-dOut)*wa,e1=e0+7+k.edge*26;
+      let a=(dist-e0)/(e1-e0);Cm[i]=a<=0?0:a>=1?1:a*a*(3-2*a);
+      /* the model is trusted deep inside the person (a white shirt), but not where the color says plain background */
+      let core=(am-(.72-.1*k.fit))/(.95-(.72-.1*k.fit));core=core<=0?0:core>=1?1:core*core*(3-2*core);
+      if(am<.97){let g2=(dist-cut0)/(d0-cut0);g2=g2<=0?0:g2>=1?1:g2;core*=g2;}
+      Am[i]=core;lab[i]=am>.6?-2:-1;}}
+  /* 4. keep the parts that differ from the background and touch the person */
+  let aiArea=0;for(let i=0;i<n;i++)if(lab[i]===-2)aiArea++;
+  const keep=[];let nl=0;
+  for(let i0=0;i0<n;i0++){if(Cm[i0]<=.5||lab[i0]>=0)continue;
+    let h0=0,t0=0,size=0,over=0;qu[t0++]=i0;over+=lab[i0]===-2?1:0;lab[i0]=nl;
+    while(h0<t0){const i=qu[h0++];size++;const x=i%w;
+      const nb=[x>0?i-1:-1,x<w-1?i+1:-1,i-w,i+w];
+      for(const jn of nb){if(jn<0||jn>=n||lab[jn]>=0||Cm[jn]<=.5)continue;if(lab[jn]===-2)over++;lab[jn]=nl;qu[t0++]=jn;}}
+    keep.push(over>=Math.max(4,size*.15)||over>=aiArea*.02);nl++;}
+  /* if what joins the person is far bigger than the person, this isn't really a plain background: leave it to the model */
+  let keptArea=0;for(let i=0;i<n;i++){const l=lab[i];if(l>=0&&keep[l])keptArea++;}
+  m.cutPlainStat=[aiArea,keptArea];if(keptArea>aiArea*2.2+n*.02){m.cutPlainBg=null;return null;}
+  if(!m.cutPk){m.cutPk=document.createElement('canvas');m.cutPkg=m.cutPk.getContext('2d');}
+  const mc=m.cutPk;if(mc.width!==w||mc.height!==hh){mc.width=w;mc.height=hh;m.cutPkd=null;}
+  if(!m.cutPkd)m.cutPkd=m.cutPkg.createImageData(w,hh);const o=m.cutPkd.data;
+  const kept=i=>{const l=lab[i];return l>=0&&keep[l];},vid=L.type==='video';
+  for(let y=0,i=0;y<hh;y++)for(let x=0;x<w;x++,i++){
+    let kc=kept(i)||(x>0&&kept(i-1))||(x<w-1&&kept(i+1))||(y>0&&kept(i-w))||(y<hh-1&&kept(i+w));
+    let a=Math.max(Am[i],kc?Cm[i]:0);if(vid)a=a<=.25?0:a>=1?1:(a-.25)/.75;o[i*4+3]=a*255;}
+  m.cutPkg.putImageData(m.cutPkd,0,0);return mc;}
 function cutFrame(L,m){
   const s=cutStore(L,m),f=L.type==='video'?Math.round(m.el.currentTime*s.fps):0;
   if(!s.frames.has(f)){if(!cutHas(L)){cutWake(L);return null;}const fr=cutRun(L,m,m.el);if(!fr)return null;cutPut(s,f,fr);}
@@ -1402,18 +1474,26 @@ function cutFrame(L,m){
 /* the layer's picture with the background gone (or blurred), at about the size it shows */
 function cutout(L,m,src,sx,sy,sw,sh,b){
   const mk=cutFrame(L,m);if(!mk)return null;
-  const cap=exporting?1280:860,sc=Math.min(1,cap/Math.max(sw,sh),Math.max(b.w/sw,b.h/sh,96/Math.max(sw,sh)));
+  const img=L.type==='image',cap=img?(exporting?2048:1200):(exporting?1280:860),sc=Math.min(1,cap/Math.max(sw,sh),Math.max(b.w/sw,b.h/sh,96/Math.max(sw,sh)));
   const w=Math.max(2,Math.round(sw*sc)),hh=Math.max(2,Math.round(sh*sc));
   if(!m.cc){m.cc=document.createElement('canvas');m.cg=m.cc.getContext('2d');}
-  const c=m.cc,g=m.cg;if(c.width!==w||c.height!==hh){c.width=w;c.height=hh;}
+  const c=m.cc,g=m.cg,plain=mk===m.cutPk&&m.cutPlainBg;
+  const csig=img&&[m.cutSig,w,hh,L.cut.bg,L.cut.blur,src===m.el?'':m.kSig].join('|');if(csig&&m.ccSig===csig)return c;m.ccSig=null;
+  if(c.width!==w||c.height!==hh){c.width=w;c.height=hh;}
   g.globalCompositeOperation='source-over';g.filter='none';g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';g.clearRect(0,0,w,hh);
   try{g.drawImage(src,sx,sy,sw,sh,0,0,w,hh);}catch(e){return null;}
   g.globalCompositeOperation='destination-in';g.drawImage(mk,0,0,w,hh);
+  /* edge pixels are part person, part background: take the background's color back out so no light (or dark) rim is left */
+  if(plain&&img)cutUnmix(g,w,hh,m.cutPlainPl);
   if(L.cut.bg==='blur'){g.globalCompositeOperation='destination-over';
     if(HAS_FILTER){const r=Math.max(1,L.cut.blur*.035*Math.max(w,hh)),pd=r*2;g.filter=`blur(${r.toFixed(1)}px)`;try{g.drawImage(src,sx,sy,sw,sh,-pd,-pd,w+pd*2,hh+pd*2);}catch(e){}g.filter='none';}
     else{const tw=Math.max(4,Math.round(72-60*L.cut.blur)),th=Math.max(4,Math.round(tw*hh/w)),t=CUT.tiny||(CUT.tiny=document.createElement('canvas'));t.width=tw;t.height=th;
       const tg=t.getContext('2d');tg.imageSmoothingEnabled=true;tg.imageSmoothingQuality='high';try{tg.drawImage(src,sx,sy,sw,sh,0,0,tw,th);g.drawImage(t,0,0,w,hh);}catch(e){}}}
-  g.globalCompositeOperation='source-over';return c;}
+  g.globalCompositeOperation='source-over';if(csig)m.ccSig=csig;return c;}
+function cutUnmix(g,w,hh,pl){let im;try{im=g.getImageData(0,0,w,hh);}catch(e){return;}const d=im.data;
+  for(let y=0,i=0;y<hh;y++){const fy=y/hh;for(let x=0;x<w;x++,i+=4){const a=d[i+3];if(a===0||a>=250)continue;const fx=x/w,al=Math.max(a/255,.08);
+    for(let ch=0;ch<3;ch++){const cf=pl[ch],B=cf[0]+cf[1]*fx+cf[2]*fy+cf[3]*fx*fx+cf[4]*fy*fy+cf[5]*fx*fy,v=B+(d[i+ch]-B)/al;d[i+ch]=v<0?0:v>255?255:v;}}}
+  g.putImageData(im,0,0);}
 /* before a video or GIF is made, run the model on every frame ahead of time, so the recording plays smoothly */
 const cutErr=m=>Object.assign(new Error(m),{cut:true});
 async function cutWait(){const list=P.layers.filter(L=>cutOn(L)&&!L.hidden&&M[L.id]);if(!list.length)return true;return cutEnsure([...new Set(list.flatMap(cutNeeds))]);}
@@ -1446,11 +1526,12 @@ function cutPanel(p,L){const k=L.cut,vid=L.type==='video';
   p.append(segF('p-cut-w','Keep',[['people','People'],['animals','People and animals']],k.what,v=>{k.what=v;cutWake(L);renderSide();soft();}));
   p.append(segF('p-cut-bg','Background',[['remove','Remove it'],['blur','Blur it']],k.bg,v=>{k.bg=v;renderSide();soft();}));
   if(k.bg==='blur')p.append(rangeF('p-cut-bl','How blurry',.1,1,.01,k.blur,pct,v=>{k.blur=v;drawNow();save();}));
+  p.append(checkF('p-cut-plain','Sharper edges on a plain background',k.plain,v=>{k.plain=v;soft();}));
   p.append(rangeF('p-cut-fit','Edge: tighter or looser',-1,1,.01,k.fit,v=>Math.abs(v)<.02?'Middle':(v<0?'Tighter ':'Looser ')+Math.round(Math.abs(v)*100)+'%',v=>{k.fit=v;drawNow();save();}));
   p.append(rangeF('p-cut-e','Soft edges',0,1,.01,k.edge,pct,v=>{k.edge=v;drawNow();save();}));
   if(vid)p.append(rangeF('p-cut-s','Steadier edges',0,1,.01,k.steady,v=>v?pct(v):'Off',v=>{k.steady=v;drawNow();save();}));
   p.append(h('p',{class:'help'},(k.bg==='remove'?'The layers underneath show through, so put a picture or video below this one for a new background. ':'')+
-    'If bits of the background stay, move the edge toward tighter. If hair or hands go missing, move it toward looser.'+(vid?' Steadier edges stop the outline flickering. Before a video is saved, every frame is done once, which takes a little while.':'')));
+    'On a white wall, studio paper or any even color, the edge follows the background’s color, which catches arms and hair the model misses. If bits of the background stay, move the edge toward tighter. If hair or hands go missing, move it toward looser.'+(vid?' Steadier edges stop the outline flickering. Before a video is saved, every frame is done once, which takes a little while.':'')));
   p.append(h('p',{class:'help'},'People works best with one or a few people in view. People and animals also finds cats, dogs, horses, sheep, cows and birds, but it’s slower.'));}
 
 /* ================= green screen: knock out one color ================= */
