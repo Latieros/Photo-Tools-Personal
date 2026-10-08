@@ -1,0 +1,52 @@
+# Downloads the background-removal runtime and models used by Video Layers,
+# and attaches them to the run so they can be added to the site's vendor/ folder.
+# Run it again from the Actions tab to pick up newer versions.
+name: Fetch cut-out model files
+on:
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/fetch-models.yml']
+permissions:
+  contents: read
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: MediaPipe vision runtime
+        run: |
+          OUT=$GITHUB_WORKSPACE/out
+          mkdir -p $OUT/mediapipe/wasm $OUT/models $OUT/samples
+          cd $RUNNER_TEMP
+          npm pack @mediapipe/tasks-vision
+          tar xzf mediapipe-tasks-vision-*.tgz
+          ls -la package package/wasm
+          cp package/vision_bundle.mjs $OUT/mediapipe/
+          cp package/wasm/* $OUT/mediapipe/wasm/
+          cp package/package.json $OUT/mediapipe/
+          cp package/LICENSE* $OUT/mediapipe/ 2>/dev/null || true
+          node -e "console.log('version',require('./package/package.json').version)"
+      - name: Models
+        run: |
+          cd out/models
+          B=https://storage.googleapis.com/mediapipe-models/image_segmenter
+          curl -fL -o selfie_segmenter.tflite $B/selfie_segmenter/float16/latest/selfie_segmenter.tflite
+          curl -fL -o selfie_segmenter_landscape.tflite $B/selfie_segmenter_landscape/float16/latest/selfie_segmenter_landscape.tflite || true
+          curl -fL -o selfie_multiclass_256x256.tflite $B/selfie_multiclass_256x256/float32/latest/selfie_multiclass_256x256.tflite || true
+          curl -fL -o deeplab_v3.tflite $B/deeplab_v3/float32/latest/deeplab_v3.tflite || curl -fL -o deeplab_v3.tflite $B/deeplab_v3/float32/1/deeplab_v3.tflite
+          ls -la
+      - name: Sample pictures for testing
+        run: |
+          cd out/samples
+          A=https://storage.googleapis.com/mediapipe-assets
+          for f in portrait.jpg cat.jpg cats_and_dogs.jpg segmentation_input_rotation0.jpg pose.jpg; do curl -fsL -o $f $A/$f || rm -f $f; done
+          curl -fsL -o woman.jpg https://assets.codepen.io/9177687/woman-ge0f199f92_640.jpg || true
+          curl -fsL -o cat2.jpg https://assets.codepen.io/9177687/cat-g9fb6aa2b5_640.jpg || true
+          ls -la
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cutout-files
+          path: out/
+          retention-days: 7
