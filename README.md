@@ -147,7 +147,10 @@ A timeline editor for text conversations that you export as a video.
 - **Photo messages:** can show as a photo, a video or a shared post (with an account name). They can be tapped open full screen after they arrive.
 - **Real video messages:** give a video message an actual clip. It plays silently in its bubble after it arrives, then from the start with its sound when it's tapped open full screen, staying open for the whole clip (or as long as you choose). Its sound is recorded into WebM and MP4 exports. Clips are kept in the browser with your work but aren't saved in project files.
 - **Group chats:** add up to six more people, each with a name, color and photo, and pick who sends each message. Names show over their bubbles and the header shows the group.
-- **Reactions:** a heart, laugh, thumbs up or any emoji pops onto a bubble a moment after it arrives, from them or from you, with its own sound.
+- **Reactions:** an emoji pops onto a bubble a moment after it arrives, from them or from you, with its own sound.
+  - Each style offers its own reaction row (iPhone tapbacks, Android's, WhatsApp-style's and so on).
+  - **All emojis** opens a picker with every standard emoji by group, a search box, skin tones and your recently used ones.
+- **Emojis in messages:** **Add an emoji** under the message text uses the same picker, so there's no need to look emojis up and paste them.
 - **Replies:** a message can quote an earlier one, the way each app shows it.
 - **Voice notes:** a voice message bubble with a waveform and length. Add a real recording and it plays when the note arrives, with the waveform moving along.
 - **Unsend:** a message can vanish after a moment and leave "You unsent a message" (or "deleted", depending on the style) behind.
@@ -372,6 +375,6 @@ Open each tool once while you're online so everything, fonts included, is saved 
 | `icons/` | App icons |
 | `vendor/mediapipe/` | The background remover: Google's MediaPipe vision library (Apache 2.0) and its people and animal models. Its usage reporting to Google is switched off in this copy. See the README in that folder. |
 
-Each tool is a single self-contained HTML file with no build step and no server code. The background remover's files are the only ones loaded from elsewhere in the site, and only when you turn it on.
+Each tool is a single self-contained HTML file with no build step and no server code. Chat Reel's emoji list comes from [unicode-emoji-json](https://github.com/muan/unicode-emoji-json) and [emoji-data](https://github.com/iamcal/emoji-data), both MIT licensed. The background remover's files are the only ones loaded from elsewhere in the site, and only when you turn it on.
 
 `.github/workflows/fetch-models.yml` downloads newer copies of the background remover's files when run from the Actions tab and puts them on the `cutout-files` branch.
