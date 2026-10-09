@@ -1,4 +1,4 @@
-# Downloads the background-removal runtime and models used by Video Layers,
+# Downloads the background-removal and face-finding runtime and models used by Video Layers,
 # and puts them on the cutout-files branch so they can be added to the site's vendor/ folder.
 # Run it again from the Actions tab to pick up newer versions.
 name: Fetch cut-out model files
@@ -36,6 +36,9 @@ jobs:
           curl -fL -o selfie_segmenter_landscape.tflite $B/selfie_segmenter_landscape/float16/latest/selfie_segmenter_landscape.tflite || true
           curl -fL -o selfie_multiclass_256x256.tflite $B/selfie_multiclass_256x256/float32/latest/selfie_multiclass_256x256.tflite || true
           curl -fL -o deeplab_v3.tflite $B/deeplab_v3/float32/latest/deeplab_v3.tflite || curl -fL -o deeplab_v3.tflite $B/deeplab_v3/float32/1/deeplab_v3.tflite
+          F=https://storage.googleapis.com/mediapipe-models/face_detector
+          curl -fL -o blaze_face_short_range.tflite $F/blaze_face_short_range/float16/latest/blaze_face_short_range.tflite
+          curl -fL -o blaze_face_full_range.tflite $F/blaze_face_full_range/float16/latest/blaze_face_full_range.tflite || true
           ls -la
       - name: Sample pictures for testing
         run: |
