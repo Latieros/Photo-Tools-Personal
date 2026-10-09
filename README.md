@@ -15,7 +15,7 @@ A small set of personal browser tools for dressing up photos, making short video
 |---|---|
 | [Photo Frame Studio](#photo-frame-studio) | Puts a photo inside a frame: social posts, phone screens, chats, camera screens, prints, comics, covers and newspapers. Takes a photo or a video. Frames one photo or a whole batch. Exports an image, or a video for videos and the animated chats. |
 | [Photo Splitter](#photo-splitter) | Cuts one photo into 2, 3 or 4 pieces that join back into the whole picture as you swipe through a post on X, with your own cut lines and your choice of which piece comes first. |
-| [Chat Reel](#chat-reel) | Turns a text conversation into a video, timing every message on a timeline. Group chats, reactions, replies, voice notes and unsent messages, in iPhone, Android, DM, WhatsApp-style, Discord-style or lock-screen looks. |
+| [Chat Reel](#chat-reel) | Turns a text conversation into a video, timing every message on a timeline. Group chats, reactions, replies, voice notes and unsent messages, in iPhone, Android, DM, WhatsApp-style, Discord-style or lock-screen looks, or as a sci-fi transmission screen. |
 | [Metadata Scrubber](#metadata-scrubber) | Strips prompts, location and hidden data out of photos and videos and saves clean copies under random names, optionally under a size limit. |
 | [Video Layers](#video-layers) | Puts pictures, videos, text, music and your voice together and exports a new video or GIF. Automatic background removal, green screen, motion paths with keyframes and one-tap layouts. |
 
@@ -160,6 +160,7 @@ A timeline editor for text conversations that you export as a video.
   - the pause before it;
   - typing dots, with the typing time set by hand or worked out from the message length;
   - for your own messages, typing it out on the on-screen keyboard, with the time set by keyboard speed (slow, normal or fast).
+- **Transmission style:** each line has a speaking time instead (how long it takes to type out on the screen), set by hand or from its length.
 - **Overall:** a pause at the start and a hold at the end.
 - **Timeline:** drag the blocks to change the pauses, how long typing lasts, and how long a photo stays open.
 
@@ -171,6 +172,14 @@ A timeline editor for text conversations that you export as a video.
   - You choose how many, from their messages before your first reply.
   - After a pause you set, the top notification is tapped and the chat opens out of it.
   - The rest of the conversation then plays in the chat. The timeline marks where it opens.
+- **Transmission:** the conversation as a call on a sci-fi comms screen, with scanlines, a call timer and lines that type out as subtitles.
+  - **Screen shape:**
+    - **Widescreen (16:9)** keeps both of you on screen, contact on the left and you on the right. Whoever is talking lights up with a moving voice meter, the line types out in the middle, and the last few lines stay above it as a transcript.
+    - **Tall (phone)** shows one person at a time and cuts through static when the speaker changes.
+  - **Screen color:** amber, green, blue, ice, violet, rose, red or white, or any custom color (the darker and lighter shades are worked out from it).
+  - **Photos:** the contact photo and your own photo are tinted to the screen color; without one, an outline stands in. In a group, the person talking on their side takes the screen.
+  - **Call:** it can open with an incoming-call screen and end with the screen switching off and "Transmission ended". The timeline marks where it connects and ends.
+  - Photos, posts, voice notes, reactions, replies and unsent lines all show on the screen, and photos still open full screen.
 - **Contact:** name or username, contact photo, status line, avatar color and clock.
 - **Bubbles:** your bubble color (blue, green for SMS, purple or gradient) and the line under your last message (Delivered, Read, Seen…), which always sits clear of the message box.
 - **Message box at the bottom:**
@@ -180,6 +189,7 @@ A timeline editor for text conversations that you export as a video.
 
 ### Sound
 - **Built-in sounds:** for sending, replying, keyboard typing and opening a photo (Pop, Chime, Click, Tap or silent), with a volume control.
+- **Transmission sounds:** a ring for the incoming call, a burst of static when it connects, a blip as each line starts, soft ticks while it types out (the keyboard sound setting) and a tone when it ends. They're also in the built-in list (Signal, Static, Line, Off) for any message.
 - **Per-message sounds:** any message can have its own sound.
 - **My sounds:** upload your own sound files (MP3, WAV, M4A). They're kept in the browser and recorded into the video.
 
