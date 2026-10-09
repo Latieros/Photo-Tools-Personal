@@ -260,19 +260,24 @@ Puts pictures, videos, text, music and your voice together and makes a new video
 - **Speed:** ¼× up to 4×.
 - **Slow motion:**
   - For the whole clip, pick ½× or ¼× under Speed.
-  - To slow down just a moment, put the playhead where it starts and pick ½ or ¼ speed for 1, 2 or 3 seconds. The clip is cut there, that part plays slower, and the rest of the clip moves later to make room.
+  - To slow down just a moment, put the playhead where it starts and pick ½ or ¼ speed for 1, 2 or 3 seconds. The clip is cut there, that part plays slower, and everything after it moves later to make room.
   - It looks smoothest with videos filmed at 60 frames a second or in a phone's slo-mo mode.
 - **When a video ends:** it can disappear, freeze on the last frame, or loop.
 - **Sound:** volume, mute, and sound fade in and out for each video and music track.
 - **Split:** cuts any layer in two at the playhead (keyboard: S).
 
 ### Effects
-- **✦ Effects** under the preview (for a video or picture) has slow motion, blur, mosaic and the spots below in one menu.
+- **✦ Effects** under the preview (for a video or picture) has everything below in one menu.
+- **Freeze frame:** holds the picture at the playhead still for 1, 2 or 3 seconds (optionally with a camera-flash), then the clip carries on. Everything after it moves later to make room.
+- **Camera shake** (Motion tab): Handheld sways gently, Strong rumbles, and **A jolt at the start** shakes hard and settles. Videos and pictures zoom in a little so their edges never show; text shakes as a whole.
+- **Glitch** (Motion tab): red and cyan color fringes, with torn, flickering lines now and then. Works on text too.
+- To shake or glitch just a moment, split the layer first.
 - **Blur or mosaic a spot:** a box that blurs, pixelates or covers with a solid color whatever is underneath it. Use it to hide a face, a name or a number plate.
   - Drag it into place and pull its corners to size it. Shapes: rectangle, rounded or oval, with soft edges if you like.
   - **Cover all** stretches it over the whole video, for example to blur everything for a few seconds.
   - It has its own bar on the timeline, so it can show for just part of the video.
-  - If the thing you're hiding moves, add keyframes (Motion tab) so the spot follows it.
+  - **Follow a face:** put the spot over a face and tap **◉ Follow face**. An on-device face finder goes through the video a few times a second and adds keyframes so the spot stays on that face. **Blur a face** in the Effects menu does both in one go. Where the face can't be seen for a moment, the spot glides between the places it was found. Drag it at any moment afterwards to fix it. The first time it downloads about 1 MB, then it works offline in the app.
+  - Or add keyframes yourself (Motion tab) so the spot follows anything else that moves.
   - It only changes the layers below it in the list, so keep it at the top to cover captions too.
 
 ### Text overlays
@@ -284,7 +289,8 @@ Puts pictures, videos, text, music and your voice together and makes a new video
 - **Shortcut:** double-click text in the preview to edit it.
 
 ### Animation (every layer)
-- **Entrances and exits:** fade, pop, zoom, or slide from or to any side.
+- **Entrances and exits:** fade, pop, zoom, wipe, blur, glitch, flash, or slide from or to any side.
+- **Transitions between clips** (Timing tab, or ✦ Effects): crossfade, dip to black, flash, push, wipe, zoom, blur or glitch into the video or picture that comes next. The next clip moves earlier so the two overlap while it plays, and everything after it moves along. Choose the length (0.2 to 2 seconds). The timeline shows a striped end on a clip that has one.
 - **For text only:** typewriter and word by word.
 
 ### Motion paths (keyframes)
@@ -308,7 +314,12 @@ Puts pictures, videos, text, music and your voice together and makes a new video
 - **Exact pixels:** type any width and height (up to 4096) and the video is exactly that size. A link button keeps the shape while you type if you want it to.
 - **Quick sizes:** Auto (follows the bottom layer), 9:16, 1:1, 4:5, 16:9, 4:3, 3:4, and a button to turn it sideways.
 - **Stretch to this size:** squeezes the main video to fill any size you pick.
-- **Empty space:** a blurred copy of the video or a solid color.
+- **Empty space** (around a video that doesn't fill the frame):
+  - **Blurred video:** a blurred, darker copy of the bottom layer.
+  - **Stretched edges:** the colors along the edge of the video are stretched out and softened, so the picture seems to carry on.
+  - **Mirror:** the video reflected into the space, softened and a little darker.
+  - **Gradient:** two colors blending top to bottom, left to right, corner to corner or from the middle. **Match the video's colors** picks them from the edges of the bottom layer.
+  - **Color:** one flat color.
 
 ### Editing comforts
 - **Undo and redo:** Ctrl+Z and Ctrl+Shift+Z.
@@ -389,7 +400,7 @@ Open each tool once while you're online so everything, fonts included, is saved 
 | `manifest.webmanifest` | App name, icons, shortcuts and the Share menu entry for installing |
 | `sw.js` | Offline support: keeps the tools and fonts on your device, and receives files shared from other apps |
 | `icons/` | App icons |
-| `vendor/mediapipe/` | The background remover: Google's MediaPipe vision library (Apache 2.0) and its people and animal models. Its usage reporting to Google is switched off in this copy. See the README in that folder. |
+| `vendor/mediapipe/` | The background remover and face finder: Google's MediaPipe vision library (Apache 2.0) with its people, animal and face models. Its usage reporting to Google is switched off in this copy. See the README in that folder. |
 
 Each tool is a single self-contained HTML file with no build step and no server code. Chat Reel's emoji list comes from [unicode-emoji-json](https://github.com/muan/unicode-emoji-json) and [emoji-data](https://github.com/iamcal/emoji-data), both MIT licensed. The background remover's files are the only ones loaded from elsewhere in the site, and only when you turn it on.
 

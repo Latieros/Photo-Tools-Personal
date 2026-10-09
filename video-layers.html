@@ -163,6 +163,7 @@ input[type=color]{width:40px;height:32px;border:1px solid var(--line);border-rad
 .bar .hd{position:absolute;top:0;bottom:0;width:12px;cursor:ew-resize}
 .bar .hd::after{content:"";position:absolute;left:4px;top:9px;bottom:9px;width:3px;border-radius:2px;background:rgba(255,255,255,.85)}
 .bar .hl{left:0}.bar .hr{right:0}
+.bar .trx{position:absolute;right:0;top:0;bottom:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.42) 0 4px,transparent 4px 9px);pointer-events:none;font-style:normal;border-left:1px solid rgba(255,255,255,.6)}
 .hold{position:absolute;top:10px;height:20px;border-radius:0 6px 6px 0;opacity:.35;pointer-events:none}
 .hold.video{background:repeating-linear-gradient(135deg,var(--c-video) 0 5px,transparent 5px 10px)}
 .tl-head{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--accent);pointer-events:none;z-index:3}
@@ -464,6 +465,15 @@ input[type=color]{width:40px;height:32px;border:1px solid var(--line);border-rad
   </div>
 </div>
 
+<div class="modal" id="flwModal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="flwTitle">
+    <h3 id="flwTitle">Following the face</h3>
+    <p class="help" id="flwNote">Going through the video and moving the spot onto the face, a few times a second. Keep this tab in front. Everything stays on this device.</p>
+    <div class="vprog"><div id="flwBar"></div></div>
+    <div class="row"><span class="status" id="flwStatus" role="status"></span><span class="spacer"></span><button type="button" id="flwStop">Stop</button></div>
+  </div>
+</div>
+
 <div class="modal" id="fmodal" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="fTitle">
     <h3 id="fTitle">Frame</h3>
@@ -487,7 +497,7 @@ function h(tag,props,...kids){const e=document.createElement(tag);for(const[k,v]
   kids.flat().forEach(c=>{if(c!=null&&c!==false)e.append(c.nodeType?c:document.createTextNode(c));});return e;}
 function toast(msg){const t=$('toast');t.textContent=msg;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>{t.hidden=true;},4500);}
 const fmtS=v=>(Math.round(v*10)/10).toFixed(1)+' s';
-const cv=$('cv'),ctx=cv.getContext('2d');
+const cv=$('cv');let ctx=cv.getContext('2d');   /* while a layer is drawn for an effect, ctx points at a spare canvas */
 const uid=()=>Math.random().toString(36).slice(2,10);
 const HAS_FILTER=(()=>{try{const g=document.createElement('canvas').getContext('2d');g.filter='blur(2px)';return g.filter==='blur(2px)';}catch(e){return false;}})();
 const HAS_LS='letterSpacing' in CanvasRenderingContext2D.prototype;
@@ -520,7 +530,7 @@ const BLENDS=[['source-over','Normal'],['screen','Screen'],['multiply','Multiply
 
 /* ================= project ================= */
 /* layers[0] is the bottom of the stack; the list on the left shows the top first */
-const freshP=()=>({v:2,aspect:'auto',res:1080,bg:'blur',bgColor:'#000000',cw:1080,ch:1920,layers:[]});
+const freshP=()=>({v:2,aspect:'auto',res:1080,bg:'blur',bgColor:'#000000',bgGrad:{a:'#5B3DF5',b:'#FF5BD8',dir:'v'},cw:1080,ch:1920,layers:[]});
 /* older saves stored a shape plus a quality; turn that into the exact pixel size it produced */
 function migrateP(p){if(p.v>=2)return p;const old=p.aspect;
   if(old&&old!=='auto'){let a=9/16;if(old==='custom')a=clamp((+p.cw||1)/(+p.ch||1),.2,5);else{const[x,y]=String(old).split(':').map(Number);if(x&&y)a=x/y;}
@@ -542,7 +552,7 @@ function norm(L){
     L.fx={...FX0,...L.fx};L.key={...KEY0,...(L.key||{})};L.cut={...CUT0,...(L.cut||{})};}
   if(isMedia(L)){d('speed',1);d('volume',1);d('muted',false);d('aFadeIn',0);d('aFadeOut',0);d('trimIn',0);d('trimOut',0);}
   if(L.type==='video')d('endMode','hide');
-  if(L.type==='image'||L.type==='text'||L.type==='fx')d('dur',5);
+  if(L.type==='image'||L.type==='text'||L.type==='fx'||L.freeze)d('dur',L.freeze?2:5);
   if(L.type==='fx'){d('fxMode','blur');d('fxAmt',.55);d('fxShape','round');d('fxSoft',.25);d('fxColor','#000000');d('w',.34);d('sy',1.2);d('lock',false);d('name',FX_NAME[L.fxMode]||'Blur');}
   if(L.type==='text'){
     if(L.font==='impact')L.font='anton';if(!FONTS[L.font])L.font='grotesk';
@@ -550,7 +560,7 @@ function norm(L){
     if(typeof L.shadow==='boolean'){L.shadowFx=L.shadow?'soft':'none';delete L.shadow;}
     d('text','Your text here');d('size',.07);d('color','#FFFFFF');d('tbg','none');d('bgColor','#000000');d('bgOpacity',.6);d('stroke',0);d('strokeColor','#000000');d('shadowFx','soft');
     d('align','center');d('italic',false);d('caps',false);d('ls',0);d('lh',1.18);d('w',.8);d('name','Text');}
-  if(L.type!=='audio'){d('kf',[]);d('kfEase','smooth');}
+  if(L.type!=='audio'){d('kf',[]);d('kfEase','smooth');d('shake',0);d('shakeKind','hand');d('glitch',0);}
   return L;}
 function dispAR(L){if(L.type==='fx')return 1/(L.sy||1);const m=M[L.id];if(!m)return 1;const c=L.crop||{l:0,t:0,r:0,b:0};return(m.w*Math.max(.02,1-c.l-c.r))/(m.h*Math.max(.02,1-c.t-c.b))/(L.sy||1);}
 function autoBase(){return P.layers.find(l=>VIS(l)&&!l.hidden&&M[l.id]&&M[l.id].w);}
@@ -563,7 +573,7 @@ function aspectNum(){const[W,H]=canvasSize();return W/H;}
 function setCanvas(w,hh){lastSize=canvasSize();P.aspect='custom';P.cw=evenPx(w);P.ch=evenPx(hh);refitAll();refresh();}
 function shapeLike(L){const[W,H]=canvasSize(),ar=dispAR(L),long=Math.max(W,H);if(ar>=1)setCanvas(long,long/ar);else setCanvas(long*ar,long);}
 function stretchFill(L){const[W,H]=canvasSize(),arc=dispAR(L)*L.sy;L.x=.5;L.y=.5;L.rot=0;L.w=1;L.sy=clamp(H*arc/W,.02,50);L.lock=false;}
-const lenOf=L=>isMedia(L)?Math.max(.1,(L.trimOut-L.trimIn)/(L.speed||1)):Math.max(.1,L.dur);
+const lenOf=L=>isMedia(L)&&!L.freeze?Math.max(.1,(L.trimOut-L.trimIn)/(L.speed||1)):Math.max(.1,L.dur);
 const endOf=L=>L.start+lenOf(L);
 function projDur(){let d=0;for(const L of P.layers)if(!L.hidden)d=Math.max(d,endOf(L));return Math.max(1,d);}
 
@@ -676,12 +686,20 @@ const easeO=p=>1-Math.pow(1-p,3),backO=p=>{const c1=1.70158,c3=c1+1;return 1+c3*
 const SIDES={left:[-1,0],right:[1,0],top:[0,-1],bottom:[0,1]};
 function applyFx(fx,p,st,W,H,isText){const e=easeO(p);
   if(fx==='none')return;
+  if(fx==='pushR'||fx==='pushL'){const q=p*p*(3-2*p),bl=st.bl!=null?st.bl:0,br=st.br!=null?st.br:W;st.dx+=(fx==='pushR'?Math.max(W,W-bl):-Math.max(W,br))*(1-q);return;}
+  if(fx==='wipe'){st.wipe=p*p*(3-2*p);return;}
+  if(fx==='blur'||fx==='blurin'){st.blur=Math.max(st.blur||0,1-e);st.a*=Math.min(1,p*(fx==='blurin'?1.6:1));return;}
+  if(fx==='blurout'){st.blur=Math.max(st.blur||0,1-p);return;}
+  if(fx==='glitch'||fx==='glitchin'){st.glitch=Math.max(st.glitch||0,1-p);if(p<.5&&Math.floor(p*16)%2)st.a=0;return;}
+  if(fx==='glitchout'){st.glitch=Math.max(st.glitch||0,1-p);return;}
+  if(fx==='dipb'||fx==='dipw'){st.dip={c:fx==='dipb'?'#000':'#fff',a:1-Math.abs(2*p-1)};if(p<.5)st.a=0;return;}
+  if(fx==='flash'){st.dip={c:'#fff',a:(1-e)*.9};return;}
   if(fx==='pop'){st.sc*=.4+.6*backO(p);st.a*=Math.min(1,p*2.5);return;}
   if(fx==='zoom'){st.sc*=1+.4*(1-e);st.a*=p;return;}
   if(SIDES[fx]){const[sx,sy]=SIDES[fx];st.dx+=sx*W*.3*(1-e);st.dy+=sy*H*.15*(1-e);st.a*=Math.min(1,p*1.6);return;}
   if((fx==='type'||fx==='words')&&isText){st.rev={mode:fx,p};return;}
   st.a*=p;}
-function animState(L,t,W,H){const st={a:1,dx:0,dy:0,sc:1,rev:null},s=L.start,e=endOf(L),tx=L.type==='text';
+function animState(L,t,W,H,b){const st={a:1,dx:0,dy:0,sc:1,rev:null,bl:b?b.cx-b.w/2:0,br:b?b.cx+b.w/2:W},s=L.start,e=endOf(L),tx=L.type==='text';
   if(L.fadeIn>0&&t<s+L.fadeIn)applyFx(L.inFx||'fade',clamp((t-s)/L.fadeIn,0,1),st,W,H,tx);
   const outOK=t<=e&&!(L.type==='video'&&L.endMode!=='hide');
   if(L.fadeOut>0&&outOK&&t>e-L.fadeOut)applyFx(L.outFx||'fade',clamp((e-t)/L.fadeOut,0,1),st,W,H,tx);
@@ -708,18 +726,22 @@ function drawVisual(L,t,b,W){
   if(mo&&mo!=='none'){const u=clamp((t-L.start)/lenOf(L),0,1),a=L.motionAmt||.15;let z=1+a;
     if(mo==='in')z=1+a*u;else if(mo==='out')z=1+a*(1-u);else if(mo==='left')ox=b.w*a*(.5-u);else if(mo==='right')ox=-b.w*a*(.5-u);else if(mo==='up')oy=b.h*a*(.5-u);else if(mo==='down')oy=-b.h*a*(.5-u);
     dw=b.w*z;dh=b.h*z;}
+  /* shake: the picture moves inside its frame, zoomed in just enough that the edges never show */
+  const sk=shakeAt(L,t);let skr=0;
+  if(sk){const big=Math.max(b.w,b.h)/Math.max(1,Math.min(b.w,b.h));skr=sk.r*Math.PI/180;const z=Math.cos(skr)+big*Math.abs(Math.sin(skr))+sk.m*2.2;dw*=z;dh*=z;ox+=sk.x*b.w;oy+=sk.y*b.h;ctx.rotate(skr);}
   if(L.flipX||L.flipY){ctx.scale(L.flipX?-1:1,L.flipY?-1:1);if(L.flipX)ox=-ox;if(L.flipY)oy=-oy;}
-  const fs=HAS_FILTER?filterStr(L,W):'none';if(fs!=='none')ctx.filter=fs;
+  let fs=HAS_FILTER?filterStr(L,W):'none';if(HAS_FILTER&&ANIMB>0)fs=(fs==='none'?'':fs+' ')+`blur(${ANIMB.toFixed(1)}px)`;if(fs!=='none')ctx.filter=fs;
   if(L.blend&&L.blend!=='source-over')ctx.globalCompositeOperation=L.blend;
   /* big pixels, or a blur made by shrinking it down when the browser has no canvas filters (Safari) */
   const fxp=L.fx||FX0;let crisp=false;
   if(fxp.pix>0){const bs=Math.max(2,fxp.pix*W/1000),r=shrinkTo(LAYC,src,sx,sy,sw,sh,dw/bs,dh/bs);if(r){src=r.c;sx=0;sy=0;sw=r.w;sh=r.h;crisp=true;}}
-  else if(fxp.blur>0&&!HAS_FILTER){const r=blurInto(LAYC,src,sx,sy,sw,sh,fxp.blur*W/1000*sw/dw);if(r){src=r.c;sx=0;sy=0;sw=r.w;sh=r.h;}}
+  else if((fxp.blur>0||ANIMB>0)&&!HAS_FILTER){const r=blurInto(LAYC,src,sx,sy,sw,sh,((fxp.blur||0)*W/1000+ANIMB)*sw/dw);if(r){src=r.c;sx=0;sy=0;sw=r.w;sh=r.h;}}
   if(crisp)ctx.imageSmoothingEnabled=false;
   try{ctx.drawImage(src,sx,sy,sw,sh,-dw/2+ox,-dh/2+oy,dw,dh);}catch(e){}
   ctx.imageSmoothingEnabled=true;
   ctx.filter='none';ctx.globalCompositeOperation='source-over';
   if(L.flipX||L.flipY)ctx.scale(L.flipX?-1:1,L.flipY?-1:1);
+  if(skr)ctx.rotate(-skr);
   if(L.fx&&L.fx.vig>0){const g=ctx.createRadialGradient(0,0,Math.min(b.w,b.h)*.25,0,0,Math.hypot(b.w,b.h)*.55);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,`rgba(0,0,0,${L.fx.vig/100})`);ctx.fillStyle=g;ctx.fillRect(x,y,b.w,b.h);}
   if(L.border>0){ctx.lineWidth=L.border*Math.min(b.w,b.h)*2;ctx.strokeStyle=L.borderColor;shapePath(L,x,y,b.w,b.h);ctx.stroke();}
   ctx.restore();}
@@ -754,10 +776,22 @@ function drawText(L,b,st,W){
   clrSh();}
 function drawLayer(L,t){
   const[W,H]=canvasSize();if(L.type!=='text'&&!frameReady(L))return;
-  const b=boxOf(L),st=animState(L,t,W,H),a=L.opacity*st.a;if(a<=.001)return;
-  ctx.save();ctx.translate(b.cx+st.dx,b.cy+st.dy);ctx.rotate(L.rot*Math.PI/180);if(st.sc!==1)ctx.scale(st.sc,st.sc);ctx.globalAlpha=a;
-  if(L.type==='text')drawText(L,b,st,W);else if(L.type==='fx')drawFxArea(L,b,W,H);else drawVisual(L,t,b,W);
-  ctx.restore();}
+  const b=boxOf(L),st=animState(L,t,W,H,b),a=L.opacity*st.a,dip=st.dip&&st.dip.a>.001?st.dip:null;
+  if(a<=.001){if(dip)drawDip(dip,W,H);return;}
+  /* glitch: draw the layer on a spare canvas first, then split its colors and tear it */
+  const gk=L.type==='fx'?0:glitchAmt(L,t,st);let main=null;
+  if(gk>.001){main=ctx;const g=room(GLC,W,H);g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.globalCompositeOperation='source-over';g.filter='none';g.clearRect(0,0,W,H);ctx=g;}
+  const sk=VIS(L)?null:shakeAt(L,t);
+  ANIMB=st.blur?st.blur*Math.min(W,H)*.035:0;
+  try{
+    ctx.save();
+    if(st.wipe!=null){ctx.beginPath();ctx.rect(0,0,W*st.wipe,H);ctx.clip();}
+    ctx.translate(b.cx+st.dx+(sk?sk.x*W*.7:0),b.cy+st.dy+(sk?sk.y*W*.7:0));ctx.rotate((L.rot+(sk?sk.r*2:0))*Math.PI/180);if(st.sc!==1)ctx.scale(st.sc,st.sc);ctx.globalAlpha=a;
+    if(L.type==='text'){if(ANIMB>0&&HAS_FILTER)ctx.filter=`blur(${ANIMB.toFixed(1)}px)`;drawText(L,b,st,W);ctx.filter='none';}
+    else if(L.type==='fx')drawFxArea(L,b,W,H);else drawVisual(L,t,b,W);
+    ctx.restore();
+  }finally{ANIMB=0;if(main){ctx=main;glitchComposite(W,H,gk,t,L);}}
+  if(dip)drawDip(dip,W,H);}
 /* ================= blur and mosaic (made by shrinking, so they work in every browser) ================= */
 const fxCanvas=()=>{const c=document.createElement('canvas');c.width=c.height=1;return c;};
 const SHR=[fxCanvas(),fxCanvas()],LAYC=fxCanvas(),FXA=fxCanvas(),FXB=fxCanvas(),FXP=fxCanvas(),FXK=fxCanvas();
@@ -803,12 +837,76 @@ function drawFxArea(L,b,W,H){
     pg.globalCompositeOperation='destination-in';pg.drawImage(FXK,0,0,aw,ah,0,0,aw,ah);pg.globalCompositeOperation='source-over';}
   else{shape(ctx);ctx.clip();}
   ctx.setTransform(1,0,0,1,0,0);ctx.drawImage(FXP,0,0,aw,ah,x0,y0,aw,ah);ctx.restore();}
+/* ================= shake, glitch, dips and empty-space fills ================= */
+let ANIMB=0;   /* extra blur (in pixels) from a transition, for the layer being drawn */
+const GLC=fxCanvas(),GR=fxCanvas(),GCY=fxCanvas(),GO=fxCanvas(),EB=fxCanvas(),EC=fxCanvas();
+const seedOf=L=>{let h=2166136261;for(const c of String(L.id))h=Math.imul(h^c.charCodeAt(0),16777619);return h>>>0;};
+/* the same "random" numbers every time for the same layer and moment, so the preview and the saved video match */
+function prng(a){a>>>=0;return()=>{a=a+0x6D2B79F5>>>0;let q=a;q=Math.imul(q^q>>>15,q|1);q^=q+Math.imul(q^q>>>7,q|61);return((q^q>>>14)>>>0)/4294967296;};}
+const wob=(u,f,sd)=>.55*Math.sin(u*f*1.7+sd*6.3)+.3*Math.sin(u*f*2.9+sd*12.1+1)+.15*Math.sin(u*f*5.3+sd*3.7+2);
+/* how far a shaking layer is pushed at a moment: x and y as parts of its size, r in degrees */
+function shakeAt(L,t){const a=L.shake||0;if(a<=0)return null;const sd=seedOf(L)/4294967296,u=t-L.start;let f=1.2,amp=a;
+  if(L.shakeKind==='strong'){f=7;amp=a*1.1;}else if(L.shakeKind==='hit'){f=9;amp=a*2.2*Math.exp(-Math.max(0,u)*5);if(amp<.003)return null;}
+  return{x:wob(u,f,sd)*amp*.035,y:wob(u,f,sd+.37)*amp*.035,r:wob(u,f*.8,sd+.71)*amp*1.6,m:amp*.035};}
+function glitchAmt(L,t,st){let v=0;const g=L.glitch||0;
+  if(g>0){const r=prng(seedOf(L)+Math.floor(t*10)*7919);v=g*(r()<.25?.55+r()*.45:.12);}
+  if(st.glitch>0){const r=prng(seedOf(L)+Math.floor(t*24)*104729);v=Math.max(v,st.glitch*(.35+.65*r()));}
+  return v;}
+/* red one way, cyan the other, and torn strips when it's strong */
+function glitchComposite(W,H,v,t,L){
+  const r=prng((seedOf(L)^Math.floor(t*24)*2654435761)>>>0),sh=Math.max(1,Math.round(v*W*.018*(.6+r()*.8)));
+  for(const[c,col]of[[GR,'#ff0000'],[GCY,'#00ffff']]){const g=room(c,W,H);g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.globalCompositeOperation='source-over';g.clearRect(0,0,W,H);g.drawImage(GLC,0,0,W,H,0,0,W,H);
+    g.globalCompositeOperation='multiply';g.fillStyle=col;g.fillRect(0,0,W,H);g.globalCompositeOperation='destination-in';g.drawImage(GLC,0,0,W,H,0,0,W,H);g.globalCompositeOperation='source-over';}
+  const go=room(GO,W,H);go.setTransform(1,0,0,1,0,0);go.globalAlpha=1;go.globalCompositeOperation='source-over';go.clearRect(0,0,W,H);
+  go.drawImage(GR,0,0,W,H,-sh,0,W,H);go.globalCompositeOperation='lighter';go.drawImage(GCY,0,0,W,H,sh,0,W,H);go.globalCompositeOperation='source-over';
+  ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.filter='none';ctx.globalCompositeOperation=L.blend&&L.blend!=='source-over'?L.blend:'source-over';
+  if(v>.35){let y=0;while(y<H){const hh=Math.min(H-y,Math.max(2,Math.round(H*(.02+r()*.09)))),off=r()<.45?Math.round((r()-.5)*W*.12*v):0;ctx.drawImage(GO,0,y,W,hh,off,y,W,hh);y+=hh;}}
+  else ctx.drawImage(GO,0,0,W,H,0,0,W,H);
+  ctx.restore();}
+function drawDip(d,W,H){ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.filter='none';ctx.globalCompositeOperation='source-over';ctx.globalAlpha=clamp(d.a,0,1);ctx.fillStyle=d.c;ctx.fillRect(0,0,W,H);ctx.restore();}
+function gradFill(W,H,g){const d=g.dir||'v';let gr;
+  if(d==='r')gr=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,Math.hypot(W,H)/2);
+  else{const[x0,y0,x1,y1]=d==='h'?[0,0,W,0]:d==='d'?[0,0,W,H]:[0,0,0,H];gr=ctx.createLinearGradient(x0,y0,x1,y1);}
+  gr.addColorStop(0,g.a||'#000000');gr.addColorStop(1,g.b||'#000000');return gr;}
+/* the empty space filled from the bottom layer itself: its edge colors stretched outwards, or a mirror image, softened */
+function edgeFill(base,W,H,mirror){
+  const rt=((base.rot%360)+360)%360;if(rt>.5&&rt<359.5)return false;
+  const m=M[base.id],c=base.crop,b=boxOf(base),sw=mirror?160:72,sh=Math.max(2,Math.round(sw*H/W)),k=sw/W;
+  const x0=(b.cx-b.w/2)*k,y0=(b.cy-b.h/2)*k,bw=b.w*k,bh=b.h*k;
+  const X0=clamp(Math.ceil(x0),0,sw),Y0=clamp(Math.ceil(y0),0,sh),X1=clamp(Math.floor(x0+bw),0,sw),Y1=clamp(Math.floor(y0+bh),0,sh),iw=X1-X0,ih=Y1-Y0;
+  if(iw<3||ih<3)return false;
+  const g=room(EB,sw+2,sh+2),gc=room(EC,sw+2,sh+2);
+  g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.globalCompositeOperation='source-over';g.clearRect(0,0,sw+2,sh+2);g.imageSmoothingEnabled=true;g.imageSmoothingQuality='medium';
+  g.save();g.translate(x0+bw/2,y0+bh/2);g.scale(base.flipX?-1:1,base.flipY?-1:1);
+  try{g.drawImage(m.el,c.l*m.w,c.t*m.h,Math.max(1,m.w*(1-c.l-c.r)),Math.max(1,m.h*(1-c.t-c.b)),-bw/2,-bh/2,bw,bh);}catch(e){g.restore();return false;}
+  g.restore();
+  const copy=()=>{gc.setTransform(1,0,0,1,0,0);gc.globalCompositeOperation='source-over';gc.clearRect(0,0,sw+2,sh+2);gc.drawImage(EB,0,0,sw,sh,0,0,sw,sh);};
+  copy();
+  if(mirror){
+    for(let i=1;Y0-(i-1)*ih>0;i++){const y=Y0-i*ih;g.save();if(i%2){g.translate(0,y+ih);g.scale(1,-1);g.drawImage(EC,X0,Y0,iw,ih,X0,0,iw,ih);}else g.drawImage(EC,X0,Y0,iw,ih,X0,y,iw,ih);g.restore();}
+    for(let i=1;Y1+(i-1)*ih<sh;i++){const y=Y1+(i-1)*ih;g.save();if(i%2){g.translate(0,y+ih);g.scale(1,-1);g.drawImage(EC,X0,Y0,iw,ih,X0,0,iw,ih);}else g.drawImage(EC,X0,Y0,iw,ih,X0,y,iw,ih);g.restore();}
+    copy();
+    for(let i=1;X0-(i-1)*iw>0;i++){const x=X0-i*iw;g.save();if(i%2){g.translate(x+iw,0);g.scale(-1,1);g.drawImage(EC,X0,0,iw,sh,0,0,iw,sh);}else g.drawImage(EC,X0,0,iw,sh,x,0,iw,sh);g.restore();}
+    for(let i=1;X1+(i-1)*iw<sw;i++){const x=X1+(i-1)*iw;g.save();if(i%2){g.translate(x+iw,0);g.scale(-1,1);g.drawImage(EC,X0,0,iw,sh,0,0,iw,sh);}else g.drawImage(EC,X0,0,iw,sh,x,0,iw,sh);g.restore();}
+    boxPass({c:EB,w:sw,h:sh},3);}
+  else{
+    if(Y0>0)g.drawImage(EC,X0,Y0+1,iw,1,X0,0,iw,Y0+1);
+    if(Y1<sh)g.drawImage(EC,X0,Y1-2,iw,1,X0,Y1-1,iw,sh-Y1+1);
+    copy();
+    if(X0>0)g.drawImage(EC,X0+1,0,1,sh,0,0,X0+1,sh);
+    if(X1<sw)g.drawImage(EC,X1-2,0,1,sh,X1-1,0,sw-X1+1,sh);
+    boxPass({c:EB,w:sw,h:sh},8);}
+  ctx.save();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(EB,0,0,sw,sh,0,0,W,H);
+  if(mirror){ctx.fillStyle='rgba(0,0,0,.18)';ctx.fillRect(0,0,W,H);}
+  ctx.restore();return true;}
 function rr(x,y,w,hh,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,hh,Math.max(0,Math.min(r,w/2,hh/2)));else ctx.rect(x,y,w,hh);}
 function hexA(hex,a){const n=parseInt(String(hex).slice(1),16)||0;return`rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;}
 function drawBackground(W,H,t){
+  if(P.bg==='grad'){ctx.fillStyle=gradFill(W,H,P.bgGrad||{});ctx.fillRect(0,0,W,H);return;}
   ctx.fillStyle=P.bg==='color'?P.bgColor:'#000';ctx.fillRect(0,0,W,H);
-  if(P.bg!=='blur')return;
+  if(P.bg==='color')return;
   const base=P.layers.find(L=>VIS(L)&&!(L.key&&L.key.on)&&!(L.cut&&L.cut.on&&L.cut.bg==='remove')&&visibleAt(L,t)&&frameReady(L));if(!base)return;
+  if((P.bg==='edges'||P.bg==='mirror')&&edgeFill(base,W,H,P.bg==='mirror'))return;
   const m=M[base.id],c=base.crop,ar=dispAR(base)*base.sy,sw=48,sh=Math.max(2,Math.round(sw*H/W));small.width=sw;small.height=sh;
   let dw=sw,dh=sw/ar;if(dh<sh){dh=sh;dw=sh*ar;}
   try{sg.drawImage(m.el,c.l*m.w,c.t*m.h,Math.max(1,m.w*(1-c.l-c.r)),Math.max(1,m.h*(1-c.t-c.b)),(sw-dw)/2,(sh-dh)/2,dw,dh);}catch(e){return;}
@@ -860,7 +958,7 @@ function audio(){
 
 /* ================= playback ================= */
 const state={t:0,playing:false,startAt:0};
-function localTime(L,t){const len=lenOf(L),sp=L.speed||1;let d=t-L.start;
+function localTime(L,t){const len=lenOf(L),sp=L.speed||1;let d=t-L.start;if(L.freeze)return{lt:L.trimIn,active:false,show:d>=0&&d<len,d};
   if(d>=len){if(L.type==='video'&&L.endMode==='loop')d=d%len;else if(L.type==='video'&&L.endMode==='hold')return{lt:L.trimOut-.04,active:false,show:true,d:len};else return{lt:L.trimOut,active:false,show:false,d:len};}
   if(d<0)return{lt:L.trimIn,active:false,show:false,d};
   return{lt:L.trimIn+d*sp,active:true,show:true,d};}
@@ -967,6 +1065,7 @@ stageEl.addEventListener('dblclick',e=>{if(cvEdit||!P.layers.length)return;const
   else if(VIS(L))openCrop(L);});
 const typing=()=>/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement&&document.activeElement.tagName);
 document.addEventListener('keydown',e=>{
+  if(!$('flwModal').hidden){if(e.key==='Escape'&&FOLLOW)FOLLOW.stop=true;return;}
   if(!$('xmodal').hidden){if(e.key==='Escape'&&!busy)$('xmodal').hidden=true;return;}
   if(!$('cmodal').hidden){if(e.key==='Escape')closeCrop();else if(e.key==='Enter'&&!typing())$('cApply').click();return;}
   const mod=e.ctrlKey||e.metaKey;
@@ -1012,23 +1111,23 @@ async function duplicate(L){const C=JSON.parse(JSON.stringify(L));C.id=uid();C.x
 async function splitAt(L,t,quiet){if(!L)return null;const s=L.start,e=endOf(L);
   if(t<=s+.1||t>=e-.1){if(!quiet)toast('Move the playhead inside this layer’s bar first, then split.');return null;}
   const B=JSON.parse(JSON.stringify(L));B.id=uid();
-  if(isMedia(L)){const mt=L.trimIn+(t-s)*(L.speed||1);B.trimIn=mt;L.trimOut=mt;if(L.type==='video')L.endMode='hide';}
+  if(isMedia(L)&&!L.freeze){const mt=L.trimIn+(t-s)*(L.speed||1);B.trimIn=mt;L.trimOut=mt;if(L.type==='video')L.endMode='hide';}
   else{L.dur=t-s;B.dur=e-t;}
-  B.start=t;L.fadeOut=0;B.fadeIn=0;L.aFadeOut=0;B.aFadeIn=0;
+  B.start=t;L.fadeOut=0;B.fadeIn=0;delete L.tr;L.aFadeOut=0;B.aFadeIn=0;
   if(hasKf(L))B.kf=L.kf.map(k=>({...k,t:Math.round((k.t-(t-s))*1000)/1000}));
   if(B.media){const ok=await makeMedia(B);if(!ok){toast('Couldn’t split that layer.');return null;}}
   P.layers.splice(P.layers.indexOf(L)+1,0,B);sel=B.id;refresh();if(!quiet)toast('Split in two. Each part can now be moved, trimmed or deleted.');return B;}
 
 /* ================= quick edits under the preview ================= */
 function renderSelBar(){const bar=$('selbar');bar.innerHTML='';const L=selL();if(!L||cvEdit){bar.hidden=true;return;}bar.hidden=false;
-  const ph=isPhone(),more=[],MAIN=['✂ Crop','Fit','Fill','✦ Effects','✎ Edit text','Remove background','Blur','Mosaic','Cover all','◇ Keyframe','◆ Keyframe','Split'];
+  const ph=isPhone(),more=[],MAIN=['✂ Crop','Fit','Fill','✦ Effects','✎ Edit text','Remove background','Blur','Mosaic','Cover all','◉ Follow face','◇ Keyframe','◆ Keyframe','Split'];
   const B=(lab,fn,title,pressed)=>{if(ph&&!MAIN.includes(lab)){more.push({lab,fn,on:pressed});return document.createTextNode('');}
     return h('button',{type:'button',class:pressed!=null?'tog':'',title:title||lab,'aria-pressed':pressed==null?null:String(!!pressed),onclick:fn},lab);};
   bar.append(h('span',{class:'selname'},L.type==='text'?'Text':L.name));
   if(VIS(L))bar.append(B('✂ Crop',()=>openCrop(L),'Crop'),B('Fit',()=>{fitLayer(L,'fit');soft();renderSide();},'Fit the whole thing in the video'),B('Fill',()=>{fitLayer(L,'fill');soft();renderSide();},'Fill the whole video'),B('Stretch',()=>{stretchFill(L);soft();renderSide();},'Fill the whole video exactly, squeezing it if needed'),
     B('⇋ Flip',()=>{L.flipX=!L.flipX;soft();renderSide();},'Mirror left to right',L.flipX),B('↻ 90°',()=>{L.rot=nrm180(L.rot+90);soft();renderSide();},'Turn a quarter'));
   if(VIS(L))bar.append(B('✦ Effects',()=>fxMenu(L),'Slow motion, blur and mosaic'));
-  if(L.type==='fx')bar.append(...FXM.map(([k,l])=>B(l,()=>fxSetMode(L,k),null,L.fxMode===k)),B('Cover all',()=>{fxCover(L);soft();renderSide();},'Cover the whole video'),
+  if(L.type==='fx')bar.append(B('◉ Follow face',()=>followFace(L),'Find the face under the spot and follow it through the video'),...FXM.map(([k,l])=>B(l,()=>fxSetMode(L,k),null,L.fxMode===k)),B('Cover all',()=>{fxCover(L);soft();renderSide();},'Cover the whole video'),
     B('Oval',()=>{L.fxShape=L.fxShape==='oval'?'round':'oval';soft();renderSide();},'Make it an oval, for a face',L.fxShape==='oval'));
   if(L.type==='text')bar.append(B('✎ Edit text',()=>{sub.text='text';toPanel();renderSide();const ta=$('p-text');if(ta){ta.focus();if(innerWidth<1100)ta.scrollIntoView({block:'center',behavior:'smooth'});}}));
   if(VIS(L))bar.append(B('Remove background',()=>cutQuick(L),'Hide the background automatically',L.cut.on),B('Green screen',()=>keyQuick(L),'Remove a background color',L.key.on));
@@ -1155,16 +1254,18 @@ function lookPanel(p,L){
 const FXM=[['blur','Blur'],['mosaic','Mosaic'],['color','Solid color']];
 const fxKeep=L=>({pix:(L.fx&&L.fx.pix)||0,blur:L.look==='dream'?0:(L.fx&&L.fx.blur)||0});
 /* a spot goes on top of everything, over the middle of a layer if one is given */
-function addFx(mode,over){if(!P.layers.length){toast('Add a video or picture first, then blur part of it.');return;}
+function addFx(mode,over,quiet){if(!P.layers.length){toast('Add a video or picture first, then blur part of it.');return;}
   const[W,H]=canvasSize(),L=norm({id:uid(),type:'fx',fxMode:mode||'blur',name:FX_NAME[mode||'blur'],x:.5,y:.4,start:0,dur:projDur()});
   if(over&&over.type!=='audio'){const b=boxOf(over),side=Math.max(40,Math.min(b.w,b.h)*.45);L.x=b.cx/W;L.y=b.cy/H;L.w=side/W;L.sy=1.2;L.start=over.start;L.dur=Math.max(.2,lenOf(over));}
   if(mode==='mosaic')L.fxSoft=0;
   P.layers.push(L);sel=L.id;tab='layer';sub.fx='effect';toPanel();refresh();
-  toast('Drag it over what should be hidden and pull a corner to size it. If that thing moves, add keyframes so it follows.');}
+  if(!quiet)toast('Drag it over what should be hidden and pull a corner to size it. If that thing moves, tap Follow face, or add keyframes so it follows.');return L;}
 function fxSetMode(L,k){const auto=!L.name||Object.values(FX_NAME).includes(L.name);L.fxMode=k;if(auto)L.name=FX_NAME[k];soft();renderList();renderSide();}
 function fxCover(L){const[W,H]=canvasSize();Object.assign(L,{x:.5,y:.5,rot:0,w:1,sy:H/W,fxShape:'rect',fxSoft:0});}
 function fxPanel(p,L){
   p.append(h('p',{class:'help',style:'font-size:13px'},'Blurs or pixelates whatever is underneath it. Drag it over a face, a name or a number plate and pull its corners to size it. If that thing moves, add keyframes on the Motion tab so the spot follows it.'));
+  p.append(h('div',{class:'row'},h('button',{type:'button',class:'primary',onclick:()=>followFace(L)},'◉ Follow a face automatically')));
+  p.append(h('p',{class:'help'},'Put the spot over a face first, then tap this. It finds that face through the video and adds the keyframes for you. You can drag the spot at any moment afterwards to fix it.'));
   p.append(segF('p-fxm','Effect',FXM,L.fxMode,v=>fxSetMode(L,v)));
   if(L.fxMode==='color')p.append(colorF('p-fxc','Color',L.fxColor,v=>{L.fxColor=v;drawNow();save();}));
   else p.append(rangeF('p-fxa',L.fxMode==='mosaic'?'Block size':'Strength',.05,1,.01,L.fxAmt,pct,v=>{L.fxAmt=v;drawNow();save();}));
@@ -1178,6 +1279,8 @@ function fxPanel(p,L){
   p.append(rangeF('p-fxh','Height',.02,1,.005,clamp(L.w*W*L.sy/H,.02,1),pct,v=>{L.sy=clamp(v*H/Math.max(1,L.w*W),.02,50);drawNow();save();}));
   p.append(rangeF('p-rot','Rotate',-180,180,1,L.rot,deg,v=>{L.rot=Math.abs(v)<2?0:v;drawNow();save();}));
   p.append(h('p',{class:'help'},'It only changes the layers below it in the list. Keep it at the top so it covers everything, captions included.'));}
+/* move everything that starts at or after a moment later (or earlier), so clips that followed on still do */
+function ripple(from,by,skip){for(const o of P.layers)if(!skip.includes(o)&&o.start>=from-1e-3)o.start=Math.max(0,Math.round((o.start+by)*1000)/1000);}
 function setSpeed(L,v){L.speed=v;renderSide();renderTimeline();drawNow();save();if(AC)audio();}
 /* slow motion for just a moment: the clip is cut at the playhead and again a little later, and the middle part plays slower */
 async function slowMoment(L,secs,sp){
@@ -1187,34 +1290,152 @@ async function slowMoment(L,secs,sp){
   let mid=L;if(t>L.start+.1){mid=await splitAt(L,t,true);if(!mid)return;}
   const sp0=mid.speed||1,srcEnd=Math.min(mid.trimOut,mid.trimIn+secs*sp0);let tail=null;
   if(mid.trimOut-srcEnd>.1)tail=await splitAt(mid,mid.start+(srcEnd-mid.trimIn)/sp0,true);
-  const old=lenOf(mid);mid.speed=sp;const add=lenOf(mid)-old;
+  const old=lenOf(mid),from=mid.start+old;mid.speed=sp;const add=lenOf(mid)-old;
   if(hasKf(mid))mid.kf.forEach(k=>{k.t=Math.round(k.t*sp0/sp*1000)/1000;});
-  if(tail)tail.start+=add;
+  ripple(from,add,[mid]);
   sel=mid.id;tab='layer';refresh();
-  toast(`Slow motion at ${sp===.5?'½':sp===.25?'¼':sp+'×'} speed for ${fmtS(lenOf(mid))}.${tail?` The rest of the clip now starts ${fmtS(add)} later.`:''}`);}
+  toast(`Slow motion at ${sp===.5?'½':sp===.25?'¼':sp+'×'} speed for ${fmtS(lenOf(mid))}.${add>.01?` Everything after it now starts ${fmtS(add)} later.`:''}`);}
 function slowPanel(p,L){
   p.append(h('h4',{class:'fhead'},'Slow motion'));
   p.append(h('p',{class:'help'},'For the whole clip, pick ½× or ¼× under Speed. To slow down just a moment, put the playhead where it starts and pick one of these:'));
   p.append(h('div',{class:'row'},btn('½ speed for 1 s',()=>slowMoment(L,1,.5)),btn('½ speed for 2 s',()=>slowMoment(L,2,.5)),btn('¼ speed for 1 s',()=>slowMoment(L,1,.25)),btn('¼ speed for 2 s',()=>slowMoment(L,2,.25))));
-  p.append(h('p',{class:'help'},'The clip is cut there and the slow part takes longer, so the rest of the clip moves later. It looks smoothest with videos filmed at 60 frames a second or in a phone’s slo-mo mode.'));}
+  p.append(h('p',{class:'help'},'The clip is cut there and the slow part takes longer, so everything after it moves later. It looks smoothest with videos filmed at 60 frames a second or in a phone’s slo-mo mode.'));}
 function slowMenu(L){const o=[];for(const sp of[.5,.25])for(const n of[1,2,3])o.push({lab:`${sp===.5?'½':'¼'} speed for the next ${n} second${n>1?'s':''}`,fn:()=>slowMoment(L,n,sp)});
   actionSheet(`Slow motion from ${fmtS(state.t)}`,o);}
 /* one menu with every effect for a video or picture */
-function fxMenu(L){const vid=L.type==='video',sp=L.speed||1;
+function fxMenu(L){const vid=L.type==='video'&&!L.freeze,sp=L.speed||1,nx=nextClip(L);
   actionSheet('Effects',[
     vid?{lab:'🐢 Slow motion for a moment…',fn:()=>slowMenu(L)}:null,
     vid?{lab:'🐢 The whole clip at ½ speed',on:sp===.5,fn:()=>setSpeed(L,sp===.5?1:.5)}:null,
     vid?{lab:'🐢 The whole clip at ¼ speed',on:sp===.25,fn:()=>setSpeed(L,sp===.25?1:.25)}:null,
     vid&&sp!==1&&sp!==.5&&sp!==.25?{lab:'Back to normal speed',fn:()=>setSpeed(L,1)}:null,
+    vid?{lab:'❄ Freeze frame at the playhead…',fn:()=>freezeMenu(L)}:null,
+    {lab:'⧓ Transition into the next clip…',fn:()=>nx?transMenu(L):toast('Put another video or picture right after this one on the timeline (or split this one), then add a transition.')},
+    {lab:'📳 Camera shake',on:L.shake>0,fn:()=>{L.shake=L.shake>0?0:.5;soft();renderSide();}},
+    {lab:'⚡ Glitch look',on:L.glitch>0,fn:()=>{L.glitch=L.glitch>0?0:.5;soft();renderSide();}},
     {lab:'Blur all of it',on:L.fx.blur>0,fn:()=>{L.fx.blur=L.fx.blur>0?0:8;if(L.look==='dream')L.look='';soft();renderSide();}},
     {lab:'Mosaic all of it',on:L.fx.pix>0,fn:()=>{L.fx.pix=L.fx.pix>0?0:28;soft();renderSide();}},
+    {lab:'◉ Blur a face (follows it as it moves)',fn:()=>{const S=addFx('blur',L,true);if(S){S.fxShape='oval';followFace(S);}}},
     {lab:'◍ Blur a spot (a face, a plate)',fn:()=>addFx('blur',L)},
     {lab:'▦ Mosaic a spot',fn:()=>addFx('mosaic',L)},
     {lab:'■ Cover a spot with a color',fn:()=>addFx('color',L)},
     {lab:'More effect settings',fn:()=>{sel=L.id;sub.visual='look';openSecs.add('Blur and mosaic');tab='layer';toPanel();renderSide();const el=$('p-pix');if(el)el.scrollIntoView({block:'center',behavior:'smooth'});}}]);}
+/* ================= freeze frame ================= */
+async function freezeAt(L,secs,flash){
+  if(!L||L.type!=='video'||L.freeze)return;const t=state.t,s=L.start,e=endOf(L);
+  if(t<s-1e-3||t>e+1e-3){toast('Move the playhead onto this video’s bar, to the moment to freeze.');return;}
+  if(state.playing)pause();kfCapture();
+  const mt=clamp(L.trimIn+(t-s)*(L.speed||1),L.trimIn,Math.max(L.trimIn,L.trimOut-.05));
+  const F=JSON.parse(JSON.stringify(L));Object.assign(F,{id:uid(),freeze:true,trimIn:mt,trimOut:mt+.05,dur:secs,start:t,fadeIn:0,fadeOut:0,kf:[],endMode:'hide',motion:'none',muted:true,name:'Freeze · '+String(L.name).replace(/^Freeze · /,'')});delete F.tr;
+  if(flash){F.inFx='flash';F.fadeIn=.45;}
+  let after=null;
+  if(t>s+.1&&t<e-.1){after=await splitAt(L,t,true);if(!after)return;}
+  else if(t<=s+.1){F.start=s;after=L;}
+  else F.start=e;
+  if(!(await makeMedia(F))){toast('Couldn’t freeze that frame.');return;}
+  ripple(F.start,secs,[F]);
+  P.layers.splice(P.layers.indexOf(L)+1,0,F);sel=F.id;tab='layer';refresh();
+  toast(`Frozen for ${fmtS(secs)}. Everything after it now starts ${fmtS(secs)} later.`);}
+function freezeMenu(L){actionSheet(`Freeze frame at ${fmtS(state.t)}`,[1,2,3].map(n=>({lab:`Freeze for ${n} second${n>1?'s':''}`,fn:()=>freezeAt(L,n,false)})).concat([{lab:'Freeze for 2 seconds, with a flash',fn:()=>freezeAt(L,2,true)}]));}
+function freezePanel(p,L){
+  p.append(h('h4',{class:'fhead'},'Freeze frame'));
+  p.append(h('p',{class:'help'},'Holds the picture at the playhead still for a moment, then the clip carries on. Everything after it moves later to make room.'));
+  p.append(h('div',{class:'row'},btn('Freeze 1 s',()=>freezeAt(L,1)),btn('Freeze 2 s',()=>freezeAt(L,2)),btn('Freeze 3 s',()=>freezeAt(L,3)),btn('2 s with a flash',()=>freezeAt(L,2,true))));}
+/* ================= transitions between one clip and the next ================= */
+const TRANS=[['fade','Crossfade'],['black','Dip to black'],['flash','Flash'],['push','Push'],['wipe','Wipe'],['zoom','Zoom'],['blur','Blur'],['glitch','Glitch']];
+const TRN=Object.fromEntries(TRANS);
+/* the next clip is the video or picture that starts where this one ends */
+function nextClip(L){if(!L)return null;
+  if(L.tr){const B=P.layers.find(o=>o.id===L.tr.to);if(B)return B;}
+  const e=endOf(L);let best=null,bd=.35;
+  for(const o of P.layers){if(o===L||!VIS(o)||o.hidden)continue;const d=Math.abs(o.start-e);if(d<bd){bd=d;best=o;}}return best;}
+/* the next clip (and everything after it) moves earlier so the two overlap while the transition plays */
+function setTransition(A,type,dur,quiet){
+  const B=nextClip(A);if(!B){toast('Put another video or picture right after this one on the timeline first.');return;}
+  kfCapture();
+  const had=A.tr&&A.tr.to===B.id?A.tr:null,old=had?had.dur:0;
+  if(had){if(['push','blur','glitch'].includes(had.type)){A.fadeOut=0;A.outFx='fade';}B.fadeIn=0;B.inFx='fade';}
+  const nd=type==='none'?0:clamp(dur||.6,.1,Math.max(.1,Math.min(lenOf(A),lenOf(B))*.9)),delta=nd-old;
+  if(Math.abs(delta)>1e-4){const s0=B.start;for(const o of P.layers)if(o!==A&&o.start>=s0-1e-3)o.start=Math.max(0,Math.round((o.start-delta)*1000)/1000);}
+  if(type==='none')delete A.tr;
+  else{A.tr={type,dur:nd,to:B.id};
+    const ib=P.layers.indexOf(B);if(ib<P.layers.indexOf(A)){P.layers.splice(ib,1);P.layers.splice(P.layers.indexOf(A)+1,0,B);}
+    if(A.type==='video')A.endMode='hide';
+    B.fadeIn=nd;B.inFx={fade:'fade',black:'dipb',flash:'dipw',push:'pushR',wipe:'wipe',zoom:'zoom',blur:'blurin',glitch:'glitchin'}[type];
+    if(type==='push'){A.fadeOut=nd;A.outFx='pushL';}else if(type==='blur'){A.fadeOut=nd;A.outFx='blurout';}else if(type==='glitch'){A.fadeOut=nd;A.outFx='glitchout';}}
+  if(quiet){renderTimeline();drawNow();save();return;}
+  sel=A.id;refresh();
+  if(type!=='none'){state.t=clamp(B.start-.3,0,projDur());syncMedia(state.t,false);drawNow();toast(`${TRN[type]} into “${String(B.name).slice(0,24)}”. Press play to see it.`);}}
+function transMenu(L){const cur=L.tr?L.tr.type:null;
+  actionSheet('Transition into the next clip',[...TRANS.map(([k,l])=>({lab:l,on:cur===k?true:null,fn:()=>setTransition(L,k,L.tr?L.tr.dur:.6)})),cur?{lab:'No transition',fn:()=>setTransition(L,'none',0)}:null]);}
+function transPanel(p,L){const nx=nextClip(L);
+  p.append(h('h4',{class:'fhead'},'Transition into the next clip'));
+  if(!nx){p.append(h('p',{class:'help'},'Put another video or picture right after this one on the timeline, or split this one, to add a transition between them.'));return;}
+  const cur=L.tr&&L.tr.to===nx.id?L.tr.type:'none';
+  p.append(segF('p-tr',`Into “${String(nx.name).slice(0,22)}”`,[['none','None'],...TRANS],cur,v=>setTransition(L,v,L.tr?L.tr.dur:.6)));
+  if(cur!=='none')p.append(rangeF('p-trd','Length',.2,2,.05,L.tr.dur,fmtS,v=>setTransition(L,L.tr.type,v,true)));
+  p.append(h('p',{class:'help'},'The next clip moves earlier so the two overlap while it plays, and everything after it moves along too.'));}
+/* ================= a spot that follows a face (an on-device face finder writes its keyframes) ================= */
+const FACE={det:null,pend:null},FCV=fxCanvas();let FOLLOW=null;
+function faceModel(){if(FACE.det)return Promise.resolve(FACE.det);
+  if(!FACE.pend)FACE.pend=(async()=>{await cutBootUp();const buf=await cutGet('models/blaze_face_full_range.tflite');
+    FACE.det=await CUT.mp.FaceDetector.createFromOptions(CUT.fs,{baseOptions:{modelAssetBuffer:buf,delegate:'CPU'},runningMode:'IMAGE',minDetectionConfidence:.4,minSuppressionThreshold:.3});return FACE.det;})().catch(e=>{FACE.pend=null;throw e;});
+  return FACE.pend;}
+/* faces in part of the frame, as boxes on the video */
+function facesIn(det,x,y,w,hh){x=Math.max(0,Math.floor(x));y=Math.max(0,Math.floor(y));w=Math.max(8,Math.floor(w));hh=Math.max(8,Math.floor(hh));
+  const k=Math.min(1,640/Math.max(w,hh)),cw=Math.max(16,Math.round(w*k)),ch=Math.max(16,Math.round(hh*k));
+  FCV.width=cw;FCV.height=ch;const g=FCV.getContext('2d');g.drawImage(cv,x,y,w,hh,0,0,cw,ch);
+  let r;try{r=det.detect(FCV);}catch(e){return[];}
+  return(r&&r.detections||[]).map(d=>{const bb=d.boundingBox;return{x:x+(bb.originX+bb.width/2)/k,y:y+(bb.originY+bb.height/2)/k,w:bb.width/k,h:bb.height/k,s:d.categories&&d.categories[0]?d.categories[0].score:.5};});}
+async function followFace(L){
+  if(!L||L.type!=='fx'||FOLLOW)return;
+  const[W,H]=canvasSize(),t0=Math.max(0,L.start),t1=Math.min(endOf(L),projDur())-.02;if(t1-t0<.02)return;
+  if(state.playing)pause();kfCapture();
+  FOLLOW={stop:false};$('flwBar').style.width='0';$('flwStatus').textContent='Getting the face finder ready…';$('flwModal').hidden=false;$('flwStop').focus();
+  let det;try{det=await faceModel();}
+  catch(e){$('flwModal').hidden=true;FOLLOW=null;toast(topLevel?'The face finder couldn’t start. Check your internet connection and try again.':'The face finder can’t start inside Claude. Open Video Layers on the Photo Tools website or app to use it.');return;}
+  const keepT=state.t,v0=hasKf(L)?kfAt(L,0):{x:L.x,y:L.y,w:L.w,sy:L.sy};
+  let cx=v0.x*W,cy=v0.y*H,fs=Math.max(40,v0.w*W*.7),have=false;
+  const STEP=1/8,n=Math.max(1,Math.ceil((t1-t0)/STEP)),pts=[];
+  /* the spot and anything above it are left out while looking */
+  const hid=[L,...P.layers.slice(P.layers.indexOf(L)+1)].filter(o=>!o.hidden);hid.forEach(o=>o.hidden=true);exporting=true;
+  const pick=list=>{let b=null,bd=Infinity;for(const f of list){const d=Math.hypot(f.x-cx,f.y-cy)/Math.max(fs,1)+(have?Math.abs(Math.log(f.w/fs))*.8:0)-f.s*.3;if(d<bd){bd=d;b=f;}}
+    return have&&b&&Math.hypot(b.x-cx,b.y-cy)>fs*2.5?null:b;};
+  try{
+    for(let i=0;i<=n;i++){if(FOLLOW.stop)break;const t=Math.min(t1,t0+i*STEP);state.t=t;
+      await seekAll(t);render(t);moveHead(true);
+      let best=null;
+      if(have){const R=Math.max(fs*3,Math.min(W,H)*.3);best=pick(facesIn(det,clamp(cx-R/2,0,Math.max(0,W-R)),clamp(cy-R/2,0,Math.max(0,H-R)),Math.min(R,W),Math.min(R,H)));}
+      if(!best)best=pick(facesIn(det,0,0,W,H));
+      if(!best&&!have){const R=Math.max(fs*4,Math.min(W,H)*.45);best=pick(facesIn(det,clamp(cx-R/2,0,Math.max(0,W-R)),clamp(cy-R/2,0,Math.max(0,H-R)),Math.min(R,W),Math.min(R,H)));}
+      if(best){cx=best.x;cy=best.y;fs=best.w;have=true;pts.push({t,x:best.x,y:best.y-best.h*.1,w:best.w*1.35,h:best.h*1.7});}else pts.push({t,miss:true});
+      $('flwBar').style.width=Math.round((i+1)/(n+1)*100)+'%';$('flwStatus').textContent=`${fmtS(t-t0)} of ${fmtS(t1-t0)}`;
+      if(i%4===3)await new Promise(r=>setTimeout(r,0));}
+  }finally{hid.forEach(o=>o.hidden=false);exporting=false;}
+  const stopped=FOLLOW.stop;$('flwModal').hidden=true;FOLLOW=null;
+  const got=pts.filter(q=>!q.miss),misses=pts.length-got.length;
+  if(!got.length){state.t=keepT;await seekAll(keepT);drawNow();toast('No face was found under or near the spot. Move the spot over the face and try again.');return;}
+  /* fill the gaps from the nearest moments it was found, then smooth out the jitter */
+  for(let i=0;i<pts.length;i++)if(pts[i].miss){let a=i-1;while(a>=0&&pts[a].miss)a--;let b=i+1;while(b<pts.length&&pts[b].miss)b++;
+    const A=a>=0?pts[a]:null,B=b<pts.length&&!pts[b].miss?pts[b]:null,u=A&&B?(pts[i].t-A.t)/(B.t-A.t):0,S=A||B,E=B||A;
+    pts[i]={t:pts[i].t,x:S.x+(E.x-S.x)*u,y:S.y+(E.y-S.y)*u,w:S.w+(E.w-S.w)*u,h:S.h+(E.h-S.h)*u,filled:true};}
+  const sm=pts.map((q,i)=>{const o={t:q.t};for(const[k,r]of[['x',2],['y',2],['w',3],['h',3]]){let sum=0,c=0;for(let j=Math.max(0,i-r);j<=Math.min(pts.length-1,i+r);j++){sum+=pts[j][k];c++;}o[k]=sum/c;}return o;});
+  /* keep only the keyframes needed to stay on the path */
+  const eps=Math.min(W,H)*.006,keep=new Set([0,sm.length-1]);
+  const err=(q,a,b)=>{const u=(q.t-a.t)/Math.max(1e-6,b.t-a.t),f=k=>a[k]+(b[k]-a[k])*u;return Math.max(Math.abs(q.x-f('x')),Math.abs(q.y-f('y')),Math.abs(q.w-f('w'))*.5,Math.abs(q.h-f('h'))*.5);};
+  const rdp=(a,b)=>{let mi=-1,me=0;for(let i=a+1;i<b;i++){const e=err(sm[i],sm[a],sm[b]);if(e>me){me=e;mi=i;}}if(me>eps&&mi>0){keep.add(mi);rdp(a,mi);rdp(mi,b);}};
+  if(sm.length>2)rdp(0,sm.length-1);
+  L.kf=sm.filter((_,i)=>keep.has(i)).map(q=>({t:Math.round((q.t-L.start)*1000)/1000,x:q.x/W,y:q.y/H,w:Math.max(.02,q.w/W),sy:clamp(q.h/Math.max(1,q.w),.2,5),rot:0,opacity:L.opacity}));
+  if(L.kf.length===1){Object.assign(L,{x:L.kf[0].x,y:L.kf[0].y,w:L.kf[0].w,sy:L.kf[0].sy,rot:0});L.kf=[];}
+  L.kfEase='linear';L.rot=0;KFA.delete(L);if(L.fxShape==='rect')L.fxShape='oval';
+  state.t=keepT;await seekAll(keepT);sel=L.id;tab='layer';refresh();
+  toast(`${stopped?'Stopped. ':''}The spot now follows the face${misses>2?`; where the face couldn’t be seen it glides between the places it was found`:''}. Drag it at any moment to fix it.`);}
+$('flwStop').onclick=()=>{if(FOLLOW)FOLLOW.stop=true;};
 function fxField(L,which){const isIn=which==='in',key=isIn?'fadeIn':'fadeOut',fk=isIn?'inFx':'outFx';
   const opts=[['none','None'],['fade','Fade'],['pop','Pop'],['zoom','Zoom'],['left',isIn?'From left':'To left'],['right',isIn?'From right':'To right'],['top',isIn?'From top':'To top'],['bottom',isIn?'From bottom':'To bottom']];
+  opts.push(['wipe','Wipe'],['blur','Blur'],['glitch','Glitch'],['flash','Flash']);
   if(L.type==='text')opts.push(['type','Typewriter'],['words','Word by word']);
+  if(L[key]>0&&!opts.some(o=>o[0]===L[fk]))opts.push([L[fk],'Transition']);
   const val=L[key]>0?(L[fk]||'fade'):'none',wrap=h('div',{class:'field',style:'gap:10px'});
   wrap.append(segF('p-'+which,isIn?'Entrance':'Exit',opts,val,v=>{if(v==='none')L[key]=0;else{L[fk]=v;if(!(L[key]>0)||((v==='type'||v==='words')&&L[key]<1))L[key]=v==='type'||v==='words'?1.5:.6;}renderSide();soft();}));
   if(val!=='none')wrap.append(rangeF('p-'+which+'d',isIn?'Entrance length':'Exit length',.1,L.type==='text'?8:4,.05,L[key],fmtS,v=>{L[key]=v;drawNow();save();}));
@@ -1222,14 +1443,15 @@ function fxField(L,which){const isIn=which==='in',key=isIn?'fadeIn':'fadeOut',fk
 function timePanel(p,L){
   const timing=()=>{renderTimeline();drawNow();save();const c=$('p-chip');if(c)c.textContent=`${KIND[L.type]} · ${fmtS(L.start)} → ${fmtS(endOf(L))}`;};
   p.append(rangeF('p-st','Starts at',0,Math.max(30,Math.ceil(projDur()+5)),.05,L.start,fmtS,v=>{L.start=v;timing();}));
-  if(L.type==='image'||L.type==='text'||L.type==='fx')p.append(rangeF('p-dur','Shows for',.2,Math.max(30,Math.ceil(projDur()+10)),.05,L.dur,fmtS,v=>{L.dur=v;timing();}));
-  if(isMedia(L)){const D=M[L.id]?M[L.id].dur:L.trimOut;
+  if(L.type==='image'||L.type==='text'||L.type==='fx'||L.freeze)p.append(rangeF('p-dur','Shows for',.2,Math.max(30,Math.ceil(projDur()+10)),.05,L.dur,fmtS,v=>{L.dur=v;timing();}));
+  if(isMedia(L)&&!L.freeze){const D=M[L.id]?M[L.id].dur:L.trimOut;
     p.append(rangeF('p-ti','Trim the start',0,Math.max(.1,D-.2),.05,L.trimIn,fmtS,v=>{L.trimIn=Math.min(v,L.trimOut-.2);timing();}));
     p.append(rangeF('p-to','Trim the end',.2,D,.05,L.trimOut,v=>fmtS(D-v)+' cut',v=>{L.trimOut=Math.max(v,L.trimIn+.2);timing();}));
     p.append(segF('p-spd','Speed',[[.25,'¼×'],[.5,'½×'],[1,'1×'],[1.5,'1.5×'],[2,'2×'],[3,'3×']],L.speed,v=>{L.speed=v;renderSide();timing();if(AC)audio();}));
     p.append(rangeF('p-spd2','Exact speed',.25,4,.05,L.speed,v=>v.toFixed(2)+'×',v=>{L.speed=v;timing();}));
     p.append(h('p',{class:'help'},`Plays ${fmtS((L.trimOut-L.trimIn))} of the ${fmtS(D)} file${L.speed!==1?`, taking ${fmtS(lenOf(L))} at ${L.speed}×`:''}.`));}
-  if(L.type==='video')slowPanel(p,L);
+  if(L.type==='video'&&!L.freeze){slowPanel(p,L);freezePanel(p,L);}
+  if(VIS(L))transPanel(p,L);
   if(L.type!=='audio'){p.append(h('h4',{class:'fhead'},'Animation'));p.append(fxField(L,'in'));
     if(L.type==='video'&&L.endMode!=='hide')p.append(h('p',{class:'help'},'The exit plays only when the video is set to disappear at the end.'));p.append(fxField(L,'out'));}
   if(L.type==='video')p.append(segF('p-end','When it ends',[['hide','Disappear'],['hold','Freeze on last frame'],['loop','Loop']],L.endMode,v=>{L.endMode=v;renderSide();soft();}));
@@ -1305,6 +1527,21 @@ function placePanel(p,L){
 }
 let listT=0;function renderListSoon(){clearTimeout(listT);listT=setTimeout(()=>{renderList();renderTimeline();},250);}
 let linkWH=false;
+const BGS=[['blur','Blurred video'],['edges','Stretched edges'],['mirror','Mirror'],['grad','Gradient'],['color','Color']];
+const BGHELP={blur:'A blurred, darker copy of the bottom layer fills the space around it.',
+  edges:'The colors along the edge of the video are stretched out into the space and softened, so the picture seems to carry on.',
+  mirror:'The video is reflected into the space around it, softened and a little darker.',
+  grad:'A smooth blend between two colors. “Match the video’s colors” picks them from the edges of the bottom layer, at the playhead.',
+  color:'One flat color.'};
+/* pick gradient colors from the edges of the bottom layer, on the side where the empty space is */
+function matchGrad(quiet){const base=autoBase();if(!base||!M[base.id]){if(!quiet)toast('Add a video or picture first.');return false;}
+  const m=M[base.id],c=base.crop,cs=document.createElement('canvas');cs.width=cs.height=24;const g=cs.getContext('2d',{willReadFrequently:true});
+  let d;try{g.drawImage(m.el,c.l*m.w,c.t*m.h,Math.max(1,m.w*(1-c.l-c.r)),Math.max(1,m.h*(1-c.t-c.b)),0,0,24,24);d=g.getImageData(0,0,24,24).data;}catch(e){return false;}
+  const avg=(x0,y0,x1,y1)=>{let r=0,gg=0,bb=0,n=0;for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){const k=(y*24+x)*4;r+=d[k];gg+=d[k+1];bb+=d[k+2];n++;}return'#'+[r,gg,bb].map(v=>Math.round(v/n).toString(16).padStart(2,'0')).join('');};
+  const[W,H]=canvasSize(),b=boxOf(base),vert=(H-b.h)>=(W-b.w);
+  let a=vert?avg(0,0,24,3):avg(0,0,3,24),z=vert?avg(0,21,24,24):avg(21,0,24,24);
+  if((vert&&base.flipY)||(!vert&&base.flipX))[a,z]=[z,a];
+  P.bgGrad={a,b:z,dir:vert?'v':'h'};P.bgGradSet=1;return true;}
 function canvasPanel(p){
   layoutPanel(p);p.append(h('h4',{class:'fhead'},'Video size'));
   const[W,H]=canvasSize();
@@ -1326,8 +1563,13 @@ function canvasPanel(p){
     btn('Stretch to this size',()=>{stretchFill(base);soft();},'Squeeze it to exactly this width and height'))));
   const vs=P.layers.filter(o=>VIS(o)&&M[o.id]).slice(0,4);
   if(vs.length)p.append(h('div',{class:'field'},h('span',{class:'flabel'},'Same shape as a layer'),h('div',{class:'row'},...vs.map(o=>btn(o.name.slice(0,18),()=>shapeLike(o))))));
-  p.append(segF('c-bg','Empty space',[['blur','Blurred video'],['color','Color']],P.bg,v=>{P.bg=v;renderSide();soft();}));
+  p.append(segF('c-bg','Empty space',BGS,P.bg,v=>{P.bg=v;if(v==='grad'&&!P.bgGradSet)matchGrad(true);renderSide();soft();}));
   if(P.bg==='color')p.append(colorF('c-col','Background color',P.bgColor,v=>{P.bgColor=v;drawNow();save();}));
+  if(P.bg==='grad'){if(!P.bgGrad)P.bgGrad={...freshP().bgGrad};const g=P.bgGrad,ends=g.dir==='h'?['Left color','Right color']:g.dir==='r'?['Middle color','Outside color']:g.dir==='d'?['Top-left color','Bottom-right color']:['Top color','Bottom color'];
+    p.append(colorF('c-ga',ends[0],g.a,v=>{g.a=v;P.bgGradSet=1;drawNow();save();}),colorF('c-gb',ends[1],g.b,v=>{g.b=v;P.bgGradSet=1;drawNow();save();}));
+    p.append(segF('c-gd','Direction',[['v','Top to bottom'],['h','Left to right'],['d','Corner to corner'],['r','From the middle']],g.dir||'v',v=>{g.dir=v;renderSide();soft();}));
+    p.append(h('div',{class:'row'},btn('🎨 Match the video’s colors',()=>{if(matchGrad())toast('Picked the colors from the edges of the bottom layer.');renderSide();soft();},'Picks the colors at the edges of the bottom layer'),btn('⇅ Swap colors',()=>{[g.a,g.b]=[g.b,g.a];renderSide();soft();})));}
+  p.append(h('p',{class:'help'},BGHELP[P.bg]||''));
   p.append(h('p',{class:'help'},`Your video will be ${W} × ${H} pixels and ${fmtS(projDur())} long.${Math.max(W,H)>1920?' Sizes over 1920 take more work to record, so keep the tab in front while it exports.':''}`));
   p.append(h('h4',{class:'fhead'},'Project'));
   const rb=h('button',{type:'button'},resetArmed?'Tap again to remove everything':'Start a new video');
@@ -1403,10 +1645,11 @@ function renderTimeline(){
   [...P.layers].reverse().forEach(L=>{
     const row=h('div',{class:'trow'}),x=PAD+L.start*pps,w=Math.max(14,lenOf(L)*pps);
     if(L.type==='video'&&L.endMode!=='hide'&&endOf(L)<d)row.append(h('div',{class:'hold video',style:`left:${x+w}px;width:${(d-endOf(L))*pps}px`}));
-    const lab=(L.type==='text'?(L.text||'Text').split('\n')[0]:L.name)+(isMedia(L)&&L.speed!==1?` · ${L.speed}×`:'');
+    const lab=(L.type==='text'?(L.text||'Text').split('\n')[0]:(L.freeze?'❄ ':'')+L.name)+(isMedia(L)&&!L.freeze&&L.speed!==1?` · ${L.speed}×`:'');
     const bar=h('div',{class:`bar ${L.type}${L.id===sel?' sel':''}`,'data-id':L.id,style:`left:${x}px;width:${w}px${L.hidden?';opacity:.4':''}`,title:`${KIND[L.type]}: ${fmtS(L.start)} → ${fmtS(endOf(L))}`},
       h('div',{class:'hd hl','data-h':'l'}),h('span',{class:'bl'},lab),h('div',{class:'hd hr','data-h':'r'}));
     if(hasKf(L))L.kf.forEach((f,i)=>bar.append(h('i',{class:'kfd'+(Math.abs(L.start+f.t-state.t)<KF_EPS?' on':''),'data-kf':i,style:`left:${Math.max(6,Math.min(w-6,f.t*pps))}px`,title:`Keyframe at ${fmtS(L.start+f.t)}. Tap to jump there, drag to move it.`})));
+    if(L.tr)bar.append(h('i',{class:'trx',style:`width:${Math.max(6,Math.min(w,L.tr.dur*pps))}px`,title:`${TRN[L.tr.type]||'Transition'} into the next clip`}));
     row.append(bar);rows.append(row);});
   if(!P.layers.length)rows.append(h('div',{class:'trow'},h('span',{class:'help',style:`position:absolute;left:${PAD}px;top:12px`},'Your layers show up here.')));
   moveHead();
@@ -1426,7 +1669,7 @@ $('tlRows').addEventListener('pointerdown',e=>{const bar=e.target.closest('.bar'
 $('tlRows').addEventListener('pointermove',e=>{holdMove(e);if(!td||td.mode==='scrub')return;const dx=(e.clientX-td.x0)/pps,L=td.L;if(Math.abs(e.clientX-td.x0)>3)td.moved=true;if(!td.moved)return;
   if(td.mode==='kf'){td.k.t=clamp(Math.round((td.t0+dx)*20)/20,0,lenOf(L));L.kf.sort((a,b)=>a.t-b.t);renderTimeline();drawNow();return;}
   const snap=v=>{const pts=[0,state.t,...P.layers.filter(l=>l!==L).flatMap(l=>[l.start,endOf(l)])];for(const s of pts)if(Math.abs(v-s)*pps<8)return s;return Math.round(v*20)/20;};
-  const media=isMedia(L),D=media&&M[L.id]?M[L.id].dur:Infinity,sp=L.speed||1;
+  const media=isMedia(L)&&!L.freeze,D=media&&M[L.id]?M[L.id].dur:Infinity,sp=L.speed||1;
   if(td.mode==='move')L.start=Math.max(0,snap(td.s0+dx));
   else if(td.mode==='l'){if(media){const ti=clamp(td.ti0+dx*sp,0,td.to0-.2);L.start=Math.max(0,td.s0+(ti-td.ti0)/sp);L.trimIn=ti;}else{const ns=clamp(snap(td.s0+dx),0,td.s0+td.d0-.2);L.dur=td.d0-(ns-td.s0);L.start=ns;}}
   else{if(media){L.trimOut=clamp(td.to0+dx*sp,L.trimIn+.2,D);}else{const ne=snap(td.s0+td.d0+dx);L.dur=Math.max(.2,ne-L.start);}}
@@ -1609,7 +1852,7 @@ async function fixWebmDuration(blob,ms){
 /* It runs on this device with Google's MediaPipe. Its files come from this site's vendor folder the first time
    (about 14 MB) and are kept for next time. Nothing about your videos leaves the device. */
 const CUT_DIR='vendor/mediapipe/',CUT_FPS=30,CUT_MAX=1800,CUT_PX=256;
-const CUT_SIZE={'wasm/vision_wasm_internal.wasm':12997248,'wasm/vision_wasm_nosimd_internal.wasm':12168316,'models/selfie_segmenter.tflite':249537,'models/selfie_segmenter_landscape.tflite':250177,'models/deeplab_v3.tflite':2780176};
+const CUT_SIZE={'wasm/vision_wasm_internal.wasm':12997248,'wasm/vision_wasm_nosimd_internal.wasm':12168316,'models/selfie_segmenter.tflite':249537,'models/selfie_segmenter_landscape.tflite':250177,'models/deeplab_v3.tflite':2780176,'models/blaze_face_full_range.tflite':1083786};
 const CUT={st:'off',err:'',busy:0,got:0,total:0,boot:null,mp:null,fs:null,segs:{},pend:{},keep:[]};
 const cutUrl=p=>new URL(CUT_DIR+p,document.baseURI).href;
 const cutOn=L=>VIS(L)&&L.cut&&L.cut.on;
@@ -1951,7 +2194,12 @@ function motionPanel(p,L){
   p.append(h('h4',{class:'fhead'},'Quick moves'));
   p.append(h('div',{class:'row'},btn('Left → right',()=>kfPreset(L,'lr'),'Slides across the whole video'),btn('Right → left',()=>kfPreset(L,'rl')),btn('Up from the bottom',()=>kfPreset(L,'up')),
     btn('Grow in',()=>kfPreset(L,'grow'),'Grows and fades in over the first moment'),btn('Spin',()=>kfPreset(L,'spin'),'One full turn'),btn('Float',()=>kfPreset(L,'float'),'Bobs gently up and down')));
-  p.append(h('p',{class:'help'},'These replace its keyframes. Change any of them afterwards like the ones you add yourself.'));}
+  p.append(h('p',{class:'help'},'These replace its keyframes. Change any of them afterwards like the ones you add yourself.'));
+  p.append(h('h4',{class:'fhead'},L.type==='fx'?'Shake':'Shake and glitch'));
+  p.append(segF('p-shk','Shake',[['off','Off'],['hand','Handheld'],['strong','Strong'],['hit','A jolt at the start']],L.shake>0?L.shakeKind:'off',v=>{if(v==='off')L.shake=0;else{L.shakeKind=v;if(!(L.shake>0))L.shake=.5;}renderSide();soft();}));
+  if(L.shake>0)p.append(rangeF('p-shka','How much it shakes',.05,1,.01,L.shake,pct,v=>{L.shake=v;drawNow();save();}));
+  if(L.type!=='fx')p.append(rangeF('p-gli','Glitch',0,1,.01,L.glitch||0,v=>v?pct(v):'Off',v=>{L.glitch=v;drawNow();save();}));
+  p.append(h('p',{class:'help'},(VIS(L)?'Handheld sways gently, like a phone held in the hand. Strong is a fast rumble, and a jolt shakes hard for a moment and settles. The picture zooms in a little so its edges never show. ':'Handheld sways gently, Strong rumbles, and a jolt shakes hard for a moment and settles. ')+(L.type!=='fx'?'Glitch adds color fringes and torn lines that flicker. ':'')+'To use them for just a moment, split the layer first.'));}
 
 /* ================= layouts: two layers arranged in one tap ================= */
 const LAYOUTS=[

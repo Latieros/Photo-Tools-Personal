@@ -9,6 +9,7 @@ Used by Video Layers' **Remove background**. Loaded only when it's turned on, th
 | `models/selfie_segmenter.tflite` | Finds people (upright videos and pictures) |
 | `models/selfie_segmenter_landscape.tflite` | Finds people (wide videos and pictures) |
 | `models/deeplab_v3.tflite` | Finds animals and other things, used for **People and animals** |
+| `models/blaze_face_full_range.tflite` | Finds faces near and far, used by **Follow face** on a blur or mosaic spot |
 
 **One change from Google's copy:** `vision_bundle.mjs` normally sends usage reports to `odml.pa.googleapis.com` every minute. That is switched off here (its first line says so), so nothing leaves your device.
 
