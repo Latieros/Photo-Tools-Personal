@@ -239,7 +239,8 @@ Puts pictures, videos, text, music and your voice together and makes a new video
 - **Blend:** **Screen** hides black backgrounds; **Multiply** hides white ones.
 - **Color:**
   - Filters: B&W, Vintage, Warm, Cool, Vivid, Faded, Noir, Dramatic and Dreamy.
-  - Sliders for brightness, contrast, saturation, warmth, hue, black and white, blur and dark edges.
+  - Sliders for brightness, contrast, saturation, warmth, hue, black and white, and dark edges.
+- **Blur and mosaic:** blur a whole layer, or turn it into big pixels (mosaic). Both work in every browser, Safari included.
 - **Slow movement:** a slow zoom in or out, or a drift in any direction, over the time the layer shows.
 - **Remove background (automatic):**
   - Finds the people in a video or picture and hides everything else, with no green screen needed. An AI model does this on your device; nothing is uploaded.
@@ -257,9 +258,22 @@ Puts pictures, videos, text, music and your voice together and makes a new video
 ### Video and sound
 - **Timeline:** trim the start and end by dragging the bar ends or with sliders.
 - **Speed:** ¼× up to 4×.
+- **Slow motion:**
+  - For the whole clip, pick ½× or ¼× under Speed.
+  - To slow down just a moment, put the playhead where it starts and pick ½ or ¼ speed for 1, 2 or 3 seconds. The clip is cut there, that part plays slower, and the rest of the clip moves later to make room.
+  - It looks smoothest with videos filmed at 60 frames a second or in a phone's slo-mo mode.
 - **When a video ends:** it can disappear, freeze on the last frame, or loop.
 - **Sound:** volume, mute, and sound fade in and out for each video and music track.
 - **Split:** cuts any layer in two at the playhead (keyboard: S).
+
+### Effects
+- **✦ Effects** under the preview (for a video or picture) has slow motion, blur, mosaic and the spots below in one menu.
+- **Blur or mosaic a spot:** a box that blurs, pixelates or covers with a solid color whatever is underneath it. Use it to hide a face, a name or a number plate.
+  - Drag it into place and pull its corners to size it. Shapes: rectangle, rounded or oval, with soft edges if you like.
+  - **Cover all** stretches it over the whole video, for example to blur everything for a few seconds.
+  - It has its own bar on the timeline, so it can show for just part of the video.
+  - If the thing you're hiding moves, add keyframes (Motion tab) so the spot follows it.
+  - It only changes the layers below it in the list, so keep it at the top to cover captions too.
 
 ### Text overlays
 - **Styles:** 10 one-tap styles: Caption, Highlight, Meme, Title, Lower third, Subtitle, Neon, Sticky note, News bar and Typewriter.
@@ -326,9 +340,11 @@ The desktop layout stays as it is. On a phone (or a tablet held upright) the too
   - Under the preview, a row holds the main quick edits; **More ▾** has the rest.
   - **Press and hold** a layer in the preview, on the timeline or in the layer list for its menu: settings, crop, duplicate, split, bring forward, send back, hide or delete.
   - Settings are grouped into sections you tap to open, so the list stays short.
-  - **⋯** next to the playback buttons has Loop, Mute and a bigger preview.
+  - **⋯** next to the playback buttons has Back to the start, Loop, Mute and a bigger preview.
+  - **Seek bar:** a big bar under the preview moves the playhead. Drag anywhere on it; ‹ and › step one frame at a time (hold to keep going). The selected layer's stretch of time shows as a band on it.
+  - On the timeline, the playhead itself can be grabbed and dragged.
   - Picking a layer on the preview opens its settings. In the layer list, tap a picked layer again to edit it.
-- **Chat Reel:** the preview stays at the top, and tabs along the bottom switch between **Chat** (the messages), **Message**, **Look**, **Sound** and **Timeline**. The ✎ on a message opens its settings.
+- **Chat Reel:** the preview stays at the top, and tabs along the bottom switch between **Chat** (the messages), **Message**, **Look**, **Sound** and **Timeline**. The ✎ on a message opens its settings. The same seek bar sits under the preview, with a tick where each message arrives, and the playhead on the timeline can be dragged.
 - **Photo Frame Studio:** the preview stays in view while you edit the words, and **⤢ Bigger** makes it larger.
 - **All of them:**
   - The preview shrinks while you type, so the keyboard doesn't cover the field.
@@ -355,7 +371,7 @@ Open each tool once while you're online so everything, fonts included, is saved 
 - **Chrome and Edge** support everything, including video export with sound.
 - **Safari:**
   - Video export depends on the Safari version; MP4 is the format to try.
-  - Color filters in Video Layers need a recent version.
+  - Color filters in Video Layers need a recent version. Blur and mosaic work on any version.
 - **GIFs** are silent and limited to 256 colors.
 - **Voiceover** needs microphone permission. The browser asks the first time.
 

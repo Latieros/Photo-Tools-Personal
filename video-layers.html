@@ -23,18 +23,18 @@
 :root{
   --bg:#F2F1F6; --panel:#FFFFFF; --ink:#18161F; --muted:#686577; --line:#DDDAE6;
   --accent:#5B3DF5; --accent-ink:#FFFFFF; --soft:#ECE8FF; --stage:#E7E5EE; --check:#DCD9E4;
-  --c-video:#5B3DF5; --c-image:#1F8A70; --c-text:#C2410C; --c-audio:#6E6A80;
+  --c-video:#5B3DF5; --c-image:#1F8A70; --c-text:#C2410C; --c-audio:#6E6A80; --c-fx:#0E7490;
   --f-display:"Unbounded","Familjen Grotesk",system-ui,sans-serif;
   --f-body:"Familjen Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#121118; --panel:#1B1A23; --ink:#EEEDF4; --muted:#9D9AAE; --line:#2F2D3B;
   --accent:#9C88FF; --accent-ink:#141020; --soft:#26213F; --stage:#0C0B11; --check:#17161E;
-  --c-video:#9C88FF; --c-image:#4FC9A6; --c-text:#F59E5B; --c-audio:#A09CB4; color-scheme:dark}}
+  --c-video:#9C88FF; --c-image:#4FC9A6; --c-text:#F59E5B; --c-audio:#A09CB4; --c-fx:#3BC4DB; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#121118; --panel:#1B1A23; --ink:#EEEDF4; --muted:#9D9AAE; --line:#2F2D3B;
   --accent:#9C88FF; --accent-ink:#141020; --soft:#26213F; --stage:#0C0B11; --check:#17161E;
-  --c-video:#9C88FF; --c-image:#4FC9A6; --c-text:#F59E5B; --c-audio:#A09CB4; color-scheme:dark}
+  --c-video:#9C88FF; --c-image:#4FC9A6; --c-text:#F59E5B; --c-audio:#A09CB4; --c-fx:#3BC4DB; color-scheme:dark}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--f-body);padding-inline:16px;padding-block:18px 40px}
 [hidden]{display:none!important}
@@ -71,7 +71,7 @@ button:focus-visible,.btn:focus-within,input:focus-visible,textarea:focus-visibl
 .lthumb{width:40px;height:40px;border-radius:6px;object-fit:cover;background:var(--bg);display:grid;place-items:center;font:600 16px/1 var(--f-display);color:var(--muted);overflow:hidden}
 .lname{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lkind{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em}
-.k-video{color:var(--c-video)}.k-image{color:var(--c-image)}.k-text{color:var(--c-text)}.k-audio{color:var(--c-audio)}
+.k-video{color:var(--c-video)}.k-image{color:var(--c-image)}.k-text{color:var(--c-text)}.k-audio{color:var(--c-audio)}.k-fx{color:var(--c-fx)}
 .lbtns{display:flex;gap:0}
 .ib{padding:5px 6px;font-size:12px;border-color:transparent;background:transparent;color:var(--muted)}
 .ib:hover{border-color:var(--line);color:var(--ink)}
@@ -157,7 +157,7 @@ input[type=color]{width:40px;height:32px;border:1px solid var(--line);border-rad
 .trow{position:relative;height:40px}
 .bar{position:absolute;top:4px;height:32px;border-radius:7px;cursor:grab;display:flex;align-items:center;overflow:hidden;color:#fff;font-size:12px;white-space:nowrap;touch-action:none}
 .bar:active{cursor:grabbing}
-.bar.video{background:var(--c-video)}.bar.image{background:var(--c-image)}.bar.text{background:var(--c-text)}.bar.audio{background:var(--c-audio)}
+.bar.video{background:var(--c-video)}.bar.image{background:var(--c-image)}.bar.text{background:var(--c-text)}.bar.audio{background:var(--c-audio)}.bar.fx{background:var(--c-fx)}
 .bar.sel{box-shadow:0 0 0 2px var(--ink)}
 .bar .bl{padding:0 14px;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
 .bar .hd{position:absolute;top:0;bottom:0;width:12px;cursor:ew-resize}
@@ -275,7 +275,7 @@ input[type=color]{width:40px;height:32px;border:1px solid var(--line);border-rad
   /* a bigger preview when you want a good look; a small one while typing, so the keyboard leaves room for the field */
   .stage.big canvas#cv{max-height:60vh}
   .app:has(.side :is(textarea,input[type=text],input[type=number]):focus) canvas#cv{max-height:17vh}
-  .app:has(.side :is(textarea,input[type=text],input[type=number]):focus) .stage :is(.selbar,.transport,.cvbtn){display:none}
+  .app:has(.side :is(textarea,input[type=text],input[type=number]):focus) .stage :is(.selbar,.transport,.cvbtn,.seek){display:none}
 }
 @media (max-width:900px) and (max-height:560px){.stage{position:static;box-shadow:none}canvas#cv{max-height:70vh}}
 .adds button.wide{grid-column:1/-1}
@@ -299,6 +299,25 @@ input[type=color]{width:40px;height:32px;border:1px solid var(--line);border-rad
 .lay.wide{width:52px;height:30px;margin:8px 0}
 .lay i{position:absolute;display:block;border-radius:2px;box-sizing:border-box}
 .sheet img.xprev{max-height:52vh;max-width:100%;align-self:center;border-radius:6px;border:1px solid var(--line);background:repeating-conic-gradient(#8883 0 25%,transparent 0 50%) 0 0/16px 16px}
+/* ---------- phones: a big bar under the preview to move through the video, and a playhead you can grab ---------- */
+@media (max-width:900px){
+  .seek{display:flex;align-items:center;gap:4px;margin:-2px -4px}
+  .sstep{flex:none;width:38px;height:38px;padding:0;justify-content:center;font-size:24px;line-height:1;border-color:transparent;background:transparent;color:var(--muted);-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  .strack{position:relative;flex:1;height:40px;touch-action:none;cursor:pointer;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+  .strack::before{content:"";position:absolute;left:12px;right:12px;top:50%;height:6px;margin-top:-3px;border-radius:3px;background:var(--line)}
+  .strack:focus-visible{outline:2px solid var(--accent);outline-offset:0;border-radius:8px}
+  .sfill{position:absolute;left:12px;top:50%;height:6px;margin-top:-3px;border-radius:3px;background:var(--accent);width:0;pointer-events:none}
+  .sspan{position:absolute;top:50%;height:16px;margin-top:-8px;border-radius:5px;opacity:.3;pointer-events:none}
+  .sknob{position:absolute;left:12px;top:50%;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;background:#fff;border:3px solid var(--accent);box-shadow:0 1px 6px rgba(0,0,0,.3);pointer-events:none;transition:transform .1s}
+  .strack.drag .sknob{transform:scale(1.15)}
+  .stip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);font:600 12px/1 var(--f-body);padding:5px 7px;border-radius:6px;white-space:nowrap;font-variant-numeric:tabular-nums;display:none}
+  .strack.drag .stip{display:block}
+  .transport #restart{display:none}
+  .tl-ruler{height:40px}
+  .tl-head{pointer-events:auto;touch-action:none;width:30px;margin-left:-15px;background:linear-gradient(90deg,transparent 14px,var(--accent) 14px 16px,transparent 16px);cursor:ew-resize}
+  .tl-head::before{left:8px}
+  .tl-head::after{content:"";position:absolute;top:21px;left:6px;width:18px;height:18px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px var(--panel)}
+}
 </style>
 
 </head>
@@ -322,6 +341,7 @@ input[type=color]{width:40px;height:32px;border:1px solid var(--line);border-rad
       <label class="btn" for="addAudio">+ Music<input type="file" id="addAudio" accept="audio/*"></label>
       <button type="button" id="addVoice" title="Record your voice while the video plays">🎙 Voiceover</button>
       <button type="button" id="openLayouts" title="Top and bottom, side by side, reaction in the corner">▦ Layouts</button>
+      <button type="button" id="addFx" class="wide" title="Blur or pixelate part of the video, like a face, a name or a number plate">◍ Blur or mosaic a spot</button>
     </div>
     <h2 class="label" style="margin-top:6px">Layers <span id="lcount" style="text-transform:none;letter-spacing:0;font-weight:500"></span></h2>
     <ol class="lyr-list" id="lyrList"></ol>
@@ -358,6 +378,11 @@ input[type=color]{width:40px;height:32px;border:1px solid var(--line);border-rad
       <button type="button" id="recGo" class="primary">● Start recording</button>
       <button type="button" id="recStop" class="primary" hidden>■ Stop</button>
       <button type="button" id="recCancel">Cancel</button>
+    </div>
+    <div class="seek ph" id="seekRow" role="group" aria-label="Move through the video">
+      <button type="button" class="sstep" id="seekBack" aria-label="Back a frame (hold to keep going)">‹</button>
+      <div class="strack" id="seekTrack" role="slider" tabindex="0" aria-label="Playhead" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0"><span class="sspan" id="seekSpan" hidden></span><span class="sfill" id="seekFill"></span><span class="sknob" id="seekKnob"><span class="stip" id="seekTip"></span></span></div>
+      <button type="button" class="sstep" id="seekFwd" aria-label="Forward a frame (hold to keep going)">›</button>
     </div>
     <div class="transport">
       <button type="button" id="play" class="primary"><span id="playIco" aria-hidden="true">▶</span><span id="playLbl">Play</span></button>
@@ -483,10 +508,10 @@ const FONTS={
   mono:['Mono','700','"Space Mono",ui-monospace,monospace']};
 const SIZES=[['9:16',1080,1920],['1:1',1080,1080],['4:5',1080,1350],['16:9',1920,1080],['4:3',1440,1080],['3:4',1080,1440]];
 const MAXPX=4096,MINPX=16,evenPx=n=>Math.max(MINPX,Math.min(MAXPX,Math.round((+n||0)/2)*2));
-const KIND={video:'Video',image:'Picture',text:'Text',audio:'Music'};
+const KIND={video:'Video',image:'Picture',text:'Text',audio:'Music',fx:'Effect'};
 const VIS=L=>L&&(L.type==='video'||L.type==='image');
 const isMedia=L=>L.type==='video'||L.type==='audio';
-const FX0={b:100,c:100,s:100,warm:0,h:0,gray:0,blur:0,vig:0};
+const FX0={b:100,c:100,s:100,warm:0,h:0,gray:0,blur:0,vig:0,pix:0};
 const KEY0={on:false,color:'#00B140',tol:.38,soft:.2,spill:.6};
 const CUT0={on:false,what:'people',bg:'remove',blur:.5,fit:0,edge:.35,steady:.5,plain:true};
 const LOOKS={none:['Original',{}],bw:['B&W',{gray:100,c:115}],vintage:['Vintage',{warm:45,c:90,s:80,b:106,vig:35}],warm:['Warm',{warm:45,s:112}],cool:['Cool',{warm:-45,s:95,b:103}],
@@ -517,7 +542,8 @@ function norm(L){
     L.fx={...FX0,...L.fx};L.key={...KEY0,...(L.key||{})};L.cut={...CUT0,...(L.cut||{})};}
   if(isMedia(L)){d('speed',1);d('volume',1);d('muted',false);d('aFadeIn',0);d('aFadeOut',0);d('trimIn',0);d('trimOut',0);}
   if(L.type==='video')d('endMode','hide');
-  if(L.type==='image'||L.type==='text')d('dur',5);
+  if(L.type==='image'||L.type==='text'||L.type==='fx')d('dur',5);
+  if(L.type==='fx'){d('fxMode','blur');d('fxAmt',.55);d('fxShape','round');d('fxSoft',.25);d('fxColor','#000000');d('w',.34);d('sy',1.2);d('lock',false);d('name',FX_NAME[L.fxMode]||'Blur');}
   if(L.type==='text'){
     if(L.font==='impact')L.font='anton';if(!FONTS[L.font])L.font='grotesk';
     if(L.box!==undefined){const b=L.box;L.tbg=b==='soft'||b==='solid'?'box':'none';L.bgOpacity=b==='soft'?.55:1;if(b==='outline'){L.stroke=.08;L.strokeColor='#000000';}if(L.boxColor)L.bgColor=L.boxColor;delete L.box;delete L.boxColor;}
@@ -526,7 +552,7 @@ function norm(L){
     d('align','center');d('italic',false);d('caps',false);d('ls',0);d('lh',1.18);d('w',.8);d('name','Text');}
   if(L.type!=='audio'){d('kf',[]);d('kfEase','smooth');}
   return L;}
-function dispAR(L){const m=M[L.id];if(!m)return 1;const c=L.crop||{l:0,t:0,r:0,b:0};return(m.w*Math.max(.02,1-c.l-c.r))/(m.h*Math.max(.02,1-c.t-c.b))/(L.sy||1);}
+function dispAR(L){if(L.type==='fx')return 1/(L.sy||1);const m=M[L.id];if(!m)return 1;const c=L.crop||{l:0,t:0,r:0,b:0};return(m.w*Math.max(.02,1-c.l-c.r))/(m.h*Math.max(.02,1-c.t-c.b))/(L.sy||1);}
 function autoBase(){return P.layers.find(l=>VIS(l)&&!l.hidden&&M[l.id]&&M[l.id].w);}
 /* Auto follows the bottom layer's picture (after any crop, but not any stretch); otherwise the size is exactly what you typed */
 function autoAR(){const v=autoBase();if(!v)return 9/16;const m=M[v.id],c=v.crop;return(m.w*Math.max(.02,1-c.l-c.r))/(m.h*Math.max(.02,1-c.t-c.b));}
@@ -644,7 +670,7 @@ function matchTo(L,T,mode){const[W,H]=canvasSize(),tb=boxOf(T);let b=boxOf(L);co
 
 /* ================= drawing ================= */
 const small=document.createElement('canvas'),sg=small.getContext('2d');
-function frameReady(L){const m=M[L.id];if(!m)return false;if(L.type==='image')return true;return m.el.readyState>=2;}
+function frameReady(L){if(L.type==='fx')return true;const m=M[L.id];if(!m)return false;if(L.type==='image')return true;return m.el.readyState>=2;}
 function visibleAt(L,t){if(L.hidden||L.type==='audio')return false;if(t<L.start)return false;if(t<endOf(L))return true;return L.type==='video'&&L.endMode!=='hide';}
 const easeO=p=>1-Math.pow(1-p,3),backO=p=>{const c1=1.70158,c3=c1+1;return 1+c3*Math.pow(p-1,3)+c1*Math.pow(p-1,2);};
 const SIDES={left:[-1,0],right:[1,0],top:[0,-1],bottom:[0,1]};
@@ -664,7 +690,7 @@ function shapePath(L,x,y,w,hh){if(L.shape==='circle'){ctx.beginPath();ctx.ellips
 function filterStr(L,W){const f=L.fx||FX0,o=[];
   if(f.warm>0)o.push(`sepia(${f.warm*.5}%)`);else if(f.warm<0)o.push(`hue-rotate(180deg) sepia(${-f.warm*.45}%) hue-rotate(180deg)`);
   if(f.b!==100)o.push(`brightness(${f.b}%)`);if(f.c!==100)o.push(`contrast(${f.c}%)`);if(f.s!==100)o.push(`saturate(${f.s}%)`);
-  if(f.h)o.push(`hue-rotate(${f.h}deg)`);if(f.gray)o.push(`grayscale(${f.gray}%)`);if(f.blur)o.push(`blur(${(f.blur*W/1000).toFixed(2)}px)`);
+  if(f.h)o.push(`hue-rotate(${f.h}deg)`);if(f.gray)o.push(`grayscale(${f.gray}%)`);if(f.blur&&!(f.pix>0))o.push(`blur(${(f.blur*W/1000).toFixed(2)}px)`);
   return o.join(' ')||'none';}
 function drawVisual(L,t,b,W){
   const m=M[L.id],c=L.crop,x=-b.w/2,y=-b.h/2;
@@ -685,7 +711,13 @@ function drawVisual(L,t,b,W){
   if(L.flipX||L.flipY){ctx.scale(L.flipX?-1:1,L.flipY?-1:1);if(L.flipX)ox=-ox;if(L.flipY)oy=-oy;}
   const fs=HAS_FILTER?filterStr(L,W):'none';if(fs!=='none')ctx.filter=fs;
   if(L.blend&&L.blend!=='source-over')ctx.globalCompositeOperation=L.blend;
+  /* big pixels, or a blur made by shrinking it down when the browser has no canvas filters (Safari) */
+  const fxp=L.fx||FX0;let crisp=false;
+  if(fxp.pix>0){const bs=Math.max(2,fxp.pix*W/1000),r=shrinkTo(LAYC,src,sx,sy,sw,sh,dw/bs,dh/bs);if(r){src=r.c;sx=0;sy=0;sw=r.w;sh=r.h;crisp=true;}}
+  else if(fxp.blur>0&&!HAS_FILTER){const r=blurInto(LAYC,src,sx,sy,sw,sh,fxp.blur*W/1000*sw/dw);if(r){src=r.c;sx=0;sy=0;sw=r.w;sh=r.h;}}
+  if(crisp)ctx.imageSmoothingEnabled=false;
   try{ctx.drawImage(src,sx,sy,sw,sh,-dw/2+ox,-dh/2+oy,dw,dh);}catch(e){}
+  ctx.imageSmoothingEnabled=true;
   ctx.filter='none';ctx.globalCompositeOperation='source-over';
   if(L.flipX||L.flipY)ctx.scale(L.flipX?-1:1,L.flipY?-1:1);
   if(L.fx&&L.fx.vig>0){const g=ctx.createRadialGradient(0,0,Math.min(b.w,b.h)*.25,0,0,Math.hypot(b.w,b.h)*.55);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,`rgba(0,0,0,${L.fx.vig/100})`);ctx.fillStyle=g;ctx.fillRect(x,y,b.w,b.h);}
@@ -724,8 +756,53 @@ function drawLayer(L,t){
   const[W,H]=canvasSize();if(L.type!=='text'&&!frameReady(L))return;
   const b=boxOf(L),st=animState(L,t,W,H),a=L.opacity*st.a;if(a<=.001)return;
   ctx.save();ctx.translate(b.cx+st.dx,b.cy+st.dy);ctx.rotate(L.rot*Math.PI/180);if(st.sc!==1)ctx.scale(st.sc,st.sc);ctx.globalAlpha=a;
-  if(L.type==='text')drawText(L,b,st,W);else drawVisual(L,t,b,W);
+  if(L.type==='text')drawText(L,b,st,W);else if(L.type==='fx')drawFxArea(L,b,W,H);else drawVisual(L,t,b,W);
   ctx.restore();}
+/* ================= blur and mosaic (made by shrinking, so they work in every browser) ================= */
+const fxCanvas=()=>{const c=document.createElement('canvas');c.width=c.height=1;return c;};
+const SHR=[fxCanvas(),fxCanvas()],LAYC=fxCanvas(),FXA=fxCanvas(),FXB=fxCanvas(),FXP=fxCanvas(),FXK=fxCanvas();
+/* canvases only ever grow, so moving a spot around doesn't make new ones every frame */
+function room(c,w,hh){w=Math.ceil(w);hh=Math.ceil(hh);if(c.width<w||c.height<hh){c.width=Math.max(c.width,Math.ceil(w/64)*64);c.height=Math.max(c.height,Math.ceil(hh/64)*64);}return c.getContext('2d');}
+/* a small copy of part of a picture, averaged as it shrinks (half at a time) */
+function shrinkTo(out,src,sx,sy,sw,sh,tw,th){tw=Math.max(1,Math.round(tw));th=Math.max(1,Math.round(th));if(!(sw>=1&&sh>=1))return null;
+  let s=src,x=sx,y=sy,w=sw,hh=sh,k=0;
+  try{while(w>=tw*2||hh>=th*2){const nw=w>=tw*2?Math.round(w/2):Math.round(w),nh=hh>=th*2?Math.round(hh/2):Math.round(hh),c=SHR[k++&1],g=room(c,nw+2,nh+2);
+      g.clearRect(0,0,nw+2,nh+2);g.imageSmoothingEnabled=true;g.imageSmoothingQuality='low';g.drawImage(s,x,y,w,hh,0,0,nw,nh);s=c;x=0;y=0;w=nw;hh=nh;}
+    const g=room(out,tw+2,th+2);g.clearRect(0,0,tw+2,th+2);g.imageSmoothingEnabled=true;g.imageSmoothingQuality='medium';g.drawImage(s,x,y,w,hh,0,0,tw,th);}catch(e){return null;}
+  return{c:out,w:tw,h:th};}
+/* soften a small picture by averaging each pixel with its neighbours */
+function boxPass(r,n){const{c,w,h:hh}=r,g=c.getContext('2d'),tg=room(FXB,w+2,hh+2);
+  for(let i=0;i<n;i++){tg.globalAlpha=1;tg.clearRect(0,0,w+2,hh+2);tg.drawImage(c,0,0,w,hh,0,0,w,hh);
+    [[-1,0],[1,0],[0,-1],[0,1]].forEach(([dx,dy],j)=>{tg.globalAlpha=1/(j+2);tg.drawImage(c,0,0,w,hh,dx,dy,w,hh);});
+    tg.globalAlpha=1;g.clearRect(0,0,w+2,hh+2);g.drawImage(FXB,0,0,w,hh,0,0,w,hh);}}
+/* r is roughly the blur's size in the source's pixels */
+function blurInto(out,src,sx,sy,sw,sh,r){if(!(r>.6))return null;const k=Math.max(1,r/1.6),q=shrinkTo(out,src,sx,sy,sw,sh,sw/k,sh/k);if(!q)return null;boxPass(q,2);return q;}
+const FX_NAME={blur:'Blur',mosaic:'Mosaic',color:'Color block'};
+/* an effect layer changes whatever is already drawn underneath it, inside its box */
+function drawFxArea(L,b,W,H){
+  const x=-b.w/2,y=-b.h/2,T=ctx.getTransform(),cw=cv.width,ch=cv.height,mn=Math.min(W,H),sc=Math.hypot(T.a,T.b)||1;
+  const shape=g=>{g.beginPath();if(L.fxShape==='oval')g.ellipse(0,0,b.w/2,b.h/2,0,0,Math.PI*2);else{const r=L.fxShape==='round'?Math.min(b.w,b.h)*.2:0;if(g.roundRect)g.roundRect(x,y,b.w,b.h,r);else g.rect(x,y,b.w,b.h);}};
+  const soft=Math.min(160,(L.fxSoft||0)*Math.min(b.w,b.h)*.3*sc);
+  if(L.fxMode==='color'&&soft<.5){ctx.fillStyle=L.fxColor;shape(ctx);ctx.fill();return;}
+  let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+  for(const[px,py]of[[x,y],[-x,y],[x,-y],[-x,-y]]){const X=T.a*px+T.c*py+T.e,Y=T.b*px+T.d*py+T.f;x0=Math.min(x0,X);x1=Math.max(x1,X);y0=Math.min(y0,Y);y1=Math.max(y1,Y);}
+  const pad=Math.ceil(soft*1.6)+2;x0=Math.max(0,Math.floor(x0-pad));y0=Math.max(0,Math.floor(y0-pad));x1=Math.min(cw,Math.ceil(x1+pad));y1=Math.min(ch,Math.ceil(y1+pad));
+  const aw=x1-x0,ah=y1-y0;if(aw<2||ah<2)return;
+  const pg=room(FXP,aw+2,ah+2);pg.globalCompositeOperation='source-over';pg.globalAlpha=1;pg.clearRect(0,0,aw+2,ah+2);
+  if(L.fxMode==='color'){pg.fillStyle=L.fxColor;pg.fillRect(0,0,aw,ah);}
+  else if(L.fxMode==='mosaic'){const bs=Math.max(3,(.01+L.fxAmt*.07)*mn),q=shrinkTo(FXA,cv,x0,y0,aw,ah,aw/bs,ah/bs);if(!q)return;
+    pg.imageSmoothingEnabled=false;pg.drawImage(q.c,0,0,q.w,q.h,0,0,aw,ah);pg.imageSmoothingEnabled=true;}
+  else{/* take in a little of what's around it, so the edges blend */
+    const r=(.006+L.fxAmt*.05)*mn,e=Math.ceil(r*2),bx0=Math.max(0,x0-e),by0=Math.max(0,y0-e),bw=Math.min(cw,x1+e)-bx0,bh=Math.min(ch,y1+e)-by0,q=blurInto(FXA,cv,bx0,by0,bw,bh,r);if(!q)return;
+    pg.imageSmoothingEnabled=true;pg.imageSmoothingQuality='high';pg.drawImage(q.c,0,0,q.w,q.h,bx0-x0,by0-y0,bw,bh);}
+  ctx.save();
+  if(soft>=.5){/* soft edges: a blurred copy of the shape (its shadow) decides how much shows */
+    const mg=room(FXK,aw+2,ah+2),D=aw+ah+4000;mg.setTransform(1,0,0,1,0,0);mg.clearRect(0,0,aw+2,ah+2);
+    mg.setTransform(T.a,T.b,T.c,T.d,T.e-x0+D,T.f-y0);mg.shadowColor='#000';mg.shadowBlur=soft;mg.shadowOffsetX=-D;mg.shadowOffsetY=0;mg.fillStyle='#000';shape(mg);mg.fill();
+    mg.setTransform(1,0,0,1,0,0);mg.shadowColor='transparent';mg.shadowBlur=0;mg.shadowOffsetX=0;
+    pg.globalCompositeOperation='destination-in';pg.drawImage(FXK,0,0,aw,ah,0,0,aw,ah);pg.globalCompositeOperation='source-over';}
+  else{shape(ctx);ctx.clip();}
+  ctx.setTransform(1,0,0,1,0,0);ctx.drawImage(FXP,0,0,aw,ah,x0,y0,aw,ah);ctx.restore();}
 function rr(x,y,w,hh,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,hh,Math.max(0,Math.min(r,w/2,hh/2)));else ctx.rect(x,y,w,hh);}
 function hexA(hex,a){const n=parseInt(String(hex).slice(1),16)||0;return`rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;}
 function drawBackground(W,H,t){
@@ -800,7 +877,7 @@ function syncMedia(t,playing){
       if((show||!playing)&&Math.abs(el.currentTime-lt)>.04&&!el.seeking)el.currentTime=lt;
     }}
 }
-function drawNow(follow){state.t=clamp(state.t,0,projDur());render(state.t);$('clock').textContent=`${state.t.toFixed(1)}s / ${projDur().toFixed(1)}s`;moveHead(follow);}
+function drawNow(follow){state.t=clamp(state.t,0,projDur());render(state.t);$('clock').textContent=isPhone()?`${state.t.toFixed(1)} / ${projDur().toFixed(1)}s`:`${state.t.toFixed(1)}s / ${projDur().toFixed(1)}s`;moveHead(follow);seekShow();}
 function play(){if(!P.layers.length){toast('Add a video or picture first.');return;}const ac=audio();if(ac&&ac.state==='suspended')ac.resume();
   if(state.t>=projDur()-.02)state.t=0;state.startAt=performance.now()-state.t*1000;state.playing=true;syncMedia(state.t,true);syncTransport();requestAnimationFrame(tick);}
 function pause(){state.playing=false;syncMedia(state.t,false);syncTransport();drawNow();}
@@ -811,6 +888,36 @@ function syncTransport(){$('playLbl').textContent=state.playing?'Pause':'Play';$
 $('play').onclick=()=>state.playing?pause():play();
 $('restart').onclick=()=>{const was=state.playing;pause();state.t=0;syncMedia(0,false);drawNow();if(was)play();};
 $('mute').onchange=()=>{if(AC)monitor.gain.value=$('mute').checked?0:1;};
+/* ================= phones: a big bar under the preview to move through the video ================= */
+const SK={tr:$('seekTrack'),knob:$('seekKnob'),fill:$('seekFill'),span:$('seekSpan'),tip:$('seekTip')};let skd=null,skLast='';
+function seekSet(t){state.t=clamp(t,0,projDur());syncMedia(state.t,false);drawNow(true);}
+function seekDone(){renderSelBar();const L=selL();if(L&&hasKf(L)){renderSide();renderTimeline();}}
+function seekFrac(e){const r=SK.tr.getBoundingClientRect();return clamp((e.clientX-r.left-12)/Math.max(1,r.width-24),0,1);}
+function seekShow(){if(!isPhone())return;const d=projDur(),f=clamp(state.t/d,0,1).toFixed(5);
+  SK.knob.style.left=`calc(12px + (100% - 24px) * ${f})`;SK.fill.style.width=`calc((100% - 24px) * ${f})`;SK.tip.textContent=state.t.toFixed(1)+' s';
+  /* the selected layer's stretch of time shows as a band on the bar */
+  const L=selL(),key=L?`${L.id}|${L.type}|${L.start}|${lenOf(L)}|${d}`:'';
+  if(key!==skLast){skLast=key;SK.span.hidden=!L;if(L){const a=clamp(L.start/d,0,1),z=clamp(endOf(L)/d,0,1);Object.assign(SK.span.style,{left:`calc(12px + (100% - 24px) * ${a})`,width:`calc((100% - 24px) * ${Math.max(0,z-a)})`,background:`var(--c-${L.type})`});}}
+  SK.tr.setAttribute('aria-valuemax',d.toFixed(1));SK.tr.setAttribute('aria-valuenow',state.t.toFixed(1));SK.tr.setAttribute('aria-valuetext',`${state.t.toFixed(1)} of ${d.toFixed(1)} seconds`);}
+SK.tr.addEventListener('touchstart',e=>{if(e.cancelable)e.preventDefault();},{passive:false});
+SK.tr.addEventListener('pointerdown',e=>{if(REC||!P.layers.length)return;skd={was:state.playing};if(state.playing)pause();SK.tr.classList.add('drag');try{SK.tr.setPointerCapture(e.pointerId);}catch(_){}seekSet(seekFrac(e)*projDur());e.preventDefault();});
+SK.tr.addEventListener('pointermove',e=>{if(skd)seekSet(seekFrac(e)*projDur());});
+const skUp=()=>{if(!skd)return;const w=skd.was;skd=null;SK.tr.classList.remove('drag');seekDone();if(w)play();};
+SK.tr.addEventListener('pointerup',skUp);SK.tr.addEventListener('pointercancel',skUp);
+SK.tr.addEventListener('keydown',e=>{const k={ArrowLeft:-.1,ArrowDown:-.1,ArrowRight:.1,ArrowUp:.1,PageDown:-1,PageUp:1}[e.key];let t=null;
+  if(k!=null)t=state.t+k;else if(e.key==='Home')t=0;else if(e.key==='End')t=projDur();if(t==null||REC)return;e.preventDefault();e.stopPropagation();if(state.playing)pause();seekSet(t);seekDone();});
+/* ‹ and › step one frame; hold to keep going */
+function stepBtn(id,dir){const b=$(id);let tm=0,pd=0;const step=()=>seekSet(Math.round((state.t+dir/30)*30)/30);
+  const stop=()=>{if(tm){clearTimeout(tm);clearInterval(tm);tm=0;seekDone();}};
+  b.addEventListener('pointerdown',e=>{if(REC||!P.layers.length)return;e.preventDefault();pd=Date.now();if(state.playing)pause();step();tm=setTimeout(()=>{tm=setInterval(step,60);},400);});
+  ['pointerup','pointercancel','pointerleave'].forEach(ev=>b.addEventListener(ev,stop));
+  b.addEventListener('click',e=>{if(Date.now()-pd>800&&!REC&&P.layers.length){if(state.playing)pause();step();seekDone();}});}
+stepBtn('seekBack',-1);stepBtn('seekFwd',1);
+/* on a phone the playhead line on the timeline can be grabbed and dragged too */
+$('tlHead').addEventListener('pointerdown',e=>{if(!isPhone()||REC)return;td={mode:'scrub'};if(state.playing)pause();try{$('tlHead').setPointerCapture(e.pointerId);}catch(_){}e.preventDefault();});
+$('tlHead').addEventListener('pointermove',e=>{if(td&&td.mode==='scrub')scrub(e);});
+['pointerup','pointercancel'].forEach(ev=>$('tlHead').addEventListener(ev,()=>{if(td&&td.mode==='scrub'){td=null;seekDone();}}));
+
 
 /* ================= canvas: select, move, resize, rotate ================= */
 function cpt(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)*cv.width/r.width,y:(e.clientY-r.top)*cv.height/r.height};}
@@ -884,7 +991,7 @@ function renderList(){
     const m=M[L.id];let th;
     if(L.type==='image'&&m)th=h('img',{class:'lthumb',src:m.url,alt:''});
     else if(L.type==='video'&&m){th=h('canvas',{class:'lthumb',width:80,height:80});try{const g=th.getContext('2d'),ar=m.w/m.h;let dw=80,dh=80/ar;if(dh<80){dh=80;dw=80*ar;}g.drawImage(m.el,(80-dw)/2,(80-dh)/2,dw,dh);}catch(e){}}
-    else th=h('span',{class:'lthumb'},L.type==='text'?'T':'♪');
+    else th=h('span',{class:'lthumb'},L.type==='text'?'T':L.type==='fx'?'◍':'♪');
     const li=h('li',{class:`lyr${L.id===sel?' sel':''}${L.hidden?' off':''}`,'data-id':L.id,onclick:e=>{if(e.target.closest('button')||holdFired())return;const again=sel===L.id;sel=L.id;tab='layer';if(again&&isPhone())setDock('edit',true);renderList();renderSide();renderTimeline();drawNow();},
       onpointerdown:e=>{if(e.pointerType==='touch'&&!e.target.closest('button'))holdStart(e,()=>layerMenu(L));},onpointermove:e=>holdMove(e),onpointerup:()=>holdEnd(),onpointercancel:()=>holdEnd()},
       th,h('div',{style:'min-width:0'},h('div',{class:'lname'},L.type==='text'?(L.text||'Text').split('\n')[0]:L.name),h('div',{class:`lkind k-${L.type}`},KIND[L.type])),
@@ -902,24 +1009,27 @@ async function duplicate(L){const C=JSON.parse(JSON.stringify(L));C.id=uid();C.x
   if(L.media){const ok=await makeMedia(C);if(!ok){toast('Couldn’t copy that layer.');return;}}
   const i=P.layers.findIndex(l=>l.id===L.id);P.layers.splice(i+1,0,C);sel=C.id;refresh();}
 /* cut a layer in two at the playhead */
-async function splitAt(L,t){if(!L)return;const s=L.start,e=endOf(L);
-  if(t<=s+.1||t>=e-.1){toast('Move the playhead inside this layer’s bar first, then split.');return;}
+async function splitAt(L,t,quiet){if(!L)return null;const s=L.start,e=endOf(L);
+  if(t<=s+.1||t>=e-.1){if(!quiet)toast('Move the playhead inside this layer’s bar first, then split.');return null;}
   const B=JSON.parse(JSON.stringify(L));B.id=uid();
   if(isMedia(L)){const mt=L.trimIn+(t-s)*(L.speed||1);B.trimIn=mt;L.trimOut=mt;if(L.type==='video')L.endMode='hide';}
   else{L.dur=t-s;B.dur=e-t;}
   B.start=t;L.fadeOut=0;B.fadeIn=0;L.aFadeOut=0;B.aFadeIn=0;
   if(hasKf(L))B.kf=L.kf.map(k=>({...k,t:Math.round((k.t-(t-s))*1000)/1000}));
-  if(B.media){const ok=await makeMedia(B);if(!ok){toast('Couldn’t split that layer.');return;}}
-  P.layers.splice(P.layers.indexOf(L)+1,0,B);sel=B.id;refresh();toast('Split in two. Each part can now be moved, trimmed or deleted.');}
+  if(B.media){const ok=await makeMedia(B);if(!ok){toast('Couldn’t split that layer.');return null;}}
+  P.layers.splice(P.layers.indexOf(L)+1,0,B);sel=B.id;refresh();if(!quiet)toast('Split in two. Each part can now be moved, trimmed or deleted.');return B;}
 
 /* ================= quick edits under the preview ================= */
 function renderSelBar(){const bar=$('selbar');bar.innerHTML='';const L=selL();if(!L||cvEdit){bar.hidden=true;return;}bar.hidden=false;
-  const ph=isPhone(),more=[],MAIN=['✂ Crop','Fit','Fill','✎ Edit text','Remove background','◇ Keyframe','◆ Keyframe','Split'];
+  const ph=isPhone(),more=[],MAIN=['✂ Crop','Fit','Fill','✦ Effects','✎ Edit text','Remove background','Blur','Mosaic','Cover all','◇ Keyframe','◆ Keyframe','Split'];
   const B=(lab,fn,title,pressed)=>{if(ph&&!MAIN.includes(lab)){more.push({lab,fn,on:pressed});return document.createTextNode('');}
     return h('button',{type:'button',class:pressed!=null?'tog':'',title:title||lab,'aria-pressed':pressed==null?null:String(!!pressed),onclick:fn},lab);};
   bar.append(h('span',{class:'selname'},L.type==='text'?'Text':L.name));
   if(VIS(L))bar.append(B('✂ Crop',()=>openCrop(L),'Crop'),B('Fit',()=>{fitLayer(L,'fit');soft();renderSide();},'Fit the whole thing in the video'),B('Fill',()=>{fitLayer(L,'fill');soft();renderSide();},'Fill the whole video'),B('Stretch',()=>{stretchFill(L);soft();renderSide();},'Fill the whole video exactly, squeezing it if needed'),
     B('⇋ Flip',()=>{L.flipX=!L.flipX;soft();renderSide();},'Mirror left to right',L.flipX),B('↻ 90°',()=>{L.rot=nrm180(L.rot+90);soft();renderSide();},'Turn a quarter'));
+  if(VIS(L))bar.append(B('✦ Effects',()=>fxMenu(L),'Slow motion, blur and mosaic'));
+  if(L.type==='fx')bar.append(...FXM.map(([k,l])=>B(l,()=>fxSetMode(L,k),null,L.fxMode===k)),B('Cover all',()=>{fxCover(L);soft();renderSide();},'Cover the whole video'),
+    B('Oval',()=>{L.fxShape=L.fxShape==='oval'?'round':'oval';soft();renderSide();},'Make it an oval, for a face',L.fxShape==='oval'));
   if(L.type==='text')bar.append(B('✎ Edit text',()=>{sub.text='text';toPanel();renderSide();const ta=$('p-text');if(ta){ta.focus();if(innerWidth<1100)ta.scrollIntoView({block:'center',behavior:'smooth'});}}));
   if(VIS(L))bar.append(B('Remove background',()=>cutQuick(L),'Hide the background automatically',L.cut.on),B('Green screen',()=>keyQuick(L),'Remove a background color',L.key.on));
   if(L.type!=='audio'){const on=hasKf(L)&&kfIndex(L,state.t-L.start)>=0;bar.append(B(on?'◆ Keyframe':'◇ Keyframe',()=>kfToggle(L),on?'Remove the keyframe at the playhead (K)':'Add a keyframe at the playhead, so it can move along a path (K)',on));}
@@ -938,7 +1048,7 @@ const btn=(lab,fn,title)=>h('button',{type:'button',title:title||null,onclick:fn
 const pct=v=>Math.round(v*100)+'%',deg=v=>Math.round(v)+'°';
 const soft=()=>{drawNow();renderTimeline();save();};
 let sideT=0;const sideSoon=()=>{clearTimeout(sideT);sideT=setTimeout(renderSide,300);};
-let sub={visual:'size',text:'text'},matchId=null;
+let sub={visual:'size',text:'text',fx:'effect'},matchId=null;const subKind=L=>L.type==='text'?'text':L.type==='fx'?'fx':'visual';
 const otherVisuals=L=>P.layers.filter(o=>o!==L&&VIS(o)&&M[o.id]);
 function matchTarget(L){const os=otherVisuals(L);return os.find(o=>o.id===matchId)||os[0]||null;}
 function renderSide(){
@@ -952,13 +1062,13 @@ function renderSideInner(){
   if(!L){p.append(h('p',{class:'help',style:'font-size:14px'},P.layers.length?'Tap a layer in the preview, the list or the timeline to change it.':'Add a video or a picture to get started. Settings for the selected layer show up here.'));return;}
   p.append(h('div',{class:'ptitle'},h('h3',{},L.type==='text'?'Text':L.name),h('span',{class:'chip',id:'p-chip'},`${KIND[L.type]} · ${fmtS(L.start)} → ${fmtS(endOf(L))}`)));
   if(L.type==='audio'){timePanel(p,L);p.append(h('h4',{class:'fhead'},'Sound'));soundPanel(p,L);}
-  else{const kind=VIS(L)?'visual':'text';
-    const defs=kind==='text'?[['text','Text'],['style','Style'],['place','Place'],['move','Motion'],['time','Timing']]:[['size','Size'],['crop','Crop'],['look','Look'],['move','Motion'],['time','Timing']].concat(L.type==='video'?[['sound','Sound']]:[]);
+  else{const kind=VIS(L)?'visual':L.type==='fx'?'fx':'text';
+    const defs=kind==='fx'?[['effect','Effect'],['move','Motion'],['time','Timing']]:kind==='text'?[['text','Text'],['style','Style'],['place','Place'],['move','Motion'],['time','Timing']]:[['size','Size'],['crop','Crop'],['look','Look'],['move','Motion'],['time','Timing']].concat(L.type==='video'?[['sound','Sound']]:[]);
     if(!defs.some(d=>d[0]===sub[kind]))sub[kind]=defs[0][0];
     const nav=h('div',{class:'subtabs',role:'tablist','aria-label':'Layer settings'});
     defs.forEach(([k,l])=>nav.append(h('button',{type:'button',role:'tab','aria-selected':String(k===sub[kind]),'data-sub':k,onclick:()=>{sub[kind]=k;renderSide();}},l)));p.append(nav);
     if(hasKf(L)&&sub[kind]!=='move'&&sub[kind]!=='time')p.append(h('p',{class:'kfnote'},`◆ This layer moves with keyframes. Changes to its place, size, turn or opacity are saved at ${fmtS(state.t)}.`));
-    ({size:sizePanel,crop:cropPanel,look:lookPanel,time:timePanel,sound:soundPanel,text:textPanel,style:stylePanel,place:placePanel,move:motionPanel})[sub[kind]](p,L);}
+    ({effect:fxPanel,size:sizePanel,crop:cropPanel,look:lookPanel,time:timePanel,sound:soundPanel,text:textPanel,style:stylePanel,place:placePanel,move:motionPanel})[sub[kind]](p,L);}
   p.append(h('div',{class:'row pfoot',style:'margin-top:4px'},btn('Duplicate',()=>duplicate(L)),btn('Delete',()=>removeLayer(L.id))));
 }
 function grid9(L,frameFn,label){const g=h('div',{class:'grid9',role:'group','aria-label':label||'Snap to a spot'});
@@ -1023,19 +1133,85 @@ function lookPanel(p,L){
   p.append(h('p',{class:'help'},'Screen hides black backgrounds (sparkles, fire, light leaks). Multiply hides white backgrounds (logos, drawings, signatures).'));
   cutPanel(p,L);
   keyPanel(p,L);
+  p.append(h('h4',{class:'fhead'},'Blur and mosaic'));
+  p.append(rangeF('p-fx-blur','Blur',0,20,.5,L.fx.blur,v=>v?v.toFixed(1):'None',v=>{L.fx.blur=v;drawNow();save();}));
+  p.append(rangeF('p-pix','Mosaic (big pixels)',0,60,1,L.fx.pix||0,v=>v?String(Math.round(v)):'Off',v=>{L.fx.pix=v;drawNow();save();}));
+  p.append(h('div',{class:'row'},btn('◍ Blur one spot',()=>addFx('blur',L),'A blur you can move over a face, a name or a number plate'),btn('▦ Mosaic one spot',()=>addFx('mosaic',L))));
+  p.append(h('p',{class:'help'},'Blur and mosaic here change the whole layer. To hide just a face, a name or a number plate, use one spot: a box you can move and size, and keyframe so it follows.'));
   p.append(h('h4',{class:'fhead'},'Color'));
-  if(!HAS_FILTER)p.append(h('p',{class:'help'},'This browser can’t show color changes. They work in Chrome, Edge and Firefox.'));
-  p.append(segF('p-look','Filter',Object.entries(LOOKS).map(([k,v])=>[k,v[0]]),L.look,v=>{L.look=v;L.fx={...FX0,...LOOKS[v][1]};renderSide();soft();}));
+  if(!HAS_FILTER)p.append(h('p',{class:'help'},'This browser can’t show color changes. They work in Chrome, Edge and Firefox. Blur and mosaic work everywhere.'));
+  p.append(segF('p-look','Filter',Object.entries(LOOKS).map(([k,v])=>[k,v[0]]),L.look,v=>{L.fx={...FX0,...fxKeep(L),...LOOKS[v][1]};L.look=v;renderSide();soft();}));
   const fx=(k,label,min,max,step,fmt)=>rangeF('p-fx-'+k,label,min,max,step,L.fx[k],fmt,v=>{L.fx[k]=v;if(L.look){L.look='';document.querySelectorAll('#p-look-g button').forEach(b=>b.setAttribute('aria-pressed','false'));}drawNow();save();});
   const pc=v=>Math.round(v)+'%';
   p.append(fx('b','Brightness',40,160,1,pc),fx('c','Contrast',40,170,1,pc),fx('s','Saturation',0,200,1,pc),fx('warm','Warmth',-100,100,1,v=>v>0?'+'+Math.round(v):Math.round(v)+''),
-    fx('h','Hue',-180,180,1,deg),fx('gray','Black and white',0,100,1,pc),fx('blur','Blur',0,20,.5,v=>v?v.toFixed(1):'None'),fx('vig','Dark edges',0,80,1,pc));
-  p.append(h('div',{class:'row'},btn('Reset color',()=>{L.fx={...FX0};L.look='none';renderSide();soft();})));
+    fx('h','Hue',-180,180,1,deg),fx('gray','Black and white',0,100,1,pc),fx('vig','Dark edges',0,80,1,pc));
+  p.append(h('div',{class:'row'},btn('Reset color',()=>{L.fx={...FX0,...fxKeep(L)};L.look='none';renderSide();soft();})));
   p.append(h('h4',{class:'fhead'},'Slow movement'));
   p.append(segF('p-mo','Movement inside the frame',[['none','None'],['in','Zoom in'],['out','Zoom out'],['left','Drift left'],['right','Drift right'],['up','Drift up'],['down','Drift down']],L.motion,v=>{L.motion=v;renderSide();soft();}));
   if(L.motion!=='none')p.append(rangeF('p-moa','How much',.05,.5,.01,L.motionAmt,pct,v=>{L.motionAmt=v;drawNow();save();}));
   p.append(h('p',{class:'help'},'Moves the picture slowly over the time it shows, like in a documentary.'));
 }
+/* ================= effects: a blur, mosaic or color spot, and slow motion ================= */
+const FXM=[['blur','Blur'],['mosaic','Mosaic'],['color','Solid color']];
+const fxKeep=L=>({pix:(L.fx&&L.fx.pix)||0,blur:L.look==='dream'?0:(L.fx&&L.fx.blur)||0});
+/* a spot goes on top of everything, over the middle of a layer if one is given */
+function addFx(mode,over){if(!P.layers.length){toast('Add a video or picture first, then blur part of it.');return;}
+  const[W,H]=canvasSize(),L=norm({id:uid(),type:'fx',fxMode:mode||'blur',name:FX_NAME[mode||'blur'],x:.5,y:.4,start:0,dur:projDur()});
+  if(over&&over.type!=='audio'){const b=boxOf(over),side=Math.max(40,Math.min(b.w,b.h)*.45);L.x=b.cx/W;L.y=b.cy/H;L.w=side/W;L.sy=1.2;L.start=over.start;L.dur=Math.max(.2,lenOf(over));}
+  if(mode==='mosaic')L.fxSoft=0;
+  P.layers.push(L);sel=L.id;tab='layer';sub.fx='effect';toPanel();refresh();
+  toast('Drag it over what should be hidden and pull a corner to size it. If that thing moves, add keyframes so it follows.');}
+function fxSetMode(L,k){const auto=!L.name||Object.values(FX_NAME).includes(L.name);L.fxMode=k;if(auto)L.name=FX_NAME[k];soft();renderList();renderSide();}
+function fxCover(L){const[W,H]=canvasSize();Object.assign(L,{x:.5,y:.5,rot:0,w:1,sy:H/W,fxShape:'rect',fxSoft:0});}
+function fxPanel(p,L){
+  p.append(h('p',{class:'help',style:'font-size:13px'},'Blurs or pixelates whatever is underneath it. Drag it over a face, a name or a number plate and pull its corners to size it. If that thing moves, add keyframes on the Motion tab so the spot follows it.'));
+  p.append(segF('p-fxm','Effect',FXM,L.fxMode,v=>fxSetMode(L,v)));
+  if(L.fxMode==='color')p.append(colorF('p-fxc','Color',L.fxColor,v=>{L.fxColor=v;drawNow();save();}));
+  else p.append(rangeF('p-fxa',L.fxMode==='mosaic'?'Block size':'Strength',.05,1,.01,L.fxAmt,pct,v=>{L.fxAmt=v;drawNow();save();}));
+  p.append(segF('p-fxs','Shape',[['rect','Rectangle'],['round','Rounded'],['oval','Oval']],L.fxShape,v=>{L.fxShape=v;renderSide();soft();}));
+  p.append(rangeF('p-fxf','Soft edges',0,1,.01,L.fxSoft,v=>v?pct(v):'Off',v=>{L.fxSoft=v;drawNow();save();}));
+  p.append(rangeF('p-op','Opacity',0,1,.01,L.opacity,pct,v=>{L.opacity=v;drawNow();save();}));
+  p.append(h('h4',{class:'fhead'},'Size and place'));
+  const[W,H]=canvasSize();
+  p.append(h('div',{class:'row'},btn('Cover the whole video',()=>{fxCover(L);soft();renderSide();},'Blur or pixelate everything underneath, for as long as it shows'),grid9(L,null)));
+  p.append(rangeF('p-fxw','Width',.02,1,.005,clamp(L.w,.02,1),pct,v=>{L.w=v;drawNow();save();}));
+  p.append(rangeF('p-fxh','Height',.02,1,.005,clamp(L.w*W*L.sy/H,.02,1),pct,v=>{L.sy=clamp(v*H/Math.max(1,L.w*W),.02,50);drawNow();save();}));
+  p.append(rangeF('p-rot','Rotate',-180,180,1,L.rot,deg,v=>{L.rot=Math.abs(v)<2?0:v;drawNow();save();}));
+  p.append(h('p',{class:'help'},'It only changes the layers below it in the list. Keep it at the top so it covers everything, captions included.'));}
+function setSpeed(L,v){L.speed=v;renderSide();renderTimeline();drawNow();save();if(AC)audio();}
+/* slow motion for just a moment: the clip is cut at the playhead and again a little later, and the middle part plays slower */
+async function slowMoment(L,secs,sp){
+  if(!L||L.type!=='video')return;const t=state.t;
+  if(t<L.start-1e-3||t>endOf(L)-.15){toast('Move the playhead onto this video’s bar, to where the slow motion should start.');return;}
+  if(state.playing)pause();
+  let mid=L;if(t>L.start+.1){mid=await splitAt(L,t,true);if(!mid)return;}
+  const sp0=mid.speed||1,srcEnd=Math.min(mid.trimOut,mid.trimIn+secs*sp0);let tail=null;
+  if(mid.trimOut-srcEnd>.1)tail=await splitAt(mid,mid.start+(srcEnd-mid.trimIn)/sp0,true);
+  const old=lenOf(mid);mid.speed=sp;const add=lenOf(mid)-old;
+  if(hasKf(mid))mid.kf.forEach(k=>{k.t=Math.round(k.t*sp0/sp*1000)/1000;});
+  if(tail)tail.start+=add;
+  sel=mid.id;tab='layer';refresh();
+  toast(`Slow motion at ${sp===.5?'½':sp===.25?'¼':sp+'×'} speed for ${fmtS(lenOf(mid))}.${tail?` The rest of the clip now starts ${fmtS(add)} later.`:''}`);}
+function slowPanel(p,L){
+  p.append(h('h4',{class:'fhead'},'Slow motion'));
+  p.append(h('p',{class:'help'},'For the whole clip, pick ½× or ¼× under Speed. To slow down just a moment, put the playhead where it starts and pick one of these:'));
+  p.append(h('div',{class:'row'},btn('½ speed for 1 s',()=>slowMoment(L,1,.5)),btn('½ speed for 2 s',()=>slowMoment(L,2,.5)),btn('¼ speed for 1 s',()=>slowMoment(L,1,.25)),btn('¼ speed for 2 s',()=>slowMoment(L,2,.25))));
+  p.append(h('p',{class:'help'},'The clip is cut there and the slow part takes longer, so the rest of the clip moves later. It looks smoothest with videos filmed at 60 frames a second or in a phone’s slo-mo mode.'));}
+function slowMenu(L){const o=[];for(const sp of[.5,.25])for(const n of[1,2,3])o.push({lab:`${sp===.5?'½':'¼'} speed for the next ${n} second${n>1?'s':''}`,fn:()=>slowMoment(L,n,sp)});
+  actionSheet(`Slow motion from ${fmtS(state.t)}`,o);}
+/* one menu with every effect for a video or picture */
+function fxMenu(L){const vid=L.type==='video',sp=L.speed||1;
+  actionSheet('Effects',[
+    vid?{lab:'🐢 Slow motion for a moment…',fn:()=>slowMenu(L)}:null,
+    vid?{lab:'🐢 The whole clip at ½ speed',on:sp===.5,fn:()=>setSpeed(L,sp===.5?1:.5)}:null,
+    vid?{lab:'🐢 The whole clip at ¼ speed',on:sp===.25,fn:()=>setSpeed(L,sp===.25?1:.25)}:null,
+    vid&&sp!==1&&sp!==.5&&sp!==.25?{lab:'Back to normal speed',fn:()=>setSpeed(L,1)}:null,
+    {lab:'Blur all of it',on:L.fx.blur>0,fn:()=>{L.fx.blur=L.fx.blur>0?0:8;if(L.look==='dream')L.look='';soft();renderSide();}},
+    {lab:'Mosaic all of it',on:L.fx.pix>0,fn:()=>{L.fx.pix=L.fx.pix>0?0:28;soft();renderSide();}},
+    {lab:'◍ Blur a spot (a face, a plate)',fn:()=>addFx('blur',L)},
+    {lab:'▦ Mosaic a spot',fn:()=>addFx('mosaic',L)},
+    {lab:'■ Cover a spot with a color',fn:()=>addFx('color',L)},
+    {lab:'More effect settings',fn:()=>{sel=L.id;sub.visual='look';openSecs.add('Blur and mosaic');tab='layer';toPanel();renderSide();const el=$('p-pix');if(el)el.scrollIntoView({block:'center',behavior:'smooth'});}}]);}
 function fxField(L,which){const isIn=which==='in',key=isIn?'fadeIn':'fadeOut',fk=isIn?'inFx':'outFx';
   const opts=[['none','None'],['fade','Fade'],['pop','Pop'],['zoom','Zoom'],['left',isIn?'From left':'To left'],['right',isIn?'From right':'To right'],['top',isIn?'From top':'To top'],['bottom',isIn?'From bottom':'To bottom']];
   if(L.type==='text')opts.push(['type','Typewriter'],['words','Word by word']);
@@ -1046,13 +1222,14 @@ function fxField(L,which){const isIn=which==='in',key=isIn?'fadeIn':'fadeOut',fk
 function timePanel(p,L){
   const timing=()=>{renderTimeline();drawNow();save();const c=$('p-chip');if(c)c.textContent=`${KIND[L.type]} · ${fmtS(L.start)} → ${fmtS(endOf(L))}`;};
   p.append(rangeF('p-st','Starts at',0,Math.max(30,Math.ceil(projDur()+5)),.05,L.start,fmtS,v=>{L.start=v;timing();}));
-  if(L.type==='image'||L.type==='text')p.append(rangeF('p-dur','Shows for',.2,Math.max(30,Math.ceil(projDur()+10)),.05,L.dur,fmtS,v=>{L.dur=v;timing();}));
+  if(L.type==='image'||L.type==='text'||L.type==='fx')p.append(rangeF('p-dur','Shows for',.2,Math.max(30,Math.ceil(projDur()+10)),.05,L.dur,fmtS,v=>{L.dur=v;timing();}));
   if(isMedia(L)){const D=M[L.id]?M[L.id].dur:L.trimOut;
     p.append(rangeF('p-ti','Trim the start',0,Math.max(.1,D-.2),.05,L.trimIn,fmtS,v=>{L.trimIn=Math.min(v,L.trimOut-.2);timing();}));
     p.append(rangeF('p-to','Trim the end',.2,D,.05,L.trimOut,v=>fmtS(D-v)+' cut',v=>{L.trimOut=Math.max(v,L.trimIn+.2);timing();}));
     p.append(segF('p-spd','Speed',[[.25,'¼×'],[.5,'½×'],[1,'1×'],[1.5,'1.5×'],[2,'2×'],[3,'3×']],L.speed,v=>{L.speed=v;renderSide();timing();if(AC)audio();}));
     p.append(rangeF('p-spd2','Exact speed',.25,4,.05,L.speed,v=>v.toFixed(2)+'×',v=>{L.speed=v;timing();}));
     p.append(h('p',{class:'help'},`Plays ${fmtS((L.trimOut-L.trimIn))} of the ${fmtS(D)} file${L.speed!==1?`, taking ${fmtS(lenOf(L))} at ${L.speed}×`:''}.`));}
+  if(L.type==='video')slowPanel(p,L);
   if(L.type!=='audio'){p.append(h('h4',{class:'fhead'},'Animation'));p.append(fxField(L,'in'));
     if(L.type==='video'&&L.endMode!=='hide')p.append(h('p',{class:'help'},'The exit plays only when the video is set to disappear at the end.'));p.append(fxField(L,'out'));}
   if(L.type==='video')p.append(segF('p-end','When it ends',[['hide','Disappear'],['hold','Freeze on last frame'],['loop','Loop']],L.endMode,v=>{L.endMode=v;renderSide();soft();}));
@@ -1256,7 +1433,7 @@ $('tlRows').addEventListener('pointermove',e=>{holdMove(e);if(!td||td.mode==='sc
   renderTimeline();drawNow();});
 $('tlRows').addEventListener('pointerup',()=>{holdEnd();if(!td)return;const d=td;td=null;if(d.mode==='scrub')return;
   if(d.mode==='kf'){const L=d.L;if(!d.moved){state.t=clamp(L.start+d.k.t,0,projDur());syncMedia(state.t,false);}else L.kf=L.kf.filter(k=>k===d.k||Math.abs(k.t-d.k.t)>=KF_EPS);
-    sel=L.id;tab='layer';sub[L.type==='text'?'text':'visual']='move';refresh();return;}if(!d.moved){sel=d.L.id;tab='layer';}refresh();});
+    sel=L.id;tab='layer';sub[subKind(L)]='move';refresh();return;}if(!d.moved){sel=d.L.id;tab='layer';}refresh();});
 $('tlRows').addEventListener('pointercancel',()=>{holdEnd();td=null;});
 $('tlZoom').oninput=e=>{pps=+e.target.value;renderTimeline();};
 
@@ -1265,6 +1442,7 @@ $('tlZoom').oninput=e=>{pps=+e.target.value;renderTimeline();};
 ['addImage','addImage2'].forEach(id=>$(id).onchange=e=>{addFiles(e.target.files,'image');e.target.value='';});
 $('addAudio').onchange=e=>{addFiles(e.target.files,'audio');e.target.value='';};
 $('addText').onclick=()=>addText();
+$('addFx').onclick=()=>addFx('blur',null);
 const dropEl=$('drop');
 ['dragenter','dragover'].forEach(ev=>dropEl.addEventListener(ev,e=>{e.preventDefault();dropEl.classList.add('drop');}));
 ['dragleave','drop'].forEach(ev=>dropEl.addEventListener(ev,e=>{e.preventDefault();dropEl.classList.remove('drop');}));
@@ -1711,7 +1889,7 @@ function keyPanel(p,L){const k=L.key;
   p.append(h('p',{class:'help'},'Raise “How much to remove” until the background is gone, then lower it if parts of the person disappear. Soft edges smooth out hair. Even, bright lighting on the screen works best.'));}
 
 /* ================= keyframes: a layer can move, grow, turn and fade along a path ================= */
-const KFP=L=>L.type==='text'?['x','y','size','rot','opacity']:['x','y','w','rot','opacity'];
+const KFP=L=>L.type==='text'?['x','y','size','rot','opacity']:L.type==='fx'?['x','y','w','sy','rot','opacity']:['x','y','w','rot','opacity'];
 const hasKf=L=>!!(L&&L.kf&&L.kf.length);
 const KF_EPS=1/50;
 const KFA=new WeakMap();   /* what was last put on each layer, so a change made by hand becomes a keyframe */
@@ -1726,10 +1904,10 @@ function kfPut(L,rt){rt=clamp(rt,0,lenOf(L));const k={t:Math.round(rt*1000)/1000
 let kfTT=0;
 function kfCapture(){let any=false;for(const L of P.layers){if(!hasKf(L))continue;const a=KFA.get(L);if(!a)continue;
   if(KFP(L).some(q=>Math.abs(L[q]-a.v[q])>1e-7)){const n=L.kf.length;kfPut(L,a.rt);if(L.kf.length!==n)any=true;}}
-  if(any){clearTimeout(kfTT);kfTT=setTimeout(()=>{renderTimeline();renderSelBar();if(sub.visual==='move'||sub.text==='move')renderSide();},80);}}
+  if(any){clearTimeout(kfTT);kfTT=setTimeout(()=>{renderTimeline();renderSelBar();if(sub.visual==='move'||sub.text==='move'||sub.fx==='move')renderSide();},80);}}
 function kfApply(t){for(const L of P.layers){if(!hasKf(L))continue;const rt=t-L.start,v=kfAt(L,rt);Object.assign(L,v);KFA.set(L,{rt,v});}}
 function kfAdd(L){kfCapture();const rt=state.t-L.start;if(rt<-1e-3||rt>lenOf(L)+1e-3){toast('Move the playhead inside this layer’s bar first.');return;}
-  if(!L.kf)L.kf=[];kfPut(L,rt);KFA.set(L,{rt,v:kfSnap(L)});sub[L.type==='text'?'text':'visual']='move';tab='layer';
+  if(!L.kf)L.kf=[];kfPut(L,rt);KFA.set(L,{rt,v:kfSnap(L)});sub[subKind(L)]='move';tab='layer';
   if(L.kf.length===1)toast('Keyframe added. Now move the playhead later and drag the layer somewhere new.');refresh();}
 function kfToggle(L){const i=kfIndex(L,state.t-L.start);if(i>=0){kfCapture();L.kf.splice(i,1);refresh();}else kfAdd(L);}
 function kfJump(L,d){const rt=state.t-L.start,ks=L.kf.map(k=>k.t),n=d>0?ks.find(t=>t>rt+KF_EPS):[...ks].reverse().find(t=>t<rt-KF_EPS);

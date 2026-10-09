@@ -265,6 +265,26 @@ canvas{display:block;max-width:100%;max-height:min(60vh,760px);width:auto;height
 .react-seg button{font:20px/1 "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;padding:6px 9px}
 .react-seg button.word{font:13px/1 var(--f-body);padding:9px 11px}
 @media (max-width:900px){#emModal{place-items:end center;padding:0}#emModal .empick{border-radius:16px 16px 0 0;width:100%;height:82vh;max-height:none}}
+/* ---------- phones: a big bar under the preview to move through the reel, and a playhead you can grab ---------- */
+@media (max-width:900px){
+  .seek{display:flex;align-items:center;gap:4px;margin:-2px -4px}
+  .sstep{flex:none;width:38px;height:38px;padding:0;justify-content:center;font-size:24px;line-height:1;border-color:transparent;background:transparent;color:var(--muted);-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  .strack{position:relative;flex:1;height:40px;touch-action:none;cursor:pointer;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+  .strack::before{content:"";position:absolute;left:12px;right:12px;top:50%;height:6px;margin-top:-3px;border-radius:3px;background:var(--line)}
+  .strack:focus-visible{outline:2px solid var(--accent);outline-offset:0;border-radius:8px}
+  .sfill{position:absolute;left:12px;top:50%;height:6px;margin-top:-3px;border-radius:3px;background:var(--accent);width:0;pointer-events:none}
+  .smark{position:absolute;top:50%;width:3px;height:12px;margin:-6px 0 0 -1px;border-radius:2px;background:var(--muted);opacity:.55;pointer-events:none}
+  .smark.me{background:var(--accent)}
+  .sknob{position:absolute;left:12px;top:50%;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;background:#fff;border:3px solid var(--accent);box-shadow:0 1px 6px rgba(0,0,0,.3);pointer-events:none;transition:transform .1s}
+  .strack.drag .sknob{transform:scale(1.15)}
+  .stip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);font:600 12px/1 var(--f-body);padding:5px 7px;border-radius:6px;white-space:nowrap;font-variant-numeric:tabular-nums;display:none}
+  .strack.drag .stip{display:block}
+  .app:has(:is(.side,.list-col) :is(textarea,input[type=text],input[type=number]):focus) .seek{display:none}
+  .transport #restart{display:none}
+  .tl-head{pointer-events:auto;touch-action:none;width:30px;margin-left:-15px;background:linear-gradient(90deg,transparent 14px,var(--accent) 14px 16px,transparent 16px);cursor:ew-resize}
+  .tl-head::before{left:8px}
+  .tl-head::after{content:"";position:absolute;top:11px;left:7px;width:16px;height:16px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px var(--panel)}
+}
 </style>
 
 </head>
@@ -296,6 +316,11 @@ canvas{display:block;max-width:100%;max-height:min(60vh,760px);width:auto;height
 
   <section class="stage" aria-label="Preview">
     <div class="canvas-wrap"><canvas id="cv" width="1080" height="2340" aria-label="Phone preview of the conversation"></canvas></div>
+    <div class="seek ph" id="seekRow" role="group" aria-label="Move through the reel">
+      <button type="button" class="sstep" id="seekBack" aria-label="Back a frame (hold to keep going)">‹</button>
+      <div class="strack" id="seekTrack" role="slider" tabindex="0" aria-label="Playhead" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0"><span id="seekMarks"></span><span class="sfill" id="seekFill"></span><span class="sknob" id="seekKnob"><span class="stip" id="seekTip"></span></span></div>
+      <button type="button" class="sstep" id="seekFwd" aria-label="Forward a frame (hold to keep going)">›</button>
+    </div>
     <div class="transport">
       <button type="button" id="play" class="primary"><span id="playIco" aria-hidden="true">▶</span><span id="playLbl">Play</span></button>
       <button type="button" id="restart" aria-label="Back to the start">⏮ Start</button>
@@ -1005,11 +1030,36 @@ function pause(){state.playing=false;cancelSounds();syncClips(state.t,false);syn
 function tick(){if(!state.playing||busy)return;let t=(performance.now()-state.start)/1000;
   if(t>=SCH.dur){if($('loop').checked){state.start=performance.now();t=0;cancelSounds();scheduleSounds(0);}else{state.t=SCH.dur;state.playing=false;drawNow();syncTransport();return;}}
   state.t=t;syncClips(t,true);drawNow(true);requestAnimationFrame(tick);}
-function drawNow(follow){state.t=clamp(state.t,0,SCH.dur);if(!state.playing&&!busy)syncClips(state.t,false);drawFrame(state.t);$('clock').textContent=`${state.t.toFixed(1)}s / ${SCH.dur.toFixed(1)}s`;moveHead(follow);}
+function drawNow(follow){state.t=clamp(state.t,0,SCH.dur);if(!state.playing&&!busy)syncClips(state.t,false);drawFrame(state.t);$('clock').textContent=isPhone()?`${state.t.toFixed(1)} / ${SCH.dur.toFixed(1)}s`:`${state.t.toFixed(1)}s / ${SCH.dur.toFixed(1)}s`;moveHead(follow);seekShow();}
 function syncTransport(){$('playLbl').textContent=state.playing?'Pause':'Play';$('playIco').textContent=state.playing?'❚❚':'▶';}
 $('play').onclick=()=>state.playing?pause():play();
 $('restart').onclick=()=>{const was=state.playing;pause();state.t=0;drawNow();if(was)play();};
 $('mute').onchange=()=>{if(AC)monitor.gain.value=$('mute').checked?0:1;};
+/* ================= phones: a big bar under the preview to move through the reel ================= */
+const SK={tr:$('seekTrack'),knob:$('seekKnob'),fill:$('seekFill'),marks:$('seekMarks'),tip:$('seekTip')};let skd=null,skLast='';
+function seekSet(t){state.t=clamp(t,0,SCH.dur);drawNow(true);}
+function seekFrac(e){const r=SK.tr.getBoundingClientRect();return clamp((e.clientX-r.left-12)/Math.max(1,r.width-24),0,1);}
+function seekShow(){if(!isPhone())return;const d=Math.max(.01,SCH.dur),f=clamp(state.t/d,0,1).toFixed(5);
+  SK.knob.style.left=`calc(12px + (100% - 24px) * ${f})`;SK.fill.style.width=`calc((100% - 24px) * ${f})`;SK.tip.textContent=state.t.toFixed(1)+' s';
+  /* a small tick where each message arrives */
+  const key=d+'|'+SCH.ev.map(e=>e.arrive).join(',');
+  if(key!==skLast){skLast=key;SK.marks.innerHTML=SCH.ev.filter(e=>e.m.from!=='divider').map(e=>`<i class="smark${e.m.from==='me'?' me':''}" style="left:calc(12px + (100% - 24px) * ${clamp(e.arrive/d,0,1).toFixed(5)})"></i>`).join('');}
+  SK.tr.setAttribute('aria-valuemax',d.toFixed(1));SK.tr.setAttribute('aria-valuenow',state.t.toFixed(1));SK.tr.setAttribute('aria-valuetext',`${state.t.toFixed(1)} of ${d.toFixed(1)} seconds`);}
+SK.tr.addEventListener('touchstart',e=>{if(e.cancelable)e.preventDefault();},{passive:false});
+SK.tr.addEventListener('pointerdown',e=>{if(busy)return;skd={was:state.playing};if(state.playing)pause();SK.tr.classList.add('drag');try{SK.tr.setPointerCapture(e.pointerId);}catch(_){}seekSet(seekFrac(e)*SCH.dur);e.preventDefault();});
+SK.tr.addEventListener('pointermove',e=>{if(skd)seekSet(seekFrac(e)*SCH.dur);});
+const skUp=()=>{if(!skd)return;const w=skd.was;skd=null;SK.tr.classList.remove('drag');if(w)play();};
+SK.tr.addEventListener('pointerup',skUp);SK.tr.addEventListener('pointercancel',skUp);
+SK.tr.addEventListener('keydown',e=>{const k={ArrowLeft:-.1,ArrowDown:-.1,ArrowRight:.1,ArrowUp:.1,PageDown:-1,PageUp:1}[e.key];let t=null;
+  if(k!=null)t=state.t+k;else if(e.key==='Home')t=0;else if(e.key==='End')t=SCH.dur;if(t==null||busy)return;e.preventDefault();e.stopPropagation();if(state.playing)pause();seekSet(t);});
+/* ‹ and › step one frame; hold to keep going */
+function stepBtn(id,dir){const b=$(id);let tm=0,pd=0;const step=()=>seekSet(Math.round((state.t+dir/30)*30)/30);
+  const stop=()=>{if(tm){clearTimeout(tm);clearInterval(tm);tm=0;}};
+  b.addEventListener('pointerdown',e=>{if(busy)return;e.preventDefault();pd=Date.now();if(state.playing)pause();step();tm=setTimeout(()=>{tm=setInterval(step,60);},400);});
+  ['pointerup','pointercancel','pointerleave'].forEach(ev=>b.addEventListener(ev,stop));
+  b.addEventListener('click',()=>{if(Date.now()-pd>800&&!busy){if(state.playing)pause();step();}});}
+stepBtn('seekBack',-1);stepBtn('seekFwd',1);
+
 
 /* ================= timeline ================= */
 const PAD=20;let pps=70;
@@ -1056,6 +1106,11 @@ tlTrack.addEventListener('pointermove',e=>{if(!td)return;if(td.mode==='scrub'){s
   refresh({list:false,side:false});});
 tlTrack.addEventListener('pointerup',()=>{if(!td)return;const d=td;td=null;if(d.mode==='scrub')return;if(!d.moved)select(d.i);else refresh();});
 $('tlZoom').oninput=e=>{pps=+e.target.value;renderTimeline();};
+/* on a phone the playhead line can be grabbed and dragged too */
+tlHead.addEventListener('pointerdown',e=>{if(!isPhone()||busy)return;td={mode:'scrub'};if(state.playing)pause();try{tlHead.setPointerCapture(e.pointerId);}catch(_){}e.preventDefault();});
+tlHead.addEventListener('pointermove',e=>{if(td&&td.mode==='scrub')scrub(e);});
+['pointerup','pointercancel'].forEach(ev=>tlHead.addEventListener(ev,()=>{if(td&&td.mode==='scrub')td=null;}));
+
 
 /* ================= UI helpers ================= */
 function h(tag,props,...kids){const e=document.createElement(tag);for(const[k,v]of Object.entries(props||{})){if(k==='class')e.className=v;else if(k==='text')e.textContent=v;else if(k.startsWith('on'))e[k]=v;else if(v===true)e.setAttribute(k,'');else if(v!==false&&v!=null)e.setAttribute(k,v);}
