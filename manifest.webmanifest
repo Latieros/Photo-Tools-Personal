@@ -131,6 +131,28 @@
           "sizes": "192x192"
         }
       ]
+    },
+    {
+      "name": "Visual Novel",
+      "short_name": "Novel",
+      "url": "visual-novel.html",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Motion Comic",
+      "short_name": "Comic",
+      "url": "motion-comic.html",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }

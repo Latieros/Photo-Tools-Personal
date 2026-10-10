@@ -15,10 +15,12 @@ A small set of personal browser tools for dressing up photos, making short video
 |---|---|
 | [Photo Frame Studio](#photo-frame-studio) | Puts a photo inside a frame: social posts, phone screens, chats, camera screens, prints, comics, covers and newspapers. Takes a photo or a video. Frames one photo or a whole batch. Exports an image, or a video for videos and the animated chats. |
 | [Photo Splitter](#photo-splitter) | Cuts one photo into 2, 3 or 4 pieces that join back into the whole picture as you swipe through a post on X, with your own cut lines and your choice of which piece comes first. |
-| [Chat Reel](#chat-reel) | Turns a text conversation into a video, timing every message on a timeline. Group chats, reactions, replies, voice notes and unsent messages, in iPhone, Android, DM, WhatsApp-style, Discord-style or lock-screen looks, or as a sci-fi transmission screen, a retro game cutscene, a video call, or bubbles over your own video. |
+| [Chat Reel](#chat-reel) | Turns a text conversation into a video, timing every message on a timeline. Group chats, reactions, replies, voice notes and unsent messages, in iPhone, Android, DM, WhatsApp-style, Discord-style or lock-screen looks, or as a sci-fi transmission screen, a retro game cutscene, a video call, a social post with comments, or bubbles over your own video. |
 | [Metadata Scrubber](#metadata-scrubber) | Strips prompts, location and hidden data out of photos and videos and saves clean copies under random names, optionally under a size limit. |
 | [Video Layers](#video-layers) | Puts pictures, videos, text, music and your voice together and exports a new video or GIF. Automatic background removal, green screen, motion paths with keyframes and one-tap layouts. |
 | [Delivery Reel](#delivery-reel) | Plays out an order from a made-up delivery app, from placed to delivered, and ends on the delivered screen. A courier chat on the way and a doorstep photo or video that opens full screen. |
+| [Visual Novel](#visual-novel) | Scenes with characters, expressions and choices that branch. Play it in the page, export a video of a path, or save a playable file anyone can open. |
+| [Motion Comic](#motion-comic) | Panels pop in, then their bubbles, with sound words, speed lines, cut-ins and page turns. Scrolls like a webtoon or turns pages like a book. |
 
 Every tool has a switcher at the top to jump to another tool. Your work is saved before it switches.
 
@@ -192,6 +194,9 @@ A timeline editor for text conversations that you export as a video.
   - **Cameras:** give them and you a short video clip that loops as the camera. Otherwise their photo is used, gently moving like a live feed; without a photo, initials show like a camera that's off.
   - Messages show as live captions, word by word. Photos, videos and posts are shared on screen ("Maya is presenting"), reactions float up from whoever reacted, and time dividers show as a note at the top.
   - **Start and end:** you call them or they call you (with ringing), or start already on the call; it can end with "Call ended" and the call length.
+- **Social post:** a post with its comments filling in underneath, light or dark.
+  - **The post:** a photo, a silent looping clip, or a text post, with the poster's handle, caption, time and a like count that ticks up through the reel. It's your post (your comments get an Author tag) or theirs.
+  - **Comments:** their messages are comments from the contact and anyone under Group chat; yours are typed into the comment box. A reply nests under the comment it answers, a reaction is a like on that comment (its heart pops, with a count you set), and an unsent comment becomes "Comment deleted". Photo messages show as picture comments.
 - **Over your video:** chat bubbles floating over a video clip or photo of your own.
   - **Bubbles:** the iPhone, Android, Social DM or WhatsApp-style look, light or dark. Older messages fade into the video as they scroll away.
   - **Shape:** matches the background, or 9:16, 4:5, 1:1 or 16:9.
@@ -248,6 +253,61 @@ An order from a made-up delivery app, played out as a video: placed, being prepa
 
 ### Export
 - **Formats:** WebM, MP4 or GIF, with the same quality and size-limit choices as Chat Reel. Work is kept in the browser.
+
+---
+
+## Visual Novel
+
+Write a branching story and play it, export it, or hand it to someone as a file they can play.
+
+### Scenes
+- **Steps:** a line (someone says something, with an expression and where they stand), narration, a choice, show or hide someone, change the background, a title card, an effect (shake or flash), go to another scene, or the end. Reorder, duplicate and delete them; tap one to preview from there.
+- **Choices:** up to four options, each leading to a scene. When you play it, you tap the one you want; a radio button marks which one the video takes.
+- **Scenes:** the first one is where the story starts. Each has its own background.
+
+### Characters
+- **Your art:** one picture per expression (a PNG with a see-through background works best), named as you like.
+- **Drawn stand-ins:** without pictures, a drawn character with eight expressions (neutral, happy, sad, angry, surprised, shy, thinking, smug), four hair styles, hair colors, skin tones, outfit and eye colors. Whoever is talking lights up; the others dim.
+
+### Backgrounds
+- Six built-in scenes (field, sunset, night platform, room, hallway, black) or your own pictures, cropped to fill, with a crossfade when they change.
+
+### Look
+- Widescreen or tall; five text-box styles (Glass, Classic, Paper, Minimal, Neon); accent color; rounded, serif or plain lettering; text speed and text sounds; a title screen.
+
+### Playing and exporting
+- **Play it:** tap (or Space, Enter, or 1–4 for choices) to move through it in the page.
+- **Watch:** the video path with a timeline; lines move on by themselves and each choice takes the marked option.
+- **Video:** MP4, WebM or GIF of the video path.
+- **Playable file:** one HTML file with the whole story and its pictures inside. It opens in any browser on any device, with working choices, a restart button and full screen.
+- **Projects** save as files with the pictures included; work is also kept in the browser.
+
+---
+
+## Motion Comic
+
+Panels appear one by one, then their bubbles, with effects to make the big moments land.
+
+### Pages and panels
+- **Pages** are rows of one to three panels. A row's height is a slider; a panel's width share is in its settings. Panels appear left to right, row by row.
+- **Each panel** has a background (your drawing or photo, or a drawn scene: street, sky, room, dusk, dark or a flat color) with a focus point, zoom and an optional slow push-in, plus **pictures on top**: any PNGs with see-through backgrounds (characters, props) placed and sized over the background. They pop, slide, drop or fade in one after another, flipped if you like.
+- **Comes in:** pop, slide, fade, hard cut (with a white flash), wipe or zoom. Bubbles follow, or come first with the picture after.
+
+### Bubbles
+- Speech, thought (a cloud with a trail), shout (jagged), caption (a box) and whisper (dashed), in three sizes, placed with sliders, with the tail pointing where you say. A bubble can belong to a character, whose color dot shows on it.
+
+### Effects
+- Per panel, each with a "when" slider: a sound word (big outlined lettering in your color and size), speed lines from a point, motion streaks, an impact burst, a cut in (the camera zooms into the panel), shake, flash and a dramatic halftone tone.
+
+### Reading
+- **Scrolls down** like a webtoon: a tall 1080 × 1920 video, with the camera gliding down to keep each new panel in view.
+- **Page by page** like a book: 3:4 pages that fit the screen, with a cut to the next page.
+- White, paper or black page; thick ink, thin or no borders; slow, normal or fast pace; pops, hits and page-turn sounds; a title card and a "To be continued" card.
+
+### Export
+- **Video:** MP4, WebM or GIF.
+- **Still picture:** the whole strip as one tall PNG for posting as a webtoon, or the current page in book mode.
+- Projects save as files with the pictures included; work is also kept in the browser.
 
 ---
 
