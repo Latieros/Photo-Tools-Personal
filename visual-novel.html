@@ -648,7 +648,7 @@ function stepCard(sc,st,i){const card=h('div',{class:'step'+(i===SELSTEP?' sel':
   else if(st.k==='sound'||st.k==='music'){const opts=P.sounds.map(x=>[x.id,x.name||'Sound']);if(st.k==='music')opts.unshift(['','Stop the music']);
     card.append(opts.length?h('div',{class:'grid2'},selF('st-snd-'+i,st.k==='music'?'Loop':'Play',opts,st.snd||'',v=>{st.snd=v;save();renderSide();}),rangeF('st-vol-'+i,'Volume',0,1,.05,st.vol==null?(st.k==='music'?.6:1):+st.vol,v=>Math.round(v*100)+'%',v=>{st.vol=v;save();})):h('p',{class:'help'},'Add sounds in the Sounds tab first.'),
       h('p',{class:'help'},st.k==='music'?'Loops until another Music step changes or stops it. Scenes can share one; it keeps going across them.':'Plays once, right here, over whatever is on screen.'),
-      st.snd&&SND[st.snd]?h('div',{class:'addrow'},h('button',{type:'button',onclick:e=>{e.stopPropagation();playSnd(st.snd,st.vol);}},'▶ Hear it')):null);}
+      ...(st.snd&&SND[st.snd]?[h('div',{class:'addrow'},h('button',{type:'button',onclick:e=>{e.stopPropagation();playSnd(st.snd,st.vol);}},'▶ Hear it'))]:[]));}
   else if(st.k==='jump')card.append(selF('st-go-'+i,'Go to',sceneOpts(),st.go,v=>{st.go=v;save();}));
   return card;}
 /* ---------- characters ---------- */

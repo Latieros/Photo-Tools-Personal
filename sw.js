@@ -1,5 +1,5 @@
 /* Photo Tools offline support: keeps the apps, icons and fonts on the device so they open without internet */
-const VERSION='ecf1a5d9a93e';
+const VERSION='70dd9d5a7728';
 const APP='photo-tools-app-'+VERSION, FONTS='photo-tools-fonts-v1';
 /* the background remover's files (about 13 MB) are kept apart, only fetched once, and survive app updates */
 const CUTOUT='photo-tools-cutout-1.1.0';
