@@ -18,6 +18,7 @@ A small set of personal browser tools for dressing up photos, making short video
 | [Chat Reel](#chat-reel) | Turns a text conversation into a video, timing every message on a timeline. Group chats, reactions, replies, voice notes and unsent messages, in iPhone, Android, DM, WhatsApp-style, Discord-style or lock-screen looks, or as a sci-fi transmission screen, a retro game cutscene, a video call, or bubbles over your own video. |
 | [Metadata Scrubber](#metadata-scrubber) | Strips prompts, location and hidden data out of photos and videos and saves clean copies under random names, optionally under a size limit. |
 | [Video Layers](#video-layers) | Puts pictures, videos, text, music and your voice together and exports a new video or GIF. Automatic background removal, green screen, motion paths with keyframes and one-tap layouts. |
+| [Delivery Reel](#delivery-reel) | Plays out an order from a made-up delivery app, from placed to delivered, and ends on the delivered screen. A courier chat on the way and a doorstep photo or video that opens full screen. |
 
 Every tool has a switcher at the top to jump to another tool. Your work is saved before it switches.
 
@@ -216,6 +217,37 @@ A timeline editor for text conversations that you export as a video.
 - **File name:** starts as a random name (like `chat-k3m9qx.mp4`) that doesn't give anything away. Type your own, or tap 🎲 for a new random one.
 - **Use in Video Layers:** sends the finished video straight into Video Layers.
 - **Projects:** save and open them as files. Work is also kept automatically. Video clips (video messages, a background video, call cameras) are kept in the browser with your work but aren't saved in project files.
+
+---
+
+## Delivery Reel
+
+An order from a made-up delivery app, played out as a video: placed, being prepared, on the way, nearly there, delivered.
+
+### The app
+- **Three made-up apps:** Snackrun, Forkful and Plateful, each with its own name and colors, so the reel can't be mistaken for a real service. There's no way to type in a real app's name.
+- **Notification sounds** can be turned on or off.
+
+### Your order
+- **Restaurant:** a name and an emoji icon.
+- **Order:** up to six items with quantities and prices, plus delivery fee, service fee, tip and currency sign. The total is worked out for you.
+- **Delivery:** a place name ("Home"), an address, and leave at the door or hand it to me.
+- **Courier:** name, rating, how they get there (and a description of the vehicle), and an optional photo. Their initial stands in without one.
+- **Times:** the order time and the delivery time; the phone's clock runs from one to the other over the reel. Also how many minutes away they are when they pick it up.
+
+### On the way
+- **Map:** made-up streets with the courier moving along the route. Shuffle for a different route.
+- **Chat with the courier:** none, when the route starts, or halfway along. Up to eight messages from either side; theirs show typing dots first and yours are typed out. Normal or quick pace.
+- **Timing:** how long each stage lasts, on sliders.
+
+### The end
+- **Doorstep photo or video:** shows on the delivered screen. Without one, a drawn doorstep with the bag stands in.
+- **At the end:** leave it in the card, tap it open and close it again, or tap it open and end on it.
+- **Ending:** just the screen, a screenshot flash, or the flash with the corner preview.
+- **Confirmation picture:** saves the delivered screen as a picture on its own.
+
+### Export
+- **Formats:** WebM, MP4 or GIF, with the same quality and size-limit choices as Chat Reel. Work is kept in the browser.
 
 ---
 

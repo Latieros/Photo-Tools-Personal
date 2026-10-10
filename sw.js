@@ -1,9 +1,9 @@
 /* Photo Tools offline support: keeps the apps, icons and fonts on the device so they open without internet */
-const VERSION='f529723d87a6';
+const VERSION='0410543161c3';
 const APP='photo-tools-app-'+VERSION, FONTS='photo-tools-fonts-v1';
 /* the background remover's files (about 13 MB) are kept apart, only fetched once, and survive app updates */
 const CUTOUT='photo-tools-cutout-1.1.0';
-const FILES=['./','index.html','share.html','photo-frame-studio.html','photo-splitter.html','chat-reel.html','metadata-scrubber.html','video-layers.html','manifest.webmanifest',
+const FILES=['./','index.html','share.html','photo-frame-studio.html','photo-splitter.html','chat-reel.html','metadata-scrubber.html','video-layers.html','delivery-reel.html','manifest.webmanifest',
   'icons/icon-192.png','icons/icon-512.png','icons/icon-maskable-192.png','icons/icon-maskable-512.png','icons/icon-180.png','icons/favicon-32.png'];
 const FONT_CSS=[
  "https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Anton&family=Archivo+Black&family=Bangers&family=Bebas+Neue&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;1,6..96,400&family=Bowlby+One&family=Caveat:wght@600&family=Cinzel:wght@700&family=Comic+Neue:ital,wght@0,700;1,700&family=DM+Serif+Display:ital@0;1&family=Familjen+Grotesk:wght@400;500;600&family=Josefin+Sans:wght@600&family=Jost:wght@400;500&family=Kalam:wght@700&family=Luckiest+Guy&family=Montserrat:wght@600&family=Oswald:wght@400;500;700&family=Permanent+Marker&family=Playfair+Display:ital,wght@0,900;1,700&family=Roboto:wght@400;500&family=Shadows+Into+Light&family=Share+Tech+Mono&family=Shrikhand&family=Unbounded:wght@600&family=UnifrakturMaguntia&family=VT323&display=swap",

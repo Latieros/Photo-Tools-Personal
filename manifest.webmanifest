@@ -120,6 +120,17 @@
           "sizes": "192x192"
         }
       ]
+    },
+    {
+      "name": "Delivery Reel",
+      "short_name": "Delivery",
+      "url": "delivery-reel.html",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }
