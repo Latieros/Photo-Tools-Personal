@@ -1,5 +1,5 @@
 /* Photo Tools offline support: keeps the apps, icons and fonts on the device so they open without internet */
-const VERSION='200ceed08c88';
+const VERSION='ecf1a5d9a93e';
 const APP='photo-tools-app-'+VERSION, FONTS='photo-tools-fonts-v1';
 /* the background remover's files (about 13 MB) are kept apart, only fetched once, and survive app updates */
 const CUTOUT='photo-tools-cutout-1.1.0';
@@ -11,7 +11,7 @@ const FONT_CSS=[
  "https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600&family=Roboto:wght@400;500&family=Unbounded:wght@600&family=IBM+Plex+Mono:wght@400;700&family=Press+Start+2P&display=swap",
  "https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600&family=Unbounded:wght@600&display=swap",
  "https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Unbounded:wght@600&family=Anton&family=Bebas+Neue&family=Playfair+Display:ital,wght@0,700;1,700&family=DM+Serif+Display:ital@0;1&family=Permanent+Marker&family=Caveat:wght@700&family=Pacifico&family=Bangers&family=Fredoka:wght@600&family=Special+Elite&family=Space+Mono:ital,wght@0,700;1,700&display=swap",
- "https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600&family=Unbounded:wght@600&family=Nunito:wght@500;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap",
+ "https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600&family=Unbounded:wght@600&family=Nunito:wght@500;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Cinzel:wght@500;700&family=VT323&family=Kalam:wght@400;700&family=Oswald:wght@400;500;700&family=Comic+Neue:ital,wght@0,400;0,700;1,400&family=Special+Elite&display=swap",
  "https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600&family=Unbounded:wght@600&family=Bangers&family=Comic+Neue:wght@400;700&display=swap"
 ];
 

@@ -261,19 +261,28 @@ An order from a made-up delivery app, played out as a video: placed, being prepa
 Write a branching story and play it, export it, or hand it to someone as a file they can play.
 
 ### Scenes
-- **Steps:** a line (someone says something, with an expression and where they stand), narration, a choice, show or hide someone, change the background, a title card, an effect (shake or flash), go to another scene, or the end. Reorder, duplicate and delete them; tap one to preview from there.
+- **Steps:** a line (someone says something, with an expression and where they stand), narration, a choice, show or hide someone, change the background (with its own transition if you like), a title card, an effect (shake, flash, fade to black or white, punch in), a sound, music, go to another scene, or the end. Reorder, duplicate and delete them; tap one to preview from there.
 - **Choices:** up to four options, each leading to a scene. When you play it, you tap the one you want; a radio button marks which one the video takes.
-- **Scenes:** the first one is where the story starts. Each has its own background.
+- **Scenes:** the first one is where the story starts. Each has its own background and can pick how it comes in.
 
 ### Characters
 - **Your art:** one picture per expression (a PNG with a see-through background works best), named as you like.
 - **Drawn stand-ins:** without pictures, a drawn character with eight expressions (neutral, happy, sad, angry, surprised, shy, thinking, smug), four hair styles, hair colors, skin tones, outfit and eye colors. Whoever is talking lights up; the others dim.
 
 ### Backgrounds
-- Six built-in scenes (field, sunset, night platform, room, hallway, black) or your own pictures, cropped to fill, with a crossfade when they change.
+- Six built-in scenes (field, sunset, night platform, room, hallway, black) or your own pictures, cropped to fill.
+- **Transitions:** crossfade, cut, through black, through white, wipe, slide, iris, dissolve, blinds or pixelate. Pick the usual one in Look; any scene or Background step can use another.
 
 ### Look
-- Widescreen or tall; five text-box styles (Glass, Classic, Paper, Minimal, Neon); accent color; rounded, serif or plain lettering; text speed and text sounds; a title screen.
+- Widescreen or tall; accent color; a title screen; a credits line on the last screen.
+- **Nine text-box styles:** Glass, Classic, Paper, Minimal, Neon, Grail (dark blue with a double gold frame and the name inside, like the Holy Grail War novels), Ruin (text fills the screen over a dark veil and stays until the page is full, each speaker in their own color, like the island mysteries), Retro (a chunky box with pixel lettering) and Letter (cream paper and a typewriter face). Picking one also picks a matching lettering, which you can change.
+- **Ten letterings:** rounded, serif, plain, elegant, carved, pixel, handwritten, narrow, comic and typewriter.
+- **How text comes in:** typewriter, fade in, word by word, rise up, scroll up, bounce in, or all at once. Text speed sets the typewriter.
+
+### Sounds
+- **Built-in sets** made in the browser (Classic, Soft, Retro or None) for text blips, taps, choices, scene changes, cards, the end, flashes and shakes.
+- **Your own sounds:** add any MP3, OGG, WAV or M4A files, as many at once as you like, so a whole pack can come in together. Use them in Sound steps (play once) and Music steps (loop until changed or stopped), or in place of any built-in cue. They're kept in the browser, saved in the project file, and built into the playable file and the video.
+- Free packs made for this kind of story exist; the Sounds tab points to the OpenNSFW pack for adult scenes, which is free under its own terms and asks for a credit line (there's a Credits field in Look for it).
 
 ### Playing and exporting
 - **Play it:** tap (or Space, Enter, or 1–4 for choices) to move through it in the page.
