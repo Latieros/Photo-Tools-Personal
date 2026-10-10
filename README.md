@@ -2,7 +2,7 @@
 
 A small set of personal browser tools for dressing up photos, making short videos and cleaning up photo and video files.
 
-**Open it:** https://latieros.github.io/Photo-Tools-Personal/
+**Open it:** https://lopxfi.github.io/Photo-Tools-Personal/
 
 - **Everything runs in your browser.** Photos, videos and sounds never leave your device, and nothing is uploaded anywhere.
 - **Your work is kept automatically.** Each tool saves its work in the browser (videos and photos included), so you can close the page or switch tools and pick up where you left off.
