@@ -15,7 +15,7 @@ A small set of personal browser tools for dressing up photos, making short video
 |---|---|
 | [Photo Frame Studio](#photo-frame-studio) | Puts a photo inside a frame: social posts, phone screens, chats, camera screens, prints, comics, covers and newspapers. Takes a photo or a video. Frames one photo or a whole batch. Exports an image, or a video for videos and the animated chats. |
 | [Photo Splitter](#photo-splitter) | Cuts one photo into 2, 3 or 4 pieces that join back into the whole picture as you swipe through a post on X, with your own cut lines and your choice of which piece comes first. |
-| [Chat Reel](#chat-reel) | Turns a text conversation into a video, timing every message on a timeline. Group chats, reactions, replies, voice notes and unsent messages, in iPhone, Android, DM, WhatsApp-style, Discord-style or lock-screen looks, or as a sci-fi transmission screen. |
+| [Chat Reel](#chat-reel) | Turns a text conversation into a video, timing every message on a timeline. Group chats, reactions, replies, voice notes and unsent messages, in iPhone, Android, DM, WhatsApp-style, Discord-style or lock-screen looks, or as a sci-fi transmission screen, a retro game cutscene, a video call, or bubbles over your own video. |
 | [Metadata Scrubber](#metadata-scrubber) | Strips prompts, location and hidden data out of photos and videos and saves clean copies under random names, optionally under a size limit. |
 | [Video Layers](#video-layers) | Puts pictures, videos, text, music and your voice together and exports a new video or GIF. Automatic background removal, green screen, motion paths with keyframes and one-tap layouts. |
 
@@ -165,7 +165,7 @@ A timeline editor for text conversations that you export as a video.
 - **Timeline:** drag the blocks to change the pauses, how long typing lasts, and how long a photo stays open.
 
 ### Look
-- **Phone style:** iPhone, Android, Social DM, WhatsApp-style (wallpaper, ticks and times inside bubbles) or Discord-style (names, avatars and time stamps), light or dark.
+- **Style:** iPhone, Android, Social DM, WhatsApp-style (wallpaper, ticks and times inside bubbles) or Discord-style (names, avatars and time stamps), light or dark.
 - **Lock screen:** their messages arrive as notifications over a wallpaper, newest on top, with the app name, date and your own wallpaper photo.
 - **Start on the lock screen** (any chat style):
   - Their first messages pop up as notifications on the lock screen.
@@ -180,6 +180,22 @@ A timeline editor for text conversations that you export as a video.
   - **Photos:** the contact photo and your own photo are tinted to the screen color; without one, an outline stands in. In a group, the person talking on their side takes the screen.
   - **Call:** it can open with an incoming-call screen and end with the screen switching off and "Transmission ended". The timeline marks where it connects and ends.
   - Photos, posts, voice notes, reactions, replies and unsent lines all show on the screen, and photos still open full screen.
+- **Retro game:** the conversation as an old-school game cutscene, widescreen or tall (9:16).
+  - **Talking portraits:** theirs on the left, yours on the right, in game windows with name tabs. Whoever is talking lights up and bobs; the other dims. Photos become chunky pixel portraits; anyone without one gets a drawn pixel face that moves its mouth and blinks. In a group, the left portrait switches to whoever on their side is talking.
+  - **Text box:** lines type out letter by letter in a pixel font, with blips (the keyboard sound setting) and a ▼ when the line is done. Box colors: blue, black, forest, crimson or parchment, with an all-caps option.
+  - **Scene:** a field, a town at night, a dungeon, your own photo turned into pixels, or plain black.
+  - Photos appear in their own window with a little fanfare, reactions pop up in a balloon over the portrait of whoever reacted, and time dividers become chapter cards.
+  - **Opening and ending:** an optional title screen ("PRESS START") with your own title, and a "To be continued..." or "The end" card.
+- **Video call:** the conversation as a video call, widescreen or tall (9:16).
+  - **Tiles:** everyone the same size, or whoever's talking big. The person talking gets a colored ring and a moving mic.
+  - **Cameras:** give them and you a short video clip that loops as the camera. Otherwise their photo is used, gently moving like a live feed; without a photo, initials show like a camera that's off.
+  - Messages show as live captions, word by word. Photos, videos and posts are shared on screen ("Maya is presenting"), reactions float up from whoever reacted, and time dividers show as a note at the top.
+  - **Start and end:** you call them or they call you (with ringing), or start already on the call; it can end with "Call ended" and the call length.
+- **Over your video:** chat bubbles floating over a video clip or photo of your own.
+  - **Bubbles:** the iPhone, Android, Social DM or WhatsApp-style look, light or dark. Older messages fade into the video as they scroll away.
+  - **Shape:** matches the background, or 9:16, 4:5, 1:1 or 16:9.
+  - **Placement:** where the chat sits, how big it is, how much shade goes behind it, and whether their name shows above it.
+  - The background video plays from the start and loops if it's shorter. Its own sound can be kept in the export.
 - **Contact:** name or username, contact photo, status line, avatar color and clock.
 - **Bubbles:** your bubble color (blue, green for SMS, purple or gradient) and the line under your last message (Delivered, Read, Seen…), which always sits clear of the message box.
 - **Message box at the bottom:**
@@ -190,6 +206,8 @@ A timeline editor for text conversations that you export as a video.
 ### Sound
 - **Built-in sounds:** for sending, replying, keyboard typing and opening a photo (Pop, Chime, Click, Tap or silent), with a volume control.
 - **Transmission sounds:** a ring for the incoming call, a burst of static when it connects, a blip as each line starts, soft ticks while it types out (the keyboard sound setting) and a tone when it ends. They're also in the built-in list (Signal, Static, Line, Off) for any message.
+- **Retro game sounds:** text blips, a tick as each line starts, an item fanfare for photos, an emote chirp for reactions, a chapter chime, a coin sound for the title screen and a jingle for the ending.
+- **Video call sounds:** ringing (or a ringtone when they call you), a join chime when it connects and a leave tone when it ends.
 - **Per-message sounds:** any message can have its own sound.
 - **My sounds:** upload your own sound files (MP3, WAV, M4A). They're kept in the browser and recorded into the video.
 
@@ -197,7 +215,7 @@ A timeline editor for text conversations that you export as a video.
 - **Formats:** WebM, MP4 or GIF, at best quality, half size or under a size limit. Sound, voice notes included, can be included in WebM and MP4.
 - **File name:** starts as a random name (like `chat-k3m9qx.mp4`) that doesn't give anything away. Type your own, or tap 🎲 for a new random one.
 - **Use in Video Layers:** sends the finished video straight into Video Layers.
-- **Projects:** save and open them as files. Work is also kept automatically.
+- **Projects:** save and open them as files. Work is also kept automatically. Video clips (video messages, a background video, call cameras) are kept in the browser with your work but aren't saved in project files.
 
 ---
 

@@ -17,7 +17,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600&family=Roboto:wght@400;500&family=Unbounded:wght@600&family=IBM+Plex+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600&family=Roboto:wght@400;500&family=Unbounded:wght@600&family=IBM+Plex+Mono:wght@400;700&family=Press+Start+2P&display=swap">
 <style>
 /* Layout: editor workbench — message list | live phone preview | inspector, with a full-width timeline under them; stacks on phones */
 :root{
@@ -407,9 +407,9 @@ canvas{display:block;max-width:100%;max-height:min(60vh,760px);width:auto;height
 const EMOJI_DATA=[["Smileys & Emotion","😀","😀\tgrinning face\t\n😃\tgrinning face with big eyes\tsmiley\n😄\tgrinning face with smiling eyes\tsmile\n😁\tbeaming face with smiling eyes\tgrin\n😆\tgrinning squinting face\tlaughing satisfied\n😅\tgrinning face with sweat\tsweat smile\n🤣\trolling on the floor laughing\t\n😂\tface with tears of joy\t\n🙂\tslightly smiling face\t\n🙃\tupside-down face\tupside down face\n🫠\tmelting face\t\n😉\twinking face\t\n😊\tsmiling face with smiling eyes\tblush\n😇\tsmiling face with halo\tinnocent\n🥰\tsmiling face with hearts\tsmiling face with 3 hearts\n😍\tsmiling face with heart-eyes\theart eyes\n🤩\tstar-struck\tgrinning face with star eyes star struck\n😘\tface blowing a kiss\tkissing heart\n😗\tkissing face\t\n☺️\tsmiling face\trelaxed\n😚\tkissing face with closed eyes\tkissing closed eyes\n😙\tkissing face with smiling eyes\tkissing smiling eyes\n🥲\tsmiling face with tear\t\n😋\tface savoring food\tyum\n😛\tface with tongue\tstuck out tongue\n😜\twinking face with tongue\tstuck out tongue winking eye\n🤪\tzany face\tgrinning face with one large and one small eye\n😝\tsquinting face with tongue\tstuck out tongue closed eyes\n🤑\tmoney-mouth face\tmoney mouth face\n🤗\tsmiling face with open hands\thugging face\n🤭\tface with hand over mouth\tsmiling face with smiling eyes and hand covering mouth\n🫢\tface with open eyes and hand over mouth\t\n🫣\tface with peeking eye\t\n🤫\tshushing face\tface with finger covering closed lips\n🤔\tthinking face\t\n🫡\tsaluting face\t\n🤐\tzipper-mouth face\tzipper mouth face\n🤨\tface with raised eyebrow\tface with one eyebrow raised\n😐\tneutral face\t\n😑\texpressionless face\t\n😶\tface without mouth\tno mouth\n🫥\tdotted line face\t\n😶‍🌫️\tface in clouds\t\n😏\tsmirking face\t\n😒\tunamused face\t\n🙄\tface with rolling eyes\t\n😬\tgrimacing face\t\n😮‍💨\tface exhaling\t\n🤥\tlying face\t\n🫨\tshaking face\t\n🙂‍↔️\thead shaking horizontally\t\n🙂‍↕️\thead shaking vertically\t\n😌\trelieved face\t\n😔\tpensive face\t\n😪\tsleepy face\t\n🤤\tdrooling face\t\n😴\tsleeping face\t\n😷\tface with medical mask\t\n🤒\tface with thermometer\t\n🤕\tface with head-bandage\tface with head bandage\n🤢\tnauseated face\t\n🤮\tface vomiting\tface with open mouth vomiting\n🤧\tsneezing face\t\n🥵\thot face\t\n🥶\tcold face\t\n🥴\twoozy face\t\n😵\tface with crossed-out eyes\tdizzy face\n😵‍💫\tface with spiral eyes\t\n🤯\texploding head\tshocked face with exploding head\n🤠\tcowboy hat face\tface with cowboy hat\n🥳\tpartying face\t\n🥸\tdisguised face\t\n😎\tsmiling face with sunglasses\t\n🤓\tnerd face\t\n🧐\tface with monocle\t\n😕\tconfused face\t\n🫤\tface with diagonal mouth\t\n😟\tworried face\t\n🙁\tslightly frowning face\t\n☹️\tfrowning face\twhite frowning face\n😮\tface with open mouth\t\n😯\thushed face\t\n😲\tastonished face\t\n😳\tflushed face\t\n🥺\tpleading face\t\n🥹\tface holding back tears\t\n😦\tfrowning face with open mouth\t\n😧\tanguished face\t\n😨\tfearful face\t\n😰\tanxious face with sweat\tcold sweat\n😥\tsad but relieved face\tdisappointed relieved\n😢\tcrying face\t\n😭\tloudly crying face\tsob\n😱\tface screaming in fear\t\n😖\tconfounded face\t\n😣\tpersevering face\tpersevere\n😞\tdisappointed face\t\n😓\tdowncast face with sweat\t\n😩\tweary face\t\n😫\ttired face\t\n🥱\tyawning face\t\n😤\tface with steam from nose\ttriumph\n😡\tenraged face\t\n😠\tangry face\t\n🤬\tface with symbols on mouth\tserious face with symbols covering mouth\n😈\tsmiling face with horns\tsmiling imp\n👿\tangry face with horns\timp\n💀\tskull\t\n☠️\tskull and crossbones\t\n💩\tpile of poo\thankey poop shit\n🤡\tclown face\t\n👹\togre\tjapanese ogre\n👺\tgoblin\tjapanese goblin\n👻\tghost\t\n👽\talien\t\n👾\talien monster\tspace invader\n🤖\trobot\trobot face\n😺\tgrinning cat\tsmiley cat\n😸\tgrinning cat with smiling eyes\tsmile cat\n😹\tcat with tears of joy\tjoy cat\n😻\tsmiling cat with heart-eyes\theart eyes cat\n😼\tcat with wry smile\tsmirk cat\n😽\tkissing cat\t\n🙀\tweary cat\tscream cat\n😿\tcrying cat\tcrying cat face\n😾\tpouting cat\t\n🙈\tsee-no-evil monkey\tsee no evil\n🙉\thear-no-evil monkey\thear no evil\n🙊\tspeak-no-evil monkey\tspeak no evil\n💌\tlove letter\t\n💘\theart with arrow\tcupid\n💝\theart with ribbon\tgift heart\n💖\tsparkling heart\t\n💗\tgrowing heart\theartpulse\n💓\tbeating heart\theartbeat\n💞\trevolving hearts\t\n💕\ttwo hearts\t\n💟\theart decoration\t\n❣️\theart exclamation\theavy heart exclamation mark ornament\n💔\tbroken heart\t\n❤️‍🔥\theart on fire\t\n❤️‍🩹\tmending heart\t\n❤️\tred heart\t\n🩷\tpink heart\t\n🧡\torange heart\t\n💛\tyellow heart\t\n💚\tgreen heart\t\n💙\tblue heart\t\n🩵\tlight blue heart\t\n💜\tpurple heart\t\n🤎\tbrown heart\t\n🖤\tblack heart\t\n🩶\tgrey heart\t\n🤍\twhite heart\t\n💋\tkiss mark\t\n💯\thundred points\t100\n💢\tanger symbol\t\n💥\tcollision\tboom\n💫\tdizzy\t\n💦\tsweat droplets\tsweat drops\n💨\tdashing away\t\n🕳️\thole\t\n💬\tspeech balloon\t\n👁️‍🗨️\teye in speech bubble\t\n🗨️\tleft speech bubble\t\n🗯️\tright anger bubble\t\n💭\tthought balloon\t\n💤\tzzz\t"],["People & Body","👋","👋\twaving hand\twave\t👋~\n🤚\traised back of hand\t\t🤚~\n🖐️\thand with fingers splayed\traised hand with fingers splayed\t🖐~\n✋\traised hand\t\t✋~\n🖖\tvulcan salute\tspock hand\t🖖~\n🫱\trightwards hand\t\t🫱~\n🫲\tleftwards hand\t\t🫲~\n🫳\tpalm down hand\t\t🫳~\n🫴\tpalm up hand\t\t🫴~\n🫷\tleftwards pushing hand\t\t🫷~\n🫸\trightwards pushing hand\t\t🫸~\n👌\tok hand\t\t👌~\n🤌\tpinched fingers\t\t🤌~\n🤏\tpinching hand\t\t🤏~\n✌️\tvictory hand\t\t✌~\n🤞\tcrossed fingers\thand with index and middle fingers crossed\t🤞~\n🫰\thand with index finger and thumb crossed\t\t🫰~\n🤟\tlove-you gesture\ti love you hand sign\t🤟~\n🤘\tsign of the horns\t\t🤘~\n🤙\tcall me hand\t\t🤙~\n👈\tbackhand index pointing left\tpoint left\t👈~\n👉\tbackhand index pointing right\tpoint right\t👉~\n👆\tbackhand index pointing up\tpoint up 2\t👆~\n🖕\tmiddle finger\treversed hand with middle finger extended\t🖕~\n👇\tbackhand index pointing down\tpoint down\t👇~\n☝️\tindex pointing up\tpoint up\t☝~\n🫵\tindex pointing at the viewer\t\t🫵~\n👍\tthumbs up\t+1 thumbsup\t👍~\n👎\tthumbs down\t 1 thumbsdown\t👎~\n✊\traised fist\t\t✊~\n👊\toncoming fist\tfacepunch punch\t👊~\n🤛\tleft-facing fist\tleft facing fist\t🤛~\n🤜\tright-facing fist\tright facing fist\t🤜~\n👏\tclapping hands\t\t👏~\n🙌\traising hands\traised hands\t🙌~\n🫶\theart hands\t\t🫶~\n👐\topen hands\t\t👐~\n🤲\tpalms up together\t\t🤲~\n🤝\thandshake\t\t🤝~\n🙏\tfolded hands\tpray\t🙏~\n✍️\twriting hand\t\t✍~\n💅\tnail polish\tnail care\t💅~\n🤳\tselfie\t\t🤳~\n💪\tflexed biceps\tmuscle\t💪~\n🦾\tmechanical arm\t\n🦿\tmechanical leg\t\n🦵\tleg\t\t🦵~\n🦶\tfoot\t\t🦶~\n👂\tear\t\t👂~\n🦻\tear with hearing aid\t\t🦻~\n👃\tnose\t\t👃~\n🧠\tbrain\t\n🫀\tanatomical heart\t\n🫁\tlungs\t\n🦷\ttooth\t\n🦴\tbone\t\n👀\teyes\t\n👁️\teye\t\n👅\ttongue\t\n👄\tmouth\tlips\n🫦\tbiting lip\t\n👶\tbaby\t\t👶~\n🧒\tchild\t\t🧒~\n👦\tboy\t\t👦~\n👧\tgirl\t\t👧~\n🧑\tperson\tadult\t🧑~\n👱\tperson blond hair\tperson with blond hair\t👱~\n👨\tman\t\t👨~\n🧔\tperson beard\tbearded person\t🧔~\n🧔‍♂️\tman beard\tman with beard\t🧔~‍♂️\n🧔‍♀️\twoman beard\twoman with beard\t🧔~‍♀️\n👨‍🦰\tman red hair\tred haired man\t👨~‍🦰\n👨‍🦱\tman curly hair\tcurly haired man\t👨~‍🦱\n👨‍🦳\tman white hair\twhite haired man\t👨~‍🦳\n👨‍🦲\tman bald\tbald man\t👨~‍🦲\n👩\twoman\t\t👩~\n👩‍🦰\twoman red hair\tred haired woman\t👩~‍🦰\n🧑‍🦰\tperson red hair\tred haired person\t🧑~‍🦰\n👩‍🦱\twoman curly hair\tcurly haired woman\t👩~‍🦱\n🧑‍🦱\tperson curly hair\tcurly haired person\t🧑~‍🦱\n👩‍🦳\twoman white hair\twhite haired woman\t👩~‍🦳\n🧑‍🦳\tperson white hair\twhite haired person\t🧑~‍🦳\n👩‍🦲\twoman bald\tbald woman\t👩~‍🦲\n🧑‍🦲\tperson bald\tbald person\t🧑~‍🦲\n👱‍♀️\twoman blond hair\tblond haired woman\t👱~‍♀️\n👱‍♂️\tman blond hair\tblond haired man\t👱~‍♂️\n🧓\tolder person\tolder adult\t🧓~\n👴\told man\tolder man\t👴~\n👵\told woman\tolder woman\t👵~\n🙍\tperson frowning\t\t🙍~\n🙍‍♂️\tman frowning\t\t🙍~‍♂️\n🙍‍♀️\twoman frowning\t\t🙍~‍♀️\n🙎\tperson pouting\tperson with pouting face\t🙎~\n🙎‍♂️\tman pouting\t\t🙎~‍♂️\n🙎‍♀️\twoman pouting\t\t🙎~‍♀️\n🙅\tperson gesturing no\tno good\t🙅~\n🙅‍♂️\tman gesturing no\t\t🙅~‍♂️\n🙅‍♀️\twoman gesturing no\t\t🙅~‍♀️\n🙆\tperson gesturing ok\tok woman\t🙆~\n🙆‍♂️\tman gesturing ok\t\t🙆~‍♂️\n🙆‍♀️\twoman gesturing ok\t\t🙆~‍♀️\n💁\tperson tipping hand\tinformation desk person\t💁~\n💁‍♂️\tman tipping hand\t\t💁~‍♂️\n💁‍♀️\twoman tipping hand\t\t💁~‍♀️\n🙋\tperson raising hand\t\t🙋~\n🙋‍♂️\tman raising hand\t\t🙋~‍♂️\n🙋‍♀️\twoman raising hand\t\t🙋~‍♀️\n🧏\tdeaf person\t\t🧏~\n🧏‍♂️\tdeaf man\t\t🧏~‍♂️\n🧏‍♀️\tdeaf woman\t\t🧏~‍♀️\n🙇\tperson bowing\t\t🙇~\n🙇‍♂️\tman bowing\t\t🙇~‍♂️\n🙇‍♀️\twoman bowing\t\t🙇~‍♀️\n🤦\tperson facepalming\tface palm\t🤦~\n🤦‍♂️\tman facepalming\t\t🤦~‍♂️\n🤦‍♀️\twoman facepalming\t\t🤦~‍♀️\n🤷\tperson shrugging\t\t🤷~\n🤷‍♂️\tman shrugging\t\t🤷~‍♂️\n🤷‍♀️\twoman shrugging\t\t🤷~‍♀️\n🧑‍⚕️\thealth worker\t\t🧑~‍⚕️\n👨‍⚕️\tman health worker\tmale doctor\t👨~‍⚕️\n👩‍⚕️\twoman health worker\tfemale doctor\t👩~‍⚕️\n🧑‍🎓\tstudent\t\t🧑~‍🎓\n👨‍🎓\tman student\tmale student\t👨~‍🎓\n👩‍🎓\twoman student\tfemale student\t👩~‍🎓\n🧑‍🏫\tteacher\t\t🧑~‍🏫\n👨‍🏫\tman teacher\tmale teacher\t👨~‍🏫\n👩‍🏫\twoman teacher\tfemale teacher\t👩~‍🏫\n🧑‍⚖️\tjudge\t\t🧑~‍⚖️\n👨‍⚖️\tman judge\tmale judge\t👨~‍⚖️\n👩‍⚖️\twoman judge\tfemale judge\t👩~‍⚖️\n🧑‍🌾\tfarmer\t\t🧑~‍🌾\n👨‍🌾\tman farmer\tmale farmer\t👨~‍🌾\n👩‍🌾\twoman farmer\tfemale farmer\t👩~‍🌾\n🧑‍🍳\tcook\t\t🧑~‍🍳\n👨‍🍳\tman cook\tmale cook\t👨~‍🍳\n👩‍🍳\twoman cook\tfemale cook\t👩~‍🍳\n🧑‍🔧\tmechanic\t\t🧑~‍🔧\n👨‍🔧\tman mechanic\tmale mechanic\t👨~‍🔧\n👩‍🔧\twoman mechanic\tfemale mechanic\t👩~‍🔧\n🧑‍🏭\tfactory worker\t\t🧑~‍🏭\n👨‍🏭\tman factory worker\tmale factory worker\t👨~‍🏭\n👩‍🏭\twoman factory worker\tfemale factory worker\t👩~‍🏭\n🧑‍💼\toffice worker\t\t🧑~‍💼\n👨‍💼\tman office worker\tmale office worker\t👨~‍💼\n👩‍💼\twoman office worker\tfemale office worker\t👩~‍💼\n🧑‍🔬\tscientist\t\t🧑~‍🔬\n👨‍🔬\tman scientist\tmale scientist\t👨~‍🔬\n👩‍🔬\twoman scientist\tfemale scientist\t👩~‍🔬\n🧑‍💻\ttechnologist\t\t🧑~‍💻\n👨‍💻\tman technologist\tmale technologist\t👨~‍💻\n👩‍💻\twoman technologist\tfemale technologist\t👩~‍💻\n🧑‍🎤\tsinger\t\t🧑~‍🎤\n👨‍🎤\tman singer\tmale singer\t👨~‍🎤\n👩‍🎤\twoman singer\tfemale singer\t👩~‍🎤\n🧑‍🎨\tartist\t\t🧑~‍🎨\n👨‍🎨\tman artist\tmale artist\t👨~‍🎨\n👩‍🎨\twoman artist\tfemale artist\t👩~‍🎨\n🧑‍✈️\tpilot\t\t🧑~‍✈️\n👨‍✈️\tman pilot\tmale pilot\t👨~‍✈️\n👩‍✈️\twoman pilot\tfemale pilot\t👩~‍✈️\n🧑‍🚀\tastronaut\t\t🧑~‍🚀\n👨‍🚀\tman astronaut\tmale astronaut\t👨~‍🚀\n👩‍🚀\twoman astronaut\tfemale astronaut\t👩~‍🚀\n🧑‍🚒\tfirefighter\t\t🧑~‍🚒\n👨‍🚒\tman firefighter\tmale firefighter\t👨~‍🚒\n👩‍🚒\twoman firefighter\tfemale firefighter\t👩~‍🚒\n👮\tpolice officer\tcop\t👮~\n👮‍♂️\tman police officer\tmale police officer\t👮~‍♂️\n👮‍♀️\twoman police officer\tfemale police officer\t👮~‍♀️\n🕵️\tdetective\tsleuth or spy\t🕵~\n🕵️‍♂️\tman detective\tmale detective\t🕵~‍♂️\n🕵️‍♀️\twoman detective\tfemale detective\t🕵~‍♀️\n💂\tguard\tguardsman\t💂~\n💂‍♂️\tman guard\tmale guard\t💂~‍♂️\n💂‍♀️\twoman guard\tfemale guard\t💂~‍♀️\n🥷\tninja\t\t🥷~\n👷\tconstruction worker\t\t👷~\n👷‍♂️\tman construction worker\tmale construction worker\t👷~‍♂️\n👷‍♀️\twoman construction worker\tfemale construction worker\t👷~‍♀️\n🫅\tperson with crown\t\t🫅~\n🤴\tprince\t\t🤴~\n👸\tprincess\t\t👸~\n👳\tperson wearing turban\tman with turban\t👳~\n👳‍♂️\tman wearing turban\t\t👳~‍♂️\n👳‍♀️\twoman wearing turban\t\t👳~‍♀️\n👲\tperson with skullcap\tman with gua pi mao\t👲~\n🧕\twoman with headscarf\tperson with headscarf\t🧕~\n🤵\tperson in tuxedo\t\t🤵~\n🤵‍♂️\tman in tuxedo\t\t🤵~‍♂️\n🤵‍♀️\twoman in tuxedo\t\t🤵~‍♀️\n👰\tperson with veil\tbride with veil\t👰~\n👰‍♂️\tman with veil\t\t👰~‍♂️\n👰‍♀️\twoman with veil\t\t👰~‍♀️\n🤰\tpregnant woman\t\t🤰~\n🫃\tpregnant man\t\t🫃~\n🫄\tpregnant person\t\t🫄~\n🤱\tbreast-feeding\tbreast feeding\t🤱~\n👩‍🍼\twoman feeding baby\t\t👩~‍🍼\n👨‍🍼\tman feeding baby\t\t👨~‍🍼\n🧑‍🍼\tperson feeding baby\t\t🧑~‍🍼\n👼\tbaby angel\t\t👼~\n🎅\tsanta claus\t\t🎅~\n🤶\tmrs. claus\tmother christmas mrs claus\t🤶~\n🧑‍🎄\tmx claus\t\t🧑~‍🎄\n🦸\tsuperhero\t\t🦸~\n🦸‍♂️\tman superhero\tmale superhero\t🦸~‍♂️\n🦸‍♀️\twoman superhero\tfemale superhero\t🦸~‍♀️\n🦹\tsupervillain\t\t🦹~\n🦹‍♂️\tman supervillain\tmale supervillain\t🦹~‍♂️\n🦹‍♀️\twoman supervillain\tfemale supervillain\t🦹~‍♀️\n🧙\tmage\t\t🧙~\n🧙‍♂️\tman mage\tmale mage\t🧙~‍♂️\n🧙‍♀️\twoman mage\tfemale mage\t🧙~‍♀️\n🧚\tfairy\t\t🧚~\n🧚‍♂️\tman fairy\tmale fairy\t🧚~‍♂️\n🧚‍♀️\twoman fairy\tfemale fairy\t🧚~‍♀️\n🧛\tvampire\t\t🧛~\n🧛‍♂️\tman vampire\tmale vampire\t🧛~‍♂️\n🧛‍♀️\twoman vampire\tfemale vampire\t🧛~‍♀️\n🧜\tmerperson\t\t🧜~\n🧜‍♂️\tmerman\t\t🧜~‍♂️\n🧜‍♀️\tmermaid\t\t🧜~‍♀️\n🧝\telf\t\t🧝~\n🧝‍♂️\tman elf\tmale elf\t🧝~‍♂️\n🧝‍♀️\twoman elf\tfemale elf\t🧝~‍♀️\n🧞\tgenie\t\n🧞‍♂️\tman genie\tmale genie\n🧞‍♀️\twoman genie\tfemale genie\n🧟\tzombie\t\n🧟‍♂️\tman zombie\tmale zombie\n🧟‍♀️\twoman zombie\tfemale zombie\n🧌\ttroll\t\n💆\tperson getting massage\t\t💆~\n💆‍♂️\tman getting massage\t\t💆~‍♂️\n💆‍♀️\twoman getting massage\t\t💆~‍♀️\n💇\tperson getting haircut\t\t💇~\n💇‍♂️\tman getting haircut\t\t💇~‍♂️\n💇‍♀️\twoman getting haircut\t\t💇~‍♀️\n🚶\tperson walking\t\t🚶~\n🚶‍♂️\tman walking\t\t🚶~‍♂️\n🚶‍♀️\twoman walking\t\t🚶~‍♀️\n🚶‍➡️\tperson walking facing right\t\t🚶~‍➡️\n🚶‍♀️‍➡️\twoman walking facing right\t\t🚶~‍♀️‍➡️\n🚶‍♂️‍➡️\tman walking facing right\t\t🚶~‍♂️‍➡️\n🧍\tperson standing\tstanding person\t🧍~\n🧍‍♂️\tman standing\t\t🧍~‍♂️\n🧍‍♀️\twoman standing\t\t🧍~‍♀️\n🧎\tperson kneeling\tkneeling person\t🧎~\n🧎‍♂️\tman kneeling\t\t🧎~‍♂️\n🧎‍♀️\twoman kneeling\t\t🧎~‍♀️\n🧎‍➡️\tperson kneeling facing right\t\t🧎~‍➡️\n🧎‍♀️‍➡️\twoman kneeling facing right\t\t🧎~‍♀️‍➡️\n🧎‍♂️‍➡️\tman kneeling facing right\t\t🧎~‍♂️‍➡️\n🧑‍🦯\tperson with white cane\tperson with probing cane\t🧑~‍🦯\n🧑‍🦯‍➡️\tperson with white cane facing right\t\t🧑~‍🦯‍➡️\n👨‍🦯\tman with white cane\tman with probing cane\t👨~‍🦯\n👨‍🦯‍➡️\tman with white cane facing right\t\t👨~‍🦯‍➡️\n👩‍🦯\twoman with white cane\twoman with probing cane\t👩~‍🦯\n👩‍🦯‍➡️\twoman with white cane facing right\t\t👩~‍🦯‍➡️\n🧑‍🦼\tperson in motorized wheelchair\t\t🧑~‍🦼\n🧑‍🦼‍➡️\tperson in motorized wheelchair facing right\t\t🧑~‍🦼‍➡️\n👨‍🦼\tman in motorized wheelchair\t\t👨~‍🦼\n👨‍🦼‍➡️\tman in motorized wheelchair facing right\t\t👨~‍🦼‍➡️\n👩‍🦼\twoman in motorized wheelchair\t\t👩~‍🦼\n👩‍🦼‍➡️\twoman in motorized wheelchair facing right\t\t👩~‍🦼‍➡️\n🧑‍🦽\tperson in manual wheelchair\t\t🧑~‍🦽\n🧑‍🦽‍➡️\tperson in manual wheelchair facing right\t\t🧑~‍🦽‍➡️\n👨‍🦽\tman in manual wheelchair\t\t👨~‍🦽\n👨‍🦽‍➡️\tman in manual wheelchair facing right\t\t👨~‍🦽‍➡️\n👩‍🦽\twoman in manual wheelchair\t\t👩~‍🦽\n👩‍🦽‍➡️\twoman in manual wheelchair facing right\t\t👩~‍🦽‍➡️\n🏃\tperson running\trunner\t🏃~\n🏃‍♂️\tman running\t\t🏃~‍♂️\n🏃‍♀️\twoman running\t\t🏃~‍♀️\n🏃‍➡️\tperson running facing right\t\t🏃~‍➡️\n🏃‍♀️‍➡️\twoman running facing right\t\t🏃~‍♀️‍➡️\n🏃‍♂️‍➡️\tman running facing right\t\t🏃~‍♂️‍➡️\n💃\twoman dancing\tdancer\t💃~\n🕺\tman dancing\t\t🕺~\n🕴️\tperson in suit levitating\tman in business suit levitating\t🕴~\n👯\tpeople with bunny ears\tdancers\t👯~\n👯‍♂️\tmen with bunny ears\tman with bunny ears partying men with bunny ears partying\t👯~‍♂️\n👯‍♀️\twomen with bunny ears\twoman with bunny ears partying women with bunny ears partying\t👯~‍♀️\n🧖\tperson in steamy room\t\t🧖~\n🧖‍♂️\tman in steamy room\t\t🧖~‍♂️\n🧖‍♀️\twoman in steamy room\t\t🧖~‍♀️\n🧗\tperson climbing\t\t🧗~\n🧗‍♂️\tman climbing\t\t🧗~‍♂️\n🧗‍♀️\twoman climbing\t\t🧗~‍♀️\n🤺\tperson fencing\tfencer\n🏇\thorse racing\t\t🏇~\n⛷️\tskier\t\n🏂\tsnowboarder\t\t🏂~\n🏌️\tperson golfing\tgolfer\t🏌~\n🏌️‍♂️\tman golfing\t\t🏌~‍♂️\n🏌️‍♀️\twoman golfing\t\t🏌~‍♀️\n🏄\tperson surfing\tsurfer\t🏄~\n🏄‍♂️\tman surfing\t\t🏄~‍♂️\n🏄‍♀️\twoman surfing\t\t🏄~‍♀️\n🚣\tperson rowing boat\trowboat\t🚣~\n🚣‍♂️\tman rowing boat\t\t🚣~‍♂️\n🚣‍♀️\twoman rowing boat\t\t🚣~‍♀️\n🏊\tperson swimming\tswimmer\t🏊~\n🏊‍♂️\tman swimming\t\t🏊~‍♂️\n🏊‍♀️\twoman swimming\t\t🏊~‍♀️\n⛹️\tperson bouncing ball\tperson with ball\t⛹~\n⛹️‍♂️\tman bouncing ball\t\t⛹~‍♂️\n⛹️‍♀️\twoman bouncing ball\t\t⛹~‍♀️\n🏋️\tperson lifting weights\tweight lifter\t🏋~\n🏋️‍♂️\tman lifting weights\t\t🏋~‍♂️\n🏋️‍♀️\twoman lifting weights\t\t🏋~‍♀️\n🚴\tperson biking\tbicyclist\t🚴~\n🚴‍♂️\tman biking\t\t🚴~‍♂️\n🚴‍♀️\twoman biking\t\t🚴~‍♀️\n🚵\tperson mountain biking\tmountain bicyclist\t🚵~\n🚵‍♂️\tman mountain biking\t\t🚵~‍♂️\n🚵‍♀️\twoman mountain biking\t\t🚵~‍♀️\n🤸\tperson cartwheeling\tperson doing cartwheel\t🤸~\n🤸‍♂️\tman cartwheeling\t\t🤸~‍♂️\n🤸‍♀️\twoman cartwheeling\t\t🤸~‍♀️\n🤼\tpeople wrestling\twrestlers\t🤼~\n🤼‍♂️\tmen wrestling\tman wrestling\t🤼~‍♂️\n🤼‍♀️\twomen wrestling\twoman wrestling\t🤼~‍♀️\n🤽\tperson playing water polo\t\t🤽~\n🤽‍♂️\tman playing water polo\t\t🤽~‍♂️\n🤽‍♀️\twoman playing water polo\t\t🤽~‍♀️\n🤾\tperson playing handball\t\t🤾~\n🤾‍♂️\tman playing handball\t\t🤾~‍♂️\n🤾‍♀️\twoman playing handball\t\t🤾~‍♀️\n🤹\tperson juggling\t\t🤹~\n🤹‍♂️\tman juggling\t\t🤹~‍♂️\n🤹‍♀️\twoman juggling\t\t🤹~‍♀️\n🧘\tperson in lotus position\t\t🧘~\n🧘‍♂️\tman in lotus position\t\t🧘~‍♂️\n🧘‍♀️\twoman in lotus position\t\t🧘~‍♀️\n🛀\tperson taking bath\t\t🛀~\n🛌\tperson in bed\tsleeping accommodation\t🛌~\n🧑‍🤝‍🧑\tpeople holding hands\t\t🧑~‍🤝‍🧑~\n👭\twomen holding hands\ttwo women holding hands\t👭~\n👫\twoman and man holding hands\tcouple man and woman holding hands\t👫~\n👬\tmen holding hands\ttwo men holding hands\t👬~\n💏\tkiss\tcouplekiss\t💏~\n👩‍❤️‍💋‍👨\tkiss woman, man\twoman kiss man\t👩~‍❤️‍💋‍👨~\n👨‍❤️‍💋‍👨\tkiss man, man\tman kiss man\t👨~‍❤️‍💋‍👨~\n👩‍❤️‍💋‍👩\tkiss woman, woman\twoman kiss woman\t👩~‍❤️‍💋‍👩~\n💑\tcouple with heart\t\t💑~\n👩‍❤️‍👨\tcouple with heart woman, man\twoman heart man\t👩~‍❤️‍👨~\n👨‍❤️‍👨\tcouple with heart man, man\tman heart man\t👨~‍❤️‍👨~\n👩‍❤️‍👩\tcouple with heart woman, woman\twoman heart woman\t👩~‍❤️‍👩~\n👨‍👩‍👦\tfamily man, woman, boy\tman woman boy\n👨‍👩‍👧\tfamily man, woman, girl\tman woman girl\n👨‍👩‍👧‍👦\tfamily man, woman, girl, boy\tman woman girl boy\n👨‍👩‍👦‍👦\tfamily man, woman, boy, boy\tman woman boy boy\n👨‍👩‍👧‍👧\tfamily man, woman, girl, girl\tman woman girl girl\n👨‍👨‍👦\tfamily man, man, boy\tman man boy\n👨‍👨‍👧\tfamily man, man, girl\tman man girl\n👨‍👨‍👧‍👦\tfamily man, man, girl, boy\tman man girl boy\n👨‍👨‍👦‍👦\tfamily man, man, boy, boy\tman man boy boy\n👨‍👨‍👧‍👧\tfamily man, man, girl, girl\tman man girl girl\n👩‍👩‍👦\tfamily woman, woman, boy\twoman woman boy\n👩‍👩‍👧\tfamily woman, woman, girl\twoman woman girl\n👩‍👩‍👧‍👦\tfamily woman, woman, girl, boy\twoman woman girl boy\n👩‍👩‍👦‍👦\tfamily woman, woman, boy, boy\twoman woman boy boy\n👩‍👩‍👧‍👧\tfamily woman, woman, girl, girl\twoman woman girl girl\n👨‍👦\tfamily man, boy\tman boy\n👨‍👦‍👦\tfamily man, boy, boy\tman boy boy\n👨‍👧\tfamily man, girl\tman girl\n👨‍👧‍👦\tfamily man, girl, boy\tman girl boy\n👨‍👧‍👧\tfamily man, girl, girl\tman girl girl\n👩‍👦\tfamily woman, boy\twoman boy\n👩‍👦‍👦\tfamily woman, boy, boy\twoman boy boy\n👩‍👧\tfamily woman, girl\twoman girl\n👩‍👧‍👦\tfamily woman, girl, boy\twoman girl boy\n👩‍👧‍👧\tfamily woman, girl, girl\twoman girl girl\n🗣️\tspeaking head\tspeaking head in silhouette\n👤\tbust in silhouette\t\n👥\tbusts in silhouette\t\n🫂\tpeople hugging\t\n👪\tfamily\t\n🧑‍🧑‍🧒\tfamily adult, adult, child\tfamily adult adult child\n🧑‍🧑‍🧒‍🧒\tfamily adult, adult, child, child\tfamily adult adult child child\n🧑‍🧒\tfamily adult, child\tfamily adult child\n🧑‍🧒‍🧒\tfamily adult, child, child\tfamily adult child child\n👣\tfootprints\t"],["Animals & Nature","🐻","🐵\tmonkey face\t\n🐒\tmonkey\t\n🦍\tgorilla\t\n🦧\torangutan\t\n🐶\tdog face\t\n🐕\tdog\tdog2\n🦮\tguide dog\t\n🐕‍🦺\tservice dog\t\n🐩\tpoodle\t\n🐺\twolf\t\n🦊\tfox\tfox face\n🦝\traccoon\t\n🐱\tcat face\t\n🐈\tcat\tcat2\n🐈‍⬛\tblack cat\t\n🦁\tlion\tlion face\n🐯\ttiger face\t\n🐅\ttiger\ttiger2\n🐆\tleopard\t\n🐴\thorse face\t\n🫎\tmoose\t\n🫏\tdonkey\t\n🐎\thorse\tracehorse\n🦄\tunicorn\tunicorn face\n🦓\tzebra\tzebra face\n🦌\tdeer\t\n🦬\tbison\t\n🐮\tcow face\t\n🐂\tox\t\n🐃\twater buffalo\t\n🐄\tcow\tcow2\n🐷\tpig face\t\n🐖\tpig\tpig2\n🐗\tboar\t\n🐽\tpig nose\t\n🐏\tram\t\n🐑\tewe\tsheep\n🐐\tgoat\t\n🐪\tcamel\tdromedary camel\n🐫\ttwo-hump camel\t\n🦙\tllama\t\n🦒\tgiraffe\tgiraffe face\n🐘\telephant\t\n🦣\tmammoth\t\n🦏\trhinoceros\t\n🦛\thippopotamus\t\n🐭\tmouse face\t\n🐁\tmouse\tmouse2\n🐀\trat\t\n🐹\thamster\t\n🐰\trabbit face\t\n🐇\trabbit\trabbit2\n🐿️\tchipmunk\t\n🦫\tbeaver\t\n🦔\thedgehog\t\n🦇\tbat\t\n🐻\tbear\t\n🐻‍❄️\tpolar bear\t\n🐨\tkoala\t\n🐼\tpanda\tpanda face\n🦥\tsloth\t\n🦦\totter\t\n🦨\tskunk\t\n🦘\tkangaroo\t\n🦡\tbadger\t\n🐾\tpaw prints\tfeet\n🦃\tturkey\t\n🐔\tchicken\t\n🐓\trooster\t\n🐣\thatching chick\t\n🐤\tbaby chick\t\n🐥\tfront-facing baby chick\thatched chick\n🐦\tbird\t\n🐧\tpenguin\t\n🕊️\tdove\tdove of peace\n🦅\teagle\t\n🦆\tduck\t\n🦢\tswan\t\n🦉\towl\t\n🦤\tdodo\t\n🪶\tfeather\t\n🦩\tflamingo\t\n🦚\tpeacock\t\n🦜\tparrot\t\n🪽\twing\t\n🐦‍⬛\tblack bird\t\n🪿\tgoose\t\n🐦‍🔥\tphoenix\t\n🐸\tfrog\t\n🐊\tcrocodile\t\n🐢\tturtle\t\n🦎\tlizard\t\n🐍\tsnake\t\n🐲\tdragon face\t\n🐉\tdragon\t\n🦕\tsauropod\t\n🦖\tt-rex\tt rex\n🐳\tspouting whale\t\n🐋\twhale\twhale2\n🐬\tdolphin\tflipper\n🦭\tseal\t\n🐟\tfish\t\n🐠\ttropical fish\t\n🐡\tblowfish\t\n🦈\tshark\t\n🐙\toctopus\t\n🐚\tspiral shell\t\n🪸\tcoral\t\n🪼\tjellyfish\t\n🦀\tcrab\t\n🦞\tlobster\t\n🦐\tshrimp\t\n🦑\tsquid\t\n🦪\toyster\t\n🐌\tsnail\t\n🦋\tbutterfly\t\n🐛\tbug\t\n🐜\tant\t\n🐝\thoneybee\t\n🪲\tbeetle\t\n🐞\tlady beetle\tladybug\n🦗\tcricket\t\n🪳\tcockroach\t\n🕷️\tspider\t\n🕸️\tspider web\t\n🦂\tscorpion\t\n🦟\tmosquito\t\n🪰\tfly\t\n🪱\tworm\t\n🦠\tmicrobe\t\n💐\tbouquet\t\n🌸\tcherry blossom\t\n💮\twhite flower\t\n🪷\tlotus\t\n🏵️\trosette\t\n🌹\trose\t\n🥀\twilted flower\t\n🌺\thibiscus\t\n🌻\tsunflower\t\n🌼\tblossom\t\n🌷\ttulip\t\n🪻\thyacinth\t\n🌱\tseedling\t\n🪴\tpotted plant\t\n🌲\tevergreen tree\t\n🌳\tdeciduous tree\t\n🌴\tpalm tree\t\n🌵\tcactus\t\n🌾\tsheaf of rice\tear of rice\n🌿\therb\t\n☘️\tshamrock\t\n🍀\tfour leaf clover\t\n🍁\tmaple leaf\t\n🍂\tfallen leaf\t\n🍃\tleaf fluttering in wind\tleaves\n🪹\tempty nest\t\n🪺\tnest with eggs\t\n🍄\tmushroom\t"],["Food & Drink","🍔","🍇\tgrapes\t\n🍈\tmelon\t\n🍉\twatermelon\t\n🍊\ttangerine\t\n🍋\tlemon\t\n🍋‍🟩\tlime\t\n🍌\tbanana\t\n🍍\tpineapple\t\n🥭\tmango\t\n🍎\tred apple\t\n🍏\tgreen apple\t\n🍐\tpear\t\n🍑\tpeach\t\n🍒\tcherries\t\n🍓\tstrawberry\t\n🫐\tblueberries\t\n🥝\tkiwi fruit\tkiwifruit\n🍅\ttomato\t\n🫒\tolive\t\n🥥\tcoconut\t\n🥑\tavocado\t\n🍆\teggplant\t\n🥔\tpotato\t\n🥕\tcarrot\t\n🌽\tear of corn\t\n🌶️\thot pepper\t\n🫑\tbell pepper\t\n🥒\tcucumber\t\n🥬\tleafy green\t\n🥦\tbroccoli\t\n🧄\tgarlic\t\n🧅\tonion\t\n🥜\tpeanuts\t\n🫘\tbeans\t\n🌰\tchestnut\t\n🫚\tginger root\t\n🫛\tpea pod\t\n🍄‍🟫\tbrown mushroom\t\n🍞\tbread\t\n🥐\tcroissant\t\n🥖\tbaguette bread\t\n🫓\tflatbread\t\n🥨\tpretzel\t\n🥯\tbagel\t\n🥞\tpancakes\t\n🧇\twaffle\t\n🧀\tcheese wedge\t\n🍖\tmeat on bone\t\n🍗\tpoultry leg\t\n🥩\tcut of meat\t\n🥓\tbacon\t\n🍔\thamburger\t\n🍟\tfrench fries\t\n🍕\tpizza\t\n🌭\thot dog\thotdog\n🥪\tsandwich\t\n🌮\ttaco\t\n🌯\tburrito\t\n🫔\ttamale\t\n🥙\tstuffed flatbread\t\n🧆\tfalafel\t\n🥚\tegg\t\n🍳\tcooking\tfried egg\n🥘\tshallow pan of food\t\n🍲\tpot of food\tstew\n🫕\tfondue\t\n🥣\tbowl with spoon\t\n🥗\tgreen salad\t\n🍿\tpopcorn\t\n🧈\tbutter\t\n🧂\tsalt\t\n🥫\tcanned food\t\n🍱\tbento box\t\n🍘\trice cracker\t\n🍙\trice ball\t\n🍚\tcooked rice\t\n🍛\tcurry rice\t\n🍜\tsteaming bowl\tramen\n🍝\tspaghetti\t\n🍠\troasted sweet potato\t\n🍢\toden\t\n🍣\tsushi\t\n🍤\tfried shrimp\t\n🍥\tfish cake with swirl\t\n🥮\tmoon cake\t\n🍡\tdango\t\n🥟\tdumpling\t\n🥠\tfortune cookie\t\n🥡\ttakeout box\t\n🍦\tsoft ice cream\ticecream\n🍧\tshaved ice\t\n🍨\tice cream\t\n🍩\tdoughnut\t\n🍪\tcookie\t\n🎂\tbirthday cake\t\n🍰\tshortcake\t\n🧁\tcupcake\t\n🥧\tpie\t\n🍫\tchocolate bar\t\n🍬\tcandy\t\n🍭\tlollipop\t\n🍮\tcustard\t\n🍯\thoney pot\t\n🍼\tbaby bottle\t\n🥛\tglass of milk\t\n☕\thot beverage\tcoffee\n🫖\tteapot\t\n🍵\tteacup without handle\t\n🍶\tsake\t\n🍾\tbottle with popping cork\tchampagne\n🍷\twine glass\t\n🍸\tcocktail glass\t\n🍹\ttropical drink\t\n🍺\tbeer mug\t\n🍻\tclinking beer mugs\tbeers\n🥂\tclinking glasses\t\n🥃\ttumbler glass\t\n🫗\tpouring liquid\t\n🥤\tcup with straw\t\n🧋\tbubble tea\t\n🧃\tbeverage box\t\n🧉\tmate\tmate drink\n🧊\tice\tice cube\n🥢\tchopsticks\t\n🍽️\tfork and knife with plate\tknife fork plate\n🍴\tfork and knife\t\n🥄\tspoon\t\n🔪\tkitchen knife\thocho\n🫙\tjar\t\n🏺\tamphora\t"],["Travel & Places","✈️","🌍\tglobe showing europe-africa\tearth africa\n🌎\tglobe showing americas\tearth americas\n🌏\tglobe showing asia-australia\tearth asia\n🌐\tglobe with meridians\t\n🗺️\tworld map\t\n🗾\tmap of japan\t\n🧭\tcompass\t\n🏔️\tsnow-capped mountain\tsnow capped mountain\n⛰️\tmountain\t\n🌋\tvolcano\t\n🗻\tmount fuji\t\n🏕️\tcamping\t\n🏖️\tbeach with umbrella\t\n🏜️\tdesert\t\n🏝️\tdesert island\t\n🏞️\tnational park\t\n🏟️\tstadium\t\n🏛️\tclassical building\t\n🏗️\tbuilding construction\t\n🧱\tbrick\tbricks\n🪨\trock\t\n🪵\twood\t\n🛖\thut\t\n🏘️\thouses\thouse buildings\n🏚️\tderelict house\tderelict house building\n🏠\thouse\t\n🏡\thouse with garden\t\n🏢\toffice building\t\n🏣\tjapanese post office\t\n🏤\tpost office\teuropean post office\n🏥\thospital\t\n🏦\tbank\t\n🏨\thotel\t\n🏩\tlove hotel\t\n🏪\tconvenience store\t\n🏫\tschool\t\n🏬\tdepartment store\t\n🏭\tfactory\t\n🏯\tjapanese castle\t\n🏰\tcastle\teuropean castle\n💒\twedding\t\n🗼\ttokyo tower\t\n🗽\tstatue of liberty\t\n⛪\tchurch\t\n🕌\tmosque\t\n🛕\thindu temple\t\n🕍\tsynagogue\t\n⛩️\tshinto shrine\t\n🕋\tkaaba\t\n⛲\tfountain\t\n⛺\ttent\t\n🌁\tfoggy\t\n🌃\tnight with stars\t\n🏙️\tcityscape\t\n🌄\tsunrise over mountains\t\n🌅\tsunrise\t\n🌆\tcityscape at dusk\tcity sunset\n🌇\tsunset\tcity sunrise\n🌉\tbridge at night\t\n♨️\thot springs\thotsprings\n🎠\tcarousel horse\t\n🛝\tplayground slide\t\n🎡\tferris wheel\t\n🎢\troller coaster\t\n💈\tbarber pole\t\n🎪\tcircus tent\t\n🚂\tlocomotive\tsteam locomotive\n🚃\trailway car\t\n🚄\thigh-speed train\tbullettrain side\n🚅\tbullet train\tbullettrain front\n🚆\ttrain\ttrain2\n🚇\tmetro\t\n🚈\tlight rail\t\n🚉\tstation\t\n🚊\ttram\t\n🚝\tmonorail\t\n🚞\tmountain railway\t\n🚋\ttram car\ttrain\n🚌\tbus\t\n🚍\toncoming bus\t\n🚎\ttrolleybus\t\n🚐\tminibus\t\n🚑\tambulance\t\n🚒\tfire engine\t\n🚓\tpolice car\t\n🚔\toncoming police car\t\n🚕\ttaxi\t\n🚖\toncoming taxi\t\n🚗\tautomobile\tcar red car\n🚘\toncoming automobile\t\n🚙\tsport utility vehicle\tblue car\n🛻\tpickup truck\t\n🚚\tdelivery truck\t\n🚛\tarticulated lorry\t\n🚜\ttractor\t\n🏎️\tracing car\t\n🏍️\tmotorcycle\tracing motorcycle\n🛵\tmotor scooter\t\n🦽\tmanual wheelchair\t\n🦼\tmotorized wheelchair\t\n🛺\tauto rickshaw\t\n🚲\tbicycle\tbike\n🛴\tkick scooter\t\n🛹\tskateboard\t\n🛼\troller skate\t\n🚏\tbus stop\tbusstop\n🛣️\tmotorway\t\n🛤️\trailway track\t\n🛢️\toil drum\t\n⛽\tfuel pump\tfuelpump\n🛞\twheel\t\n🚨\tpolice car light\trotating light\n🚥\thorizontal traffic light\t\n🚦\tvertical traffic light\t\n🛑\tstop sign\toctagonal sign\n🚧\tconstruction\t\n⚓\tanchor\t\n🛟\tring buoy\t\n⛵\tsailboat\t\n🛶\tcanoe\t\n🚤\tspeedboat\t\n🛳️\tpassenger ship\t\n⛴️\tferry\t\n🛥️\tmotor boat\t\n🚢\tship\t\n✈️\tairplane\t\n🛩️\tsmall airplane\t\n🛫\tairplane departure\t\n🛬\tairplane arrival\tairplane arriving\n🪂\tparachute\t\n💺\tseat\t\n🚁\thelicopter\t\n🚟\tsuspension railway\t\n🚠\tmountain cableway\t\n🚡\taerial tramway\t\n🛰️\tsatellite\t\n🚀\trocket\t\n🛸\tflying saucer\t\n🛎️\tbellhop bell\t\n🧳\tluggage\t\n⌛\thourglass done\t\n⏳\thourglass not done\thourglass flowing sand\n⌚\twatch\t\n⏰\talarm clock\t\n⏱️\tstopwatch\t\n⏲️\ttimer clock\t\n🕰️\tmantelpiece clock\t\n🕛\ttwelve o’clock\tclock12\n🕧\ttwelve-thirty\tclock1230\n🕐\tone o’clock\tclock1\n🕜\tone-thirty\tclock130\n🕑\ttwo o’clock\tclock2\n🕝\ttwo-thirty\tclock230\n🕒\tthree o’clock\tclock3\n🕞\tthree-thirty\tclock330\n🕓\tfour o’clock\tclock4\n🕟\tfour-thirty\tclock430\n🕔\tfive o’clock\tclock5\n🕠\tfive-thirty\tclock530\n🕕\tsix o’clock\tclock6\n🕡\tsix-thirty\tclock630\n🕖\tseven o’clock\tclock7\n🕢\tseven-thirty\tclock730\n🕗\teight o’clock\tclock8\n🕣\teight-thirty\tclock830\n🕘\tnine o’clock\tclock9\n🕤\tnine-thirty\tclock930\n🕙\tten o’clock\tclock10\n🕥\tten-thirty\tclock1030\n🕚\televen o’clock\tclock11\n🕦\televen-thirty\tclock1130\n🌑\tnew moon\t\n🌒\twaxing crescent moon\t\n🌓\tfirst quarter moon\t\n🌔\twaxing gibbous moon\t\n🌕\tfull moon\t\n🌖\twaning gibbous moon\t\n🌗\tlast quarter moon\t\n🌘\twaning crescent moon\t\n🌙\tcrescent moon\t\n🌚\tnew moon face\tnew moon with face\n🌛\tfirst quarter moon face\tfirst quarter moon with face\n🌜\tlast quarter moon face\tlast quarter moon with face\n🌡️\tthermometer\t\n☀️\tsun\tsunny\n🌝\tfull moon face\tfull moon with face\n🌞\tsun with face\t\n🪐\tringed planet\t\n⭐\tstar\t\n🌟\tglowing star\tstar2\n🌠\tshooting star\tstars\n🌌\tmilky way\t\n☁️\tcloud\t\n⛅\tsun behind cloud\tpartly sunny\n⛈️\tcloud with lightning and rain\tthunder cloud and rain\n🌤️\tsun behind small cloud\tmostly sunny sun small cloud\n🌥️\tsun behind large cloud\tbarely sunny sun behind cloud\n🌦️\tsun behind rain cloud\tpartly sunny rain\n🌧️\tcloud with rain\train cloud\n🌨️\tcloud with snow\tsnow cloud\n🌩️\tcloud with lightning\tlightning cloud\n🌪️\ttornado\ttornado cloud\n🌫️\tfog\t\n🌬️\twind face\twind blowing face\n🌀\tcyclone\t\n🌈\trainbow\t\n🌂\tclosed umbrella\t\n☂️\tumbrella\t\n☔\tumbrella with rain drops\t\n⛱️\tumbrella on ground\t\n⚡\thigh voltage\tzap\n❄️\tsnowflake\t\n☃️\tsnowman\t\n⛄\tsnowman without snow\t\n☄️\tcomet\t\n🔥\tfire\t\n💧\tdroplet\t\n🌊\twater wave\tocean"],["Activities","⚽","🎃\tjack-o-lantern\tjack o lantern\n🎄\tchristmas tree\t\n🎆\tfireworks\t\n🎇\tsparkler\t\n🧨\tfirecracker\t\n✨\tsparkles\t\n🎈\tballoon\t\n🎉\tparty popper\ttada\n🎊\tconfetti ball\t\n🎋\ttanabata tree\t\n🎍\tpine decoration\tbamboo\n🎎\tjapanese dolls\t\n🎏\tcarp streamer\tflags\n🎐\twind chime\t\n🎑\tmoon viewing ceremony\trice scene\n🧧\tred envelope\t\n🎀\tribbon\t\n🎁\twrapped gift\t\n🎗️\treminder ribbon\t\n🎟️\tadmission tickets\t\n🎫\tticket\t\n🎖️\tmilitary medal\t\n🏆\ttrophy\t\n🏅\tsports medal\t\n🥇\t1st place medal\tfirst place medal\n🥈\t2nd place medal\tsecond place medal\n🥉\t3rd place medal\tthird place medal\n⚽\tsoccer ball\t\n⚾\tbaseball\t\n🥎\tsoftball\t\n🏀\tbasketball\t\n🏐\tvolleyball\t\n🏈\tamerican football\t\n🏉\trugby football\t\n🎾\ttennis\t\n🥏\tflying disc\t\n🎳\tbowling\t\n🏏\tcricket game\tcricket bat and ball\n🏑\tfield hockey\tfield hockey stick and ball\n🏒\tice hockey\tice hockey stick and puck\n🥍\tlacrosse\t\n🏓\tping pong\ttable tennis paddle and ball\n🏸\tbadminton\tbadminton racquet and shuttlecock\n🥊\tboxing glove\t\n🥋\tmartial arts uniform\t\n🥅\tgoal net\t\n⛳\tflag in hole\tgolf\n⛸️\tice skate\t\n🎣\tfishing pole\tfishing pole and fish\n🤿\tdiving mask\t\n🎽\trunning shirt\trunning shirt with sash\n🎿\tskis\t\n🛷\tsled\t\n🥌\tcurling stone\t\n🎯\tbullseye\tdart\n🪀\tyo-yo\tyo yo\n🪁\tkite\t\n🔫\twater pistol\tgun\n🎱\tpool 8 ball\t8ball\n🔮\tcrystal ball\t\n🪄\tmagic wand\t\n🎮\tvideo game\t\n🕹️\tjoystick\t\n🎰\tslot machine\t\n🎲\tgame die\t\n🧩\tpuzzle piece\tjigsaw\n🧸\tteddy bear\t\n🪅\tpiñata\tpinata\n🪩\tmirror ball\t\n🪆\tnesting dolls\t\n♠️\tspade suit\tspades\n♥️\theart suit\thearts\n♦️\tdiamond suit\tdiamonds\n♣️\tclub suit\tclubs\n♟️\tchess pawn\t\n🃏\tjoker\tblack joker\n🀄\tmahjong red dragon\t\n🎴\tflower playing cards\t\n🎭\tperforming arts\t\n🖼️\tframed picture\tframe with picture\n🎨\tartist palette\t\n🧵\tthread\t\n🪡\tsewing needle\t\n🧶\tyarn\t\n🪢\tknot\t"],["Objects","💡","👓\tglasses\teyeglasses\n🕶️\tsunglasses\tdark sunglasses\n🥽\tgoggles\t\n🥼\tlab coat\t\n🦺\tsafety vest\t\n👔\tnecktie\t\n👕\tt-shirt\ttshirt\n👖\tjeans\t\n🧣\tscarf\t\n🧤\tgloves\t\n🧥\tcoat\t\n🧦\tsocks\t\n👗\tdress\t\n👘\tkimono\t\n🥻\tsari\t\n🩱\tone-piece swimsuit\tone piece swimsuit\n🩲\tbriefs\t\n🩳\tshorts\t\n👙\tbikini\t\n👚\twoman’s clothes\twomans clothes\n🪭\tfolding hand fan\t\n👛\tpurse\t\n👜\thandbag\t\n👝\tclutch bag\tpouch\n🛍️\tshopping bags\t\n🎒\tbackpack\tschool satchel\n🩴\tthong sandal\t\n👞\tman’s shoe\tmans shoe\n👟\trunning shoe\tathletic shoe\n🥾\thiking boot\t\n🥿\tflat shoe\twomans flat shoe\n👠\thigh-heeled shoe\thigh heel\n👡\twoman’s sandal\t\n🩰\tballet shoes\t\n👢\twoman’s boot\t\n🪮\thair pick\t\n👑\tcrown\t\n👒\twoman’s hat\twomans hat\n🎩\ttop hat\ttophat\n🎓\tgraduation cap\tmortar board\n🧢\tbilled cap\t\n🪖\tmilitary helmet\t\n⛑️\trescue worker’s helmet\thelmet with white cross\n📿\tprayer beads\t\n💄\tlipstick\t\n💍\tring\t\n💎\tgem stone\t\n🔇\tmuted speaker\t\n🔈\tspeaker low volume\t\n🔉\tspeaker medium volume\tsound\n🔊\tspeaker high volume\tloud sound\n📢\tloudspeaker\t\n📣\tmegaphone\t\n📯\tpostal horn\t\n🔔\tbell\t\n🔕\tbell with slash\tno bell\n🎼\tmusical score\t\n🎵\tmusical note\t\n🎶\tmusical notes\t\n🎙️\tstudio microphone\t\n🎚️\tlevel slider\t\n🎛️\tcontrol knobs\t\n🎤\tmicrophone\t\n🎧\theadphone\theadphones\n📻\tradio\t\n🎷\tsaxophone\t\n🎺\ttrumpet\t\n🪗\taccordion\t\n🎸\tguitar\t\n🎹\tmusical keyboard\t\n🎻\tviolin\t\n🪕\tbanjo\t\n🥁\tdrum\tdrum with drumsticks\n🪘\tlong drum\t\n🪇\tmaracas\t\n🪈\tflute\t\n📱\tmobile phone\tiphone\n📲\tmobile phone with arrow\tcalling\n☎️\ttelephone\t\n📞\ttelephone receiver\t\n📟\tpager\t\n📠\tfax machine\t\n🔋\tbattery\t\n🪫\tlow battery\t\n🔌\telectric plug\t\n💻\tlaptop\tcomputer\n🖥️\tdesktop computer\t\n🖨️\tprinter\t\n⌨️\tkeyboard\t\n🖱️\tcomputer mouse\tthree button mouse\n🖲️\ttrackball\t\n💽\tcomputer disk\tminidisc\n💾\tfloppy disk\t\n💿\toptical disk\tcd\n📀\tdvd\t\n🧮\tabacus\t\n🎥\tmovie camera\t\n🎞️\tfilm frames\t\n📽️\tfilm projector\t\n🎬\tclapper board\t\n📺\ttelevision\ttv\n📷\tcamera\t\n📸\tcamera with flash\t\n📹\tvideo camera\t\n📼\tvideocassette\tvhs\n🔍\tmagnifying glass tilted left\t\n🔎\tmagnifying glass tilted right\tmag right\n🕯️\tcandle\t\n💡\tlight bulb\t\n🔦\tflashlight\t\n🏮\tred paper lantern\tizakaya lantern\n🪔\tdiya lamp\t\n📔\tnotebook with decorative cover\t\n📕\tclosed book\t\n📖\topen book\t\n📗\tgreen book\t\n📘\tblue book\t\n📙\torange book\t\n📚\tbooks\t\n📓\tnotebook\t\n📒\tledger\t\n📃\tpage with curl\t\n📜\tscroll\t\n📄\tpage facing up\t\n📰\tnewspaper\t\n🗞️\trolled-up newspaper\trolled up newspaper\n📑\tbookmark tabs\t\n🔖\tbookmark\t\n🏷️\tlabel\t\n🪙\tcoin\t\n💰\tmoney bag\tmoneybag\n💴\tyen banknote\t\n💵\tdollar banknote\t\n💶\teuro banknote\t\n💷\tpound banknote\t\n💸\tmoney with wings\t\n💳\tcredit card\t\n🧾\treceipt\t\n💹\tchart increasing with yen\t\n✉️\tenvelope\temail\n📧\te-mail\te mail\n📨\tincoming envelope\t\n📩\tenvelope with arrow\t\n📤\toutbox tray\t\n📥\tinbox tray\t\n📦\tpackage\t\n📫\tclosed mailbox with raised flag\t\n📪\tclosed mailbox with lowered flag\tmailbox closed\n📬\topen mailbox with raised flag\tmailbox with mail\n📭\topen mailbox with lowered flag\tmailbox with no mail\n📮\tpostbox\t\n🗳️\tballot box with ballot\t\n✏️\tpencil\tpencil2\n✒️\tblack nib\t\n🖋️\tfountain pen\tlower left fountain pen\n🖊️\tpen\tlower left ballpoint pen\n🖌️\tpaintbrush\tlower left paintbrush\n🖍️\tcrayon\tlower left crayon\n📝\tmemo\tpencil\n💼\tbriefcase\t\n📁\tfile folder\t\n📂\topen file folder\t\n🗂️\tcard index dividers\t\n📅\tcalendar\tdate\n📆\ttear-off calendar\t\n🗒️\tspiral notepad\tspiral note pad\n🗓️\tspiral calendar\tspiral calendar pad\n📇\tcard index\t\n📈\tchart increasing\tchart with upwards trend\n📉\tchart decreasing\tchart with downwards trend\n📊\tbar chart\t\n📋\tclipboard\t\n📌\tpushpin\t\n📍\tround pushpin\t\n📎\tpaperclip\t\n🖇️\tlinked paperclips\t\n📏\tstraight ruler\t\n📐\ttriangular ruler\t\n✂️\tscissors\t\n🗃️\tcard file box\t\n🗄️\tfile cabinet\t\n🗑️\twastebasket\t\n🔒\tlocked\t\n🔓\tunlocked\t\n🔏\tlocked with pen\tlock with ink pen\n🔐\tlocked with key\tclosed lock with key\n🔑\tkey\t\n🗝️\told key\t\n🔨\thammer\t\n🪓\taxe\t\n⛏️\tpick\t\n⚒️\thammer and pick\t\n🛠️\thammer and wrench\t\n🗡️\tdagger\tdagger knife\n⚔️\tcrossed swords\t\n💣\tbomb\t\n🪃\tboomerang\t\n🏹\tbow and arrow\t\n🛡️\tshield\t\n🪚\tcarpentry saw\t\n🔧\twrench\t\n🪛\tscrewdriver\t\n🔩\tnut and bolt\t\n⚙️\tgear\t\n🗜️\tclamp\tcompression\n⚖️\tbalance scale\tscales\n🦯\twhite cane\tprobing cane\n🔗\tlink\t\n⛓️‍💥\tbroken chain\t\n⛓️\tchains\t\n🪝\thook\t\n🧰\ttoolbox\t\n🧲\tmagnet\t\n🪜\tladder\t\n⚗️\talembic\t\n🧪\ttest tube\t\n🧫\tpetri dish\t\n🧬\tdna\t\n🔬\tmicroscope\t\n🔭\ttelescope\t\n📡\tsatellite antenna\t\n💉\tsyringe\t\n🩸\tdrop of blood\t\n💊\tpill\t\n🩹\tadhesive bandage\t\n🩼\tcrutch\t\n🩺\tstethoscope\t\n🩻\tx-ray\tx ray\n🚪\tdoor\t\n🛗\televator\t\n🪞\tmirror\t\n🪟\twindow\t\n🛏️\tbed\t\n🛋️\tcouch and lamp\t\n🪑\tchair\t\n🚽\ttoilet\t\n🪠\tplunger\t\n🚿\tshower\t\n🛁\tbathtub\t\n🪤\tmouse trap\t\n🪒\trazor\t\n🧴\tlotion bottle\t\n🧷\tsafety pin\t\n🧹\tbroom\t\n🧺\tbasket\t\n🧻\troll of paper\t\n🪣\tbucket\t\n🧼\tsoap\t\n🫧\tbubbles\t\n🪥\ttoothbrush\t\n🧽\tsponge\t\n🧯\tfire extinguisher\t\n🛒\tshopping cart\tshopping trolley\n🚬\tcigarette\tsmoking\n⚰️\tcoffin\t\n🪦\theadstone\t\n⚱️\tfuneral urn\t\n🧿\tnazar amulet\t\n🪬\thamsa\t\n🗿\tmoai\tmoyai\n🪧\tplacard\t\n🪪\tidentification card\t"],["Symbols","❤️","🏧\tatm sign\t\n🚮\tlitter in bin sign\tput litter in its place\n🚰\tpotable water\t\n♿\twheelchair symbol\t\n🚹\tmen’s room\tmens\n🚺\twomen’s room\twomens\n🚻\trestroom\t\n🚼\tbaby symbol\t\n🚾\twater closet\twc\n🛂\tpassport control\t\n🛃\tcustoms\t\n🛄\tbaggage claim\t\n🛅\tleft luggage\t\n⚠️\twarning\t\n🚸\tchildren crossing\t\n⛔\tno entry\t\n🚫\tprohibited\tno entry sign\n🚳\tno bicycles\t\n🚭\tno smoking\t\n🚯\tno littering\tdo not litter\n🚱\tnon-potable water\tnon potable water\n🚷\tno pedestrians\t\n📵\tno mobile phones\t\n🔞\tno one under eighteen\tunderage\n☢️\tradioactive\tradioactive sign\n☣️\tbiohazard\tbiohazard sign\n⬆️\tup arrow\tarrow up\n↗️\tup-right arrow\tarrow upper right\n➡️\tright arrow\tarrow right\n↘️\tdown-right arrow\tarrow lower right\n⬇️\tdown arrow\tarrow down\n↙️\tdown-left arrow\tarrow lower left\n⬅️\tleft arrow\tarrow left\n↖️\tup-left arrow\tarrow upper left\n↕️\tup-down arrow\tarrow up down\n↔️\tleft-right arrow\tleft right arrow\n↩️\tright arrow curving left\tleftwards arrow with hook\n↪️\tleft arrow curving right\tarrow right hook\n⤴️\tright arrow curving up\tarrow heading up\n⤵️\tright arrow curving down\tarrow heading down\n🔃\tclockwise vertical arrows\tarrows clockwise\n🔄\tcounterclockwise arrows button\tarrows counterclockwise\n🔙\tback arrow\t\n🔚\tend arrow\t\n🔛\ton! arrow\t\n🔜\tsoon arrow\t\n🔝\ttop arrow\t\n🛐\tplace of worship\t\n⚛️\tatom symbol\t\n🕉️\tom\tom symbol\n✡️\tstar of david\t\n☸️\twheel of dharma\t\n☯️\tyin yang\t\n✝️\tlatin cross\t\n☦️\torthodox cross\t\n☪️\tstar and crescent\t\n☮️\tpeace symbol\t\n🕎\tmenorah\tmenorah with nine branches\n🔯\tdotted six-pointed star\tsix pointed star\n🪯\tkhanda\t\n♈\taries\t\n♉\ttaurus\t\n♊\tgemini\t\n♋\tcancer\t\n♌\tleo\t\n♍\tvirgo\t\n♎\tlibra\t\n♏\tscorpio\tscorpius\n♐\tsagittarius\t\n♑\tcapricorn\t\n♒\taquarius\t\n♓\tpisces\t\n⛎\tophiuchus\t\n🔀\tshuffle tracks button\ttwisted rightwards arrows\n🔁\trepeat button\t\n🔂\trepeat single button\trepeat one\n▶️\tplay button\tarrow forward\n⏩\tfast-forward button\tfast forward\n⏭️\tnext track button\tblack right pointing double triangle with vertical bar\n⏯️\tplay or pause button\tblack right pointing triangle with double vertical bar\n◀️\treverse button\tarrow backward\n⏪\tfast reverse button\trewind\n⏮️\tlast track button\tblack left pointing double triangle with vertical bar\n🔼\tupwards button\tarrow up small\n⏫\tfast up button\tarrow double up\n🔽\tdownwards button\tarrow down small\n⏬\tfast down button\tarrow double down\n⏸️\tpause button\tdouble vertical bar\n⏹️\tstop button\tblack square for stop\n⏺️\trecord button\tblack circle for record\n⏏️\teject button\t\n🎦\tcinema\t\n🔅\tdim button\tlow brightness\n🔆\tbright button\thigh brightness\n📶\tantenna bars\tsignal strength\n🛜\twireless\t\n📳\tvibration mode\t\n📴\tmobile phone off\t\n♀️\tfemale sign\t\n♂️\tmale sign\t\n⚧️\ttransgender symbol\t\n✖️\tmultiply\theavy multiplication x\n➕\tplus\theavy plus sign\n➖\tminus\theavy minus sign\n➗\tdivide\theavy division sign\n🟰\theavy equals sign\t\n♾️\tinfinity\t\n‼️\tdouble exclamation mark\tbangbang\n⁉️\texclamation question mark\tinterrobang\n❓\tred question mark\t\n❔\twhite question mark\tgrey question\n❕\twhite exclamation mark\tgrey exclamation\n❗\tred exclamation mark\theavy exclamation mark\n〰️\twavy dash\t\n💱\tcurrency exchange\t\n💲\theavy dollar sign\t\n⚕️\tmedical symbol\tstaff of aesculapius\n♻️\trecycling symbol\trecycle\n⚜️\tfleur-de-lis\tfleur de lis\n🔱\ttrident emblem\t\n📛\tname badge\t\n🔰\tjapanese symbol for beginner\t\n⭕\thollow red circle\t\n✅\tcheck mark button\twhite check mark\n☑️\tcheck box with check\tballot box with check\n✔️\tcheck mark\theavy check mark\n❌\tcross mark\tx\n❎\tcross mark button\tnegative squared cross mark\n➰\tcurly loop\t\n➿\tdouble curly loop\t\n〽️\tpart alternation mark\t\n✳️\teight-spoked asterisk\teight spoked asterisk\n✴️\teight-pointed star\teight pointed black star\n❇️\tsparkle\t\n©️\tcopyright\t\n®️\tregistered\t\n™️\ttrade mark\ttm\n#️⃣\tkeycap #\t\n*️⃣\tkeycap *\t\n0️⃣\tkeycap 0\t\n1️⃣\tkeycap 1\t\n2️⃣\tkeycap 2\t\n3️⃣\tkeycap 3\t\n4️⃣\tkeycap 4\t\n5️⃣\tkeycap 5\t\n6️⃣\tkeycap 6\t\n7️⃣\tkeycap 7\t\n8️⃣\tkeycap 8\t\n9️⃣\tkeycap 9\t\n🔟\tkeycap 10\tkeycap ten\n🔠\tinput latin uppercase\tcapital abcd\n🔡\tinput latin lowercase\tabcd\n🔢\tinput numbers\t1234\n🔣\tinput symbols\t\n🔤\tinput latin letters\tabc\n🅰️\ta button (blood type)\t\n🆎\tab button (blood type)\t\n🅱️\tb button (blood type)\t\n🆑\tcl button\t\n🆒\tcool button\t\n🆓\tfree button\t\nℹ️\tinformation\tinformation source\n🆔\tid button\t\nⓂ️\tcircled m\t\n🆕\tnew button\t\n🆖\tng button\t\n🅾️\to button (blood type)\to2\n🆗\tok button\t\n🅿️\tp button\tparking\n🆘\tsos button\t\n🆙\tup! button\t\n🆚\tvs button\t\n🈁\tjapanese “here” button\tkoko\n🈂️\tjapanese “service charge” button\tsa\n🈷️\tjapanese “monthly amount” button\tu6708\n🈶\tjapanese “not free of charge” button\tu6709\n🈯\tjapanese “reserved” button\tu6307\n🉐\tjapanese “bargain” button\tideograph advantage\n🈹\tjapanese “discount” button\tu5272\n🈚\tjapanese “free of charge” button\tu7121\n🈲\tjapanese “prohibited” button\tu7981\n🉑\tjapanese “acceptable” button\t\n🈸\tjapanese “application” button\tu7533\n🈴\tjapanese “passing grade” button\tu5408\n🈳\tjapanese “vacancy” button\tu7a7a\n㊗️\tjapanese “congratulations” button\t\n㊙️\tjapanese “secret” button\t\n🈺\tjapanese “open for business” button\tu55b6\n🈵\tjapanese “no vacancy” button\tu6e80\n🔴\tred circle\t\n🟠\torange circle\tlarge orange circle\n🟡\tyellow circle\tlarge yellow circle\n🟢\tgreen circle\tlarge green circle\n🔵\tblue circle\tlarge blue circle\n🟣\tpurple circle\tlarge purple circle\n🟤\tbrown circle\tlarge brown circle\n⚫\tblack circle\t\n⚪\twhite circle\t\n🟥\tred square\tlarge red square\n🟧\torange square\tlarge orange square\n🟨\tyellow square\tlarge yellow square\n🟩\tgreen square\tlarge green square\n🟦\tblue square\tlarge blue square\n🟪\tpurple square\tlarge purple square\n🟫\tbrown square\tlarge brown square\n⬛\tblack large square\t\n⬜\twhite large square\t\n◼️\tblack medium square\t\n◻️\twhite medium square\t\n◾\tblack medium-small square\tblack medium small square\n◽\twhite medium-small square\twhite medium small square\n▪️\tblack small square\t\n▫️\twhite small square\t\n🔶\tlarge orange diamond\t\n🔷\tlarge blue diamond\t\n🔸\tsmall orange diamond\t\n🔹\tsmall blue diamond\t\n🔺\tred triangle pointed up\tsmall red triangle\n🔻\tred triangle pointed down\tsmall red triangle down\n💠\tdiamond with a dot\tdiamond shape with a dot inside\n🔘\tradio button\t\n🔳\twhite square button\t\n🔲\tblack square button\t"],["Flags","🏁","🏁\tchequered flag\tcheckered flag\n🚩\ttriangular flag\ttriangular flag on post\n🎌\tcrossed flags\t\n🏴\tblack flag\twaving black flag\n🏳️\twhite flag\twaving white flag\n🏳️‍🌈\trainbow flag\t\n🏳️‍⚧️\ttransgender flag\t\n🏴‍☠️\tpirate flag\t\n🇦🇨\tflag ascension island\tflag ac\n🇦🇩\tflag andorra\tflag ad\n🇦🇪\tflag united arab emirates\tflag ae\n🇦🇫\tflag afghanistan\t\n🇦🇬\tflag antigua & barbuda\tflag ag\n🇦🇮\tflag anguilla\tflag ai\n🇦🇱\tflag albania\t\n🇦🇲\tflag armenia\tflag am\n🇦🇴\tflag angola\tflag ao\n🇦🇶\tflag antarctica\tflag aq\n🇦🇷\tflag argentina\t\n🇦🇸\tflag american samoa\tflag as\n🇦🇹\tflag austria\tflag at\n🇦🇺\tflag australia\t\n🇦🇼\tflag aruba\tflag aw\n🇦🇽\tflag åland islands\tflag ax\n🇦🇿\tflag azerbaijan\t\n🇧🇦\tflag bosnia & herzegovina\tflag ba\n🇧🇧\tflag barbados\tflag bb\n🇧🇩\tflag bangladesh\tflag bd\n🇧🇪\tflag belgium\t\n🇧🇫\tflag burkina faso\tflag bf\n🇧🇬\tflag bulgaria\tflag bg\n🇧🇭\tflag bahrain\tflag bh\n🇧🇮\tflag burundi\tflag bi\n🇧🇯\tflag benin\tflag bj\n🇧🇱\tflag st. barthélemy\tflag bl\n🇧🇲\tflag bermuda\tflag bm\n🇧🇳\tflag brunei\tflag bn\n🇧🇴\tflag bolivia\t\n🇧🇶\tflag caribbean netherlands\tflag bq\n🇧🇷\tflag brazil\t\n🇧🇸\tflag bahamas\tflag bs\n🇧🇹\tflag bhutan\tflag bt\n🇧🇻\tflag bouvet island\tflag bv\n🇧🇼\tflag botswana\tflag bw\n🇧🇾\tflag belarus\tflag by\n🇧🇿\tflag belize\tflag bz\n🇨🇦\tflag canada\t\n🇨🇨\tflag cocos (keeling) islands\tflag cc\n🇨🇩\tflag congo - kinshasa\tflag cd\n🇨🇫\tflag central african republic\tflag cf\n🇨🇬\tflag congo - brazzaville\tflag cg\n🇨🇭\tflag switzerland\tflag ch\n🇨🇮\tflag côte d’ivoire\tflag ci\n🇨🇰\tflag cook islands\tflag ck\n🇨🇱\tflag chile\tflag cl\n🇨🇲\tflag cameroon\tflag cm\n🇨🇳\tflag china\tcn flag cn\n🇨🇴\tflag colombia\t\n🇨🇵\tflag clipperton island\tflag cp\n🇨🇷\tflag costa rica\tflag cr\n🇨🇺\tflag cuba\t\n🇨🇻\tflag cape verde\tflag cv\n🇨🇼\tflag curaçao\tflag cw\n🇨🇽\tflag christmas island\tflag cx\n🇨🇾\tflag cyprus\t\n🇨🇿\tflag czechia\t\n🇩🇪\tflag germany\tde flag de\n🇩🇬\tflag diego garcia\tflag dg\n🇩🇯\tflag djibouti\t\n🇩🇰\tflag denmark\tflag dk\n🇩🇲\tflag dominica\tflag dm\n🇩🇴\tflag dominican republic\t\n🇩🇿\tflag algeria\tflag dz\n🇪🇦\tflag ceuta & melilla\tflag ea\n🇪🇨\tflag ecuador\t\n🇪🇪\tflag estonia\tflag ee\n🇪🇬\tflag egypt\t\n🇪🇭\tflag western sahara\tflag eh\n🇪🇷\tflag eritrea\t\n🇪🇸\tflag spain\tes flag es\n🇪🇹\tflag ethiopia\t\n🇪🇺\tflag european union\t\n🇫🇮\tflag finland\t\n🇫🇯\tflag fiji\tflag fj\n🇫🇰\tflag falkland islands\tflag fk\n🇫🇲\tflag micronesia\tflag fm\n🇫🇴\tflag faroe islands\tflag fo\n🇫🇷\tflag france\t\n🇬🇦\tflag gabon\t\n🇬🇧\tflag united kingdom\tflag gb gb uk\n🇬🇩\tflag grenada\tflag gd\n🇬🇪\tflag georgia\t\n🇬🇫\tflag french guiana\tflag gf\n🇬🇬\tflag guernsey\tflag gg\n🇬🇭\tflag ghana\t\n🇬🇮\tflag gibraltar\t\n🇬🇱\tflag greenland\tflag gl\n🇬🇲\tflag gambia\tflag gm\n🇬🇳\tflag guinea\tflag gn\n🇬🇵\tflag guadeloupe\tflag gp\n🇬🇶\tflag equatorial guinea\tflag gq\n🇬🇷\tflag greece\t\n🇬🇸\tflag south georgia & south sandwich islands\tflag gs\n🇬🇹\tflag guatemala\tflag gt\n🇬🇺\tflag guam\t\n🇬🇼\tflag guinea-bissau\tflag gw\n🇬🇾\tflag guyana\tflag gy\n🇭🇰\tflag hong kong sar china\tflag hk\n🇭🇲\tflag heard & mcdonald islands\tflag hm\n🇭🇳\tflag honduras\tflag hn\n🇭🇷\tflag croatia\tflag hr\n🇭🇹\tflag haiti\tflag ht\n🇭🇺\tflag hungary\t\n🇮🇨\tflag canary islands\tflag ic\n🇮🇩\tflag indonesia\tflag id\n🇮🇪\tflag ireland\tflag ie\n🇮🇱\tflag israel\tflag il\n🇮🇲\tflag isle of man\tflag im\n🇮🇳\tflag india\t\n🇮🇴\tflag british indian ocean territory\tflag io\n🇮🇶\tflag iraq\tflag iq\n🇮🇷\tflag iran\t\n🇮🇸\tflag iceland\tflag is\n🇮🇹\tflag italy\t\n🇯🇪\tflag jersey\t\n🇯🇲\tflag jamaica\tflag jm\n🇯🇴\tflag jordan\t\n🇯🇵\tflag japan\tflag jp jp\n🇰🇪\tflag kenya\t\n🇰🇬\tflag kyrgyzstan\tflag kg\n🇰🇭\tflag cambodia\tflag kh\n🇰🇮\tflag kiribati\t\n🇰🇲\tflag comoros\tflag km\n🇰🇳\tflag st. kitts & nevis\tflag kn\n🇰🇵\tflag north korea\tflag kp\n🇰🇷\tflag south korea\tflag kr kr\n🇰🇼\tflag kuwait\tflag kw\n🇰🇾\tflag cayman islands\tflag ky\n🇰🇿\tflag kazakhstan\tflag kz\n🇱🇦\tflag laos\t\n🇱🇧\tflag lebanon\tflag lb\n🇱🇨\tflag st. lucia\tflag lc\n🇱🇮\tflag liechtenstein\t\n🇱🇰\tflag sri lanka\tflag lk\n🇱🇷\tflag liberia\tflag lr\n🇱🇸\tflag lesotho\tflag ls\n🇱🇹\tflag lithuania\tflag lt\n🇱🇺\tflag luxembourg\t\n🇱🇻\tflag latvia\tflag lv\n🇱🇾\tflag libya\tflag ly\n🇲🇦\tflag morocco\tflag ma\n🇲🇨\tflag monaco\tflag mc\n🇲🇩\tflag moldova\tflag md\n🇲🇪\tflag montenegro\tflag me\n🇲🇫\tflag st. martin\tflag mf\n🇲🇬\tflag madagascar\tflag mg\n🇲🇭\tflag marshall islands\tflag mh\n🇲🇰\tflag north macedonia\tflag mk\n🇲🇱\tflag mali\tflag ml\n🇲🇲\tflag myanmar (burma)\tflag mm\n🇲🇳\tflag mongolia\tflag mn\n🇲🇴\tflag macao sar china\tflag mo\n🇲🇵\tflag northern mariana islands\tflag mp\n🇲🇶\tflag martinique\tflag mq\n🇲🇷\tflag mauritania\tflag mr\n🇲🇸\tflag montserrat\tflag ms\n🇲🇹\tflag malta\tflag mt\n🇲🇺\tflag mauritius\tflag mu\n🇲🇻\tflag maldives\tflag mv\n🇲🇼\tflag malawi\tflag mw\n🇲🇽\tflag mexico\tflag mx\n🇲🇾\tflag malaysia\tflag my\n🇲🇿\tflag mozambique\tflag mz\n🇳🇦\tflag namibia\t\n🇳🇨\tflag new caledonia\tflag nc\n🇳🇪\tflag niger\tflag ne\n🇳🇫\tflag norfolk island\tflag nf\n🇳🇬\tflag nigeria\tflag ng\n🇳🇮\tflag nicaragua\t\n🇳🇱\tflag netherlands\tflag nl\n🇳🇴\tflag norway\t\n🇳🇵\tflag nepal\tflag np\n🇳🇷\tflag nauru\tflag nr\n🇳🇺\tflag niue\tflag nu\n🇳🇿\tflag new zealand\tflag nz\n🇴🇲\tflag oman\t\n🇵🇦\tflag panama\t\n🇵🇪\tflag peru\t\n🇵🇫\tflag french polynesia\tflag pf\n🇵🇬\tflag papua new guinea\tflag pg\n🇵🇭\tflag philippines\t\n🇵🇰\tflag pakistan\tflag pk\n🇵🇱\tflag poland\tflag pl\n🇵🇲\tflag st. pierre & miquelon\tflag pm\n🇵🇳\tflag pitcairn islands\tflag pn\n🇵🇷\tflag puerto rico\tflag pr\n🇵🇸\tflag palestinian territories\tflag ps\n🇵🇹\tflag portugal\tflag pt\n🇵🇼\tflag palau\tflag pw\n🇵🇾\tflag paraguay\tflag py\n🇶🇦\tflag qatar\t\n🇷🇪\tflag réunion\tflag re\n🇷🇴\tflag romania\t\n🇷🇸\tflag serbia\tflag rs\n🇷🇺\tflag russia\t\n🇷🇼\tflag rwanda\t\n🇸🇦\tflag saudi arabia\t\n🇸🇧\tflag solomon islands\tflag sb\n🇸🇨\tflag seychelles\tflag sc\n🇸🇩\tflag sudan\tflag sd\n🇸🇪\tflag sweden\tflag se\n🇸🇬\tflag singapore\tflag sg\n🇸🇭\tflag st. helena\tflag sh\n🇸🇮\tflag slovenia\tflag si\n🇸🇯\tflag svalbard & jan mayen\tflag sj\n🇸🇰\tflag slovakia\tflag sk\n🇸🇱\tflag sierra leone\tflag sl\n🇸🇲\tflag san marino\tflag sm\n🇸🇳\tflag senegal\tflag sn\n🇸🇴\tflag somalia\t\n🇸🇷\tflag suriname\tflag sr\n🇸🇸\tflag south sudan\tflag ss\n🇸🇹\tflag são tomé & príncipe\tflag st\n🇸🇻\tflag el salvador\tflag sv\n🇸🇽\tflag sint maarten\tflag sx\n🇸🇾\tflag syria\t\n🇸🇿\tflag eswatini\tflag sz\n🇹🇦\tflag tristan da cunha\tflag ta\n🇹🇨\tflag turks & caicos islands\tflag tc\n🇹🇩\tflag chad\tflag td\n🇹🇫\tflag french southern territories\tflag tf\n🇹🇬\tflag togo\tflag tg\n🇹🇭\tflag thailand\t\n🇹🇯\tflag tajikistan\tflag tj\n🇹🇰\tflag tokelau\tflag tk\n🇹🇱\tflag timor-leste\tflag tl\n🇹🇲\tflag turkmenistan\tflag tm\n🇹🇳\tflag tunisia\tflag tn\n🇹🇴\tflag tonga\t\n🇹🇷\tflag türkiye\tflag tr\n🇹🇹\tflag trinidad & tobago\tflag tt\n🇹🇻\tflag tuvalu\tflag tv\n🇹🇼\tflag taiwan\tflag tw\n🇹🇿\tflag tanzania\tflag tz\n🇺🇦\tflag ukraine\tflag ua\n🇺🇬\tflag uganda\t\n🇺🇲\tflag u.s. outlying islands\tflag um\n🇺🇳\tflag united nations\t\n🇺🇸\tflag united states\tflag us us\n🇺🇾\tflag uruguay\tflag uy\n🇺🇿\tflag uzbekistan\t\n🇻🇦\tflag vatican city\t\n🇻🇨\tflag st. vincent & grenadines\tflag vc\n🇻🇪\tflag venezuela\t\n🇻🇬\tflag british virgin islands\tflag vg\n🇻🇮\tflag u.s. virgin islands\tflag vi\n🇻🇳\tflag vietnam\tflag vn\n🇻🇺\tflag vanuatu\tflag vu\n🇼🇫\tflag wallis & futuna\tflag wf\n🇼🇸\tflag samoa\tflag ws\n🇽🇰\tflag kosovo\tflag xk\n🇾🇪\tflag yemen\t\n🇾🇹\tflag mayotte\tflag yt\n🇿🇦\tflag south africa\tflag za\n🇿🇲\tflag zambia\tflag zm\n🇿🇼\tflag zimbabwe\tflag zw\n🏴󠁧󠁢󠁥󠁮󠁧󠁿\tflag england\t\n🏴󠁧󠁢󠁳󠁣󠁴󠁿\tflag scotland\t\n🏴󠁧󠁢󠁷󠁬󠁳󠁿\tflag wales\t"]];
 const TONES=['','\u{1F3FB}','\u{1F3FC}','\u{1F3FD}','\u{1F3FE}','\u{1F3FF}'],TONE_HAND=['✋','✋🏻','✋🏼','✋🏽','✋🏾','✋🏿'],TONE_NAME=['Default','Light','Medium-light','Medium','Medium-dark','Dark'];
 /* each style's own row of reactions */
-const QUICK={ios:['❤️','👍','👎','😂','‼️','❓'],lock:['❤️','👍','👎','😂','‼️','❓'],android:['👍','😍','😂','😮','😥','😠','👎'],wa:['👍','❤️','😂','😮','😢','🙏'],dm:['❤️','😂','😮','😢','😡','👍'],discord:['👍','❤️','😂','🔥','😭','💀'],tx:['❤️','👍','😂','😮','🔥','‼️']};
-const QUICK_NAME={ios:'iPhone',lock:'iPhone',android:'Android',wa:'WhatsApp-style',dm:'Social DM',discord:'Discord-style',tx:'Transmission'};
-const quickReacts=()=>QUICK[P.style]||QUICK.ios;
+const QUICK={ios:['❤️','👍','👎','😂','‼️','❓'],lock:['❤️','👍','👎','😂','‼️','❓'],android:['👍','😍','😂','😮','😥','😠','👎'],wa:['👍','❤️','😂','😮','😢','🙏'],dm:['❤️','😂','😮','😢','😡','👍'],discord:['👍','❤️','😂','🔥','😭','💀'],tx:['❤️','👍','😂','😮','🔥','‼️'],rpg:['❤️','❗','❓','💢','💤','🎵'],call:['👍','❤️','😂','😮','👏','🎉']};
+const QUICK_NAME={ios:'iPhone',lock:'iPhone',android:'Android',wa:'WhatsApp-style',dm:'Social DM',discord:'Discord-style',tx:'Transmission',rpg:'game',call:'call',overlay:'bubble look'};
+const quickReacts=()=>QUICK[P.style==='overlay'?(P.ovLook||'ios'):P.style]||QUICK.ios;
 const lsGet=k=>{try{return localStorage.getItem(k);}catch(e){return null;}},lsSet=(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}};
 let EMT=Math.max(0,Math.min(5,+(lsGet('cr-emoji-tone')||0)))||0,EMR=(()=>{try{return JSON.parse(lsGet('cr-emoji-recent')||'[]').slice(0,24);}catch(e){return[];}})(),EML=null,EMO=null,emBuilt='';
 
@@ -524,7 +524,7 @@ const rkey=()=>Math.random().toString(36).slice(2,9);
 function mk(o={}){return{from:'them',kind:'text',text:'',img:null,postUser:'',delay:.8,typing:1.2,typingAuto:true,keyboard:true,open:false,openHold:2,sound:'default',
   who:'',react:'',reactBy:'',reactDelay:1,replyTo:'',unsend:false,unsendAfter:2,voice:'',voiceLen:'0:08',voiceDur:0,voicePlay:true,voiceWait:true,vkey:'',vidInline:true,vidSound:true,holdVid:true,...o,key:o.key||rkey(),id:uid++};}
 function DEFAULT(){return{style:'ios',mode:'light',name:'Maya',status:'Active now',time:'9:41',receipt:'',iosColor:'Blue',dmColor:'Purple',avColor:'Green',kbSpeed:'Normal',startPause:.5,endHold:1.5,avatar:null,
-  group:false,groupName:'',people:[],myName:'You',myColor:'#F0B232',color0:'#E5484D',ticks:'Read',lockPhone:'iPhone',lockApp:'Messages',lockDate:'Tuesday, October 6',wall:null,inputBar:'auto',lockIntro:false,lockCount:1,lockHold:1.2,txTint:'amber',txCustom:'#FFB547',txMe:null,txIntro:true,txOutro:true,txWide:true,
+  group:false,groupName:'',people:[],myName:'You',myColor:'#F0B232',color0:'#E5484D',ticks:'Read',lockPhone:'iPhone',lockApp:'Messages',lockDate:'Tuesday, October 6',wall:null,inputBar:'auto',lockIntro:false,lockCount:1,lockHold:1.2,txTint:'amber',txCustom:'#FFB547',txMe:null,txIntro:true,txOutro:true,txWide:true,rpgWide:true,rpgScene:'field',rpgWin:'blue',rpgCaps:false,rpgTitle:true,rpgTitleText:'CHAPTER 1',rpgEnd:'cont',rpgBg:null,callWide:true,callLayout:'grid',callAccent:'blue',callStart:'out',callEnd:true,callThemKey:'',callMeKey:'',ovLook:'ios',ovShape:'auto',ovPosV:'bottom',ovPosH:'right',ovSize:1,ovShade:'soft',ovSound:false,ovChip:true,ovBgKey:'',ovBgImg:null,
   sound:{on:true,volume:.7,send:'Pop',receive:'Chime',keys:true,keySound:'Click',tap:'Tap',react:'Bubble'},
   msgs:[mk({from:'divider',text:'Today 4:12 PM',delay:.2}),mk({from:'them',text:'are you still at the beach??',delay:.4}),mk({from:'me',text:'yes!! look at this',delay:.8}),
     mk({from:'me',kind:'photo',delay:.5,open:true,openHold:2.2}),mk({from:'them',text:'ok that is unreal',delay:.7}),mk({from:'them',text:'save me a sunset please',delay:.4}),
@@ -534,13 +534,13 @@ const KEY='chat-reel-v1';
 let restored=false;
 /* your work is kept in this browser: text and settings in localStorage, the full project with photos in IndexedDB */
 function reelDoc(withSounds){const d={app:'chat-reel',version:1,savedAt:new Date().toISOString(),
-  project:{...P,avatar:imgToData(P.avatar),wall:imgToData(P.wall),txMe:imgToData(P.txMe),people:(P.people||[]).map(pp=>({...pp,avatar:imgToData(pp.avatar)})),msgs:P.msgs.map(({id,...m})=>({...m,img:imgToData(m.img)}))}};
+  project:{...P,avatar:imgToData(P.avatar),wall:imgToData(P.wall),txMe:imgToData(P.txMe),rpgBg:imgToData(P.rpgBg),ovBgImg:imgToData(P.ovBgImg),people:(P.people||[]).map(pp=>({...pp,avatar:imgToData(pp.avatar)})),msgs:P.msgs.map(({id,...m})=>({...m,img:imgToData(m.img)}))}};
   if(withSounds)d.sounds=LIB.map(it=>({id:it.id,name:it.name,data:abToB64(it.data)}));return d;}
-function writeState(){try{localStorage.setItem(KEY,JSON.stringify({...P,avatar:null,wall:null,txMe:null,people:(P.people||[]).map(pp=>({...pp,avatar:null})),msgs:P.msgs.map(m=>({...m,img:null}))}));}catch(e){}
+function writeState(){try{localStorage.setItem(KEY,JSON.stringify({...P,avatar:null,wall:null,txMe:null,rpgBg:null,ovBgImg:null,people:(P.people||[]).map(pp=>({...pp,avatar:null})),msgs:P.msgs.map(m=>({...m,img:null}))}));}catch(e){}
   if(restored)pruneClips();return restored?IDB.putState(reelDoc(false)):Promise.resolve();}
 function save(){clearTimeout(save.t);save.t=setTimeout(writeState,400);}
 function flushAutosave(){clearTimeout(save.t);return writeState();}
-function load(){try{const o=JSON.parse(localStorage.getItem(KEY)||'null');if(o&&Array.isArray(o.msgs)&&o.msgs.length){const d=DEFAULT();P={...d,...o,sound:{...d.sound,...(o.sound||{})},avatar:null,wall:null,txMe:null,people:(o.people||[]).map(pp=>({...pp,avatar:null})),msgs:o.msgs.map(m=>mk({...m,img:null}))};if(!LAY[P.style])P.style='ios';}}catch(e){}}
+function load(){try{const o=JSON.parse(localStorage.getItem(KEY)||'null');if(o&&Array.isArray(o.msgs)&&o.msgs.length){const d=DEFAULT();P={...d,...o,sound:{...d.sound,...(o.sound||{})},avatar:null,wall:null,txMe:null,rpgBg:null,ovBgImg:null,people:(o.people||[]).map(pp=>({...pp,avatar:null})),msgs:o.msgs.map(m=>mk({...m,img:null}))};if(!LAY[P.style])P.style='ios';}}catch(e){}}
 
 /* ================= transmission style: an original comms screen — one speaker at a time, lines typed out as subtitles ================= */
 FAM.mono='"IBM Plex Mono","SFMono-Regular",Menlo,Consolas,"DejaVu Sans Mono","Liberation Mono",monospace';
@@ -718,7 +718,9 @@ function txRing(t,k){ctx.fillStyle=k.bg;ctx.fillRect(0,0,W,H);ctx.textBaseline='
   txScan(0,0,W,H,.2);txVignette(.6);}
 /* ================= widescreen transmission: both people on screen the whole time, the lines change in the middle ================= */
 function txWide(){return P.style==='tx'&&P.txWide!==false;}
-function fitCanvas(){const wd=txWide(),w=wd?1920:1080,h=wd?1080:2340;if(W===w&&H===h)return;W=w;H=h;cv.width=w;cv.height=h;cv.setAttribute('aria-label',wd?'Widescreen preview of the conversation':'Phone preview of the conversation');}
+function canvasDims(){const st=P.style;if(st==='tx')return P.txWide!==false?[1920,1080]:[1080,2340];if(st==='rpg')return P.rpgWide!==false?[1920,1080]:[1080,1920];
+  if(st==='call')return P.callWide!==false?[1920,1080]:[1080,1920];if(st==='overlay')return ovDims();return[1080,2340];}
+function fitCanvas(){const[w,h]=canvasDims();if(W===w&&H===h)return;W=w;H=h;cv.width=w;cv.height=h;cv.setAttribute('aria-label',w>h?'Widescreen preview of the conversation':h===2340?'Phone preview of the conversation':'Preview of the conversation');}
 const TXW={L:{x:70,y:150,w:480,h:590},R:{x:1370,y:150,w:480,h:590},C:{x:610,w:700},K:40,PY:424,PH:500};
 /* the right screen is the mirror image of the left: its corners are cut on the other side */
 function chamferM(x,y,w,h,k,mir){if(!mir)return chamfer(x,y,w,h,k);ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+w-k,y);ctx.lineTo(x+w,y+k);ctx.lineTo(x+w,y+h);ctx.lineTo(x+k,y+h);ctx.lineTo(x,y+h-k);ctx.closePath();}
@@ -838,18 +840,410 @@ function drawTx(t){const k=txK(),X=SCH.tx||{};ctx.save();ctx.clearRect(0,0,W,H);
   const e=st.cur;if(e&&e.openTap!=null&&t>=e.openTap&&t<e.closeEnd)drawViewer(e,st.mediaR||(txWide()?{x:640,y:454,w:640,h:330}:{x:TXF.x,y:TXF.y,w:TXF.w,h:TXF.h}),t,colors());
   ctx.restore();}
 
+/* ================= shared by the new styles ================= */
+const lerpR=(a,b,q)=>({x:a.x+(b.x-a.x)*q,y:a.y+(b.y-a.y)*q,w:a.w+(b.w-a.w)*q,h:a.h+(b.h-a.h)*q});
+const isHex=x=>/^#[0-9a-f]{6}$/i.test(x||'');
+const darkHex=(hx,a)=>{if(!isHex(hx))hx='#E5484D';return'#'+hexRGB(hx).map(x=>Math.round(x*(1-a)).toString(16).padStart(2,'0')).join('');};
+const lightHex=(hx,a)=>{if(!isHex(hx))hx='#E5484D';return'#'+hexRGB(hx).map(x=>Math.round(x+(255-x)*a).toString(16).padStart(2,'0')).join('');};
+function circImg(img,cx,cy,r,col,label){ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.clip();
+  if(img)drawCover(img,{x:cx-r,y:cy-r,w:2*r,h:2*r});else{ctx.fillStyle=col;ctx.fillRect(cx-r,cy-r,2*r,2*r);ctx.fillStyle='#fff';ctx.font=F(r*.8,600,'sys');ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(initials(label),cx,cy+2);}ctx.restore();}
+/* your name and photo, for the styles that show you */
+function myFields(p,r,help){if(!P.group)p.append(textF('l-myname','Your name',P.myName,v=>{P.myName=v;drawNow();save();},'You'));
+  const mr=h('div',{class:'row'},P.txMe?h('img',{class:'thumb round',src:P.txMe.src,alt:''}):h('span',{class:'thumb round'}),pickImage('l-txme',P.txMe?'Change':'Choose photo',im=>{P.txMe=im;r();}));
+  if(P.txMe)mr.append(h('button',{type:'button',onclick:()=>{P.txMe=null;r();}},'Remove'));
+  p.append(h('div',{class:'field'},h('span',{class:'flabel'},'Your photo'),mr,h('p',{class:'help'},help)));}
+/* a video picked for a background or a camera: kept with your work like video messages */
+function clipField(id,label,key,help){const v=feedVid(P[key]),inp=h('input',{type:'file',id,accept:'video/*,.mp4,.mov,.m4v,.webm'}),st=h('span',{class:'small'},v?`${v.name} · ${v.dur.toFixed(1)} s`:'');
+  inp.onchange=async()=>{const f=inp.files[0];inp.value='';if(!f)return;st.textContent='Opening the video…';const nid=await addClip(f);if(nid){P[key]=nid;refresh();}else st.textContent='';};
+  const row=h('div',{class:'row'},st,h('label',{class:'btn',for:id},v?'Change video':'Choose video',inp));if(v)row.append(h('button',{type:'button',onclick:()=>{P[key]='';refresh();}},'Remove'));
+  return h('div',{class:'field'},h('span',{class:'flabel'},label),row,help?h('p',{class:'help'},help):null);}
+const OVO={};function ovOff(n){let c=OVO[n];if(!c||c.width!==W||c.height!==H){c=document.createElement('canvas');c.width=W;c.height=H;OVO[n]=c;}return c;}
+function coverOn(g,src,r){const[iw,ih]=dimsOf(src);if(!iw||!ih)return;const s=Math.max(r.w/iw,r.h/ih);g.drawImage(src,r.x+(r.w-iw*s)/2,r.y+(r.h-ih*s)/2,iw*s,ih*s);}
+
+/* ================= retro game style: a pixel scene, little characters, and a text box that types out ================= */
+FAM.pixel='"Press Start 2P","Courier New",monospace';
+const RPGWIN={blue:{a:'#3D58DA',b:'#141C6E',edge:'#F4F4F4',text:'#FFFFFF',sub:'#B4C6FF',sh:'#000000'},
+  black:{a:'#050505',b:'#000000',edge:'#F4F4F4',text:'#FFFFFF',sub:'#BDBDBD',sh:'#444444'},
+  forest:{a:'#2E7D47',b:'#0D2C18',edge:'#ECF3DA',text:'#FFFFFF',sub:'#C2E8C9',sh:'#000000'},
+  crimson:{a:'#9C2436',b:'#32070F',edge:'#F8E8CF',text:'#FFFFFF',sub:'#F5BEC5',sh:'#000000'},
+  parchment:{a:'#EFDCAE',b:'#CCB078',edge:'#5B3C1C',text:'#2B1A0A',sub:'#77542D',sh:'#F8EED2'}};
+const rpgTh=()=>RPGWIN[P.rpgWin]||RPGWIN.blue;
+const RPG_TITLE=2.8,RPG_CH=1.8,RPG_END=2.6;
+function rpgAuto(m){return m.kind==='text'?clamp(.25+(m.text||'').length/24,.5,8):.9;}
+function rpgHold(m){return m.kind==='text'?clamp(.5+(m.text||'').length*.014,.7,2.4):1.1;}
+const rpgTxt=x=>P.rpgCaps?String(x).toUpperCase():String(x);
+function rpgLine(m){const nm=nameOf(m),me=m.from==='me',who=m.postUser||'someone';
+  if(m.kind==='photo')return me?'★ You show a photo!':`★ ${nm} shows you a photo!`;
+  if(m.kind==='video')return me?'★ You show a video!':`★ ${nm} shows you a video!`;
+  if(m.kind==='post')return me?`★ You share a post from @${who}!`:`★ ${nm} shares a post from @${who}!`;
+  if(m.kind==='voice')return(me?'♪ You send a voice message.':`♪ ${nm} sends a voice message.`)+` (${fmtClock(voiceSecs(m))})`;
+  return m.text||'';}
+function buildRpg(){
+  const ev=[],snd=[],marks=[],S={title:P.rpgTitle!==false};let t=0;
+  if(S.title){snd.push({t:2.0,type:'fx',v:'Coin'});marks.push({t:2.0,label:'▶ Start',title:'Start is pressed on the title screen'});t=RPG_TITLE;}
+  t+=P.startPause;
+  P.msgs.forEach((m,i)=>{const e={m,i,tx:true};t+=m.delay;e.start=e.kbUp=t;
+    if(m.from==='divider'){e.card=true;e.typeStart=e.typeEnd=e.arrive=t;e.popEnd=t+.3;e.end=t+RPG_CH;snd.push({t:t+.2,type:'fx',v:'Chapter'});ev.push(e);t=e.end;return;}
+    e.typeStart=t+.12;e.typeEnd=e.typeStart+Math.max(.2,typ(m));e.arrive=e.typeEnd;e.popEnd=e.arrive+.3;
+    snd.push({t:e.start,type:'line',i});if(txMedia(m))snd.push({t:e.typeStart,type:'fx',v:'Item Get'});
+    const chars=[...rpgTxt(rpgLine(m))],per=(e.typeEnd-e.typeStart)/Math.max(1,chars.length),v=m.from==='me'?'Talk Lo':'Talk Hi';
+    chars.forEach((ch,k)=>{if(ch!==' '&&k%2===0)snd.push({t:e.typeStart+k*per,type:'rpgkey',v,i});});
+    let end=e.arrive+rpgHold(m);
+    if(m.kind==='voice'&&m.voice&&m.voicePlay){e.voiceStart=e.arrive+.15;e.voiceEnd=e.voiceStart+voiceSecs(m);snd.push({t:e.voiceStart,type:'voice',i});if(m.voiceWait!==false)end=Math.max(end,e.voiceEnd+.4);}
+    if(m.react){e.reactAt=e.arrive+Math.max(.2,m.reactDelay);snd.push({t:e.reactAt,type:'fx',v:'Emote'});end=Math.max(end,e.reactAt+1);}
+    if(m.unsend){e.unsendAt=e.arrive+Math.max(.3,m.unsendAfter);end=Math.max(end,e.unsendAt+1);}
+    if(m.open&&txMedia(m)&&!m.unsend){e.openTap=end+.2;e.openStart=e.openTap+.35;e.openFull=e.openStart+.55;e.closeStart=e.openFull+holdOf(m);e.closeEnd=e.closeStart+.45;e.end=e.closeEnd+.3;snd.push({t:e.openTap,type:'tap',i});}
+    else e.end=end;
+    ev.push(e);t=e.end;});
+  let dur=t+P.endHold;const ek=P.rpgEnd||'cont';
+  if(ek!=='none'){S.end=dur;marks.push({t:dur,label:ek==='end'?'■ The end':'■ To be continued',title:'The ending card'});snd.push({t:dur+.55,type:'fx',v:'The End'});dur+=RPG_END;}
+  return{ev,snd:snd.sort((a,b)=>a.t-b.t),kb:[],dur,intro:null,marks,rpg:S};}
+/* the scene: drawn small (one dot = 8 pixels), then blown up without smoothing */
+function rpgStatic(kind,lw,lh,G){const c=document.createElement('canvas');c.width=lw;c.height=lh;const g=c.getContext('2d'),R=mulberry(7+kind.length*13),
+    px=(x,y,col)=>{g.fillStyle=col;g.fillRect(x,y,1,1);},rect=(x,y,w,h,col)=>{g.fillStyle=col;g.fillRect(x,y,w,h);};
+  const bands=(cols,y0,y1)=>{const n=cols.length,bh=(y1-y0)/n;for(let y=y0;y<y1;y++){const f=(y-y0)/bh,i=Math.min(n-1,Math.floor(f)),fr=f-i;
+    if(i<n-1&&fr>.62){for(let x=0;x<lw;x++)px(x,y,(x+y)%2?cols[i]:cols[i+1]);}else rect(0,y,lw,1,cols[i]);}};
+  if(kind==='none'){rect(0,0,lw,lh,'#000');return c;}
+  if(kind==='photo'){const im=P.rpgBg||SAMPLE,[iw,ih]=dimsOf(im),s=Math.max(lw/iw,lh/ih);g.drawImage(im,(lw-iw*s)/2,(lh-ih*s)/2,iw*s,ih*s);
+    try{const d=g.getImageData(0,0,lw,lh),p=d.data;for(let i=0;i<p.length;i+=4){for(let k=0;k<3;k++)p[i+k]=Math.round(p[i+k]/51)*51;p[i+3]=255;}g.putImageData(d,0,0);}catch(e){}return c;}
+  if(kind==='town'){bands(['#070B24','#0C1236','#121A48','#1A2458','#24306A'],0,G);
+    for(let i=0;i<lw*G/60;i++)px(Math.floor(R()*lw),Math.floor(R()*G*.8),R()<.3?'#FFFFFF':'#9BA8D8');
+    const mx=Math.round(lw*.78),my=Math.round(G*.22),mr=Math.max(4,Math.round(Math.min(lw,lh)*.045));
+    for(let y=-mr;y<=mr;y++)for(let x=-mr;x<=mr;x++)if(x*x+y*y<=mr*mr)px(mx+x,my+y,(x+1)*(x+1)+(y-1)*(y-1)<3||(x-2)*(x-2)+(y+2)*(y+2)<2?'#DCD6AE':'#F5F1D0');
+    let x=-2;while(x<lw){const w=12+Math.floor(R()*12),hh=10+Math.floor(R()*14),top=G-hh;rect(x,top,w,hh,'#262A46');
+      for(let k=0;k<w;k++){const rh=Math.round(Math.min(k+1,w-k)*.6);rect(x+k,top-rh,1,rh,'#3B2C44');}
+      for(let wy=top+3;wy<G-3;wy+=5)for(let wx=x+2;wx<x+w-3;wx+=5)rect(wx,wy,2,2,R()<.6?'#FFD66B':'#1A1D33');
+      x+=w+1+Math.floor(R()*3);}
+    rect(0,G,lw,lh-G,'#34364A');for(let y=G;y<lh;y+=3)for(let xx=(Math.floor((y-G)/3)%2)*3;xx<lw;xx+=6)rect(xx,y,5,2,'#3E4058');
+    return c;}
+  if(kind==='dungeon'){rect(0,0,lw,G,'#2C2621');
+    for(let y=0;y<G;y+=4){const off=(y/4)%2?4:0;for(let x=-off;x<lw;x+=8){rect(x,y,7,3,R()<.15?'#51463C':'#4A4038');rect(x,y,7,1,'#5A4E44');}}
+    rect(0,G,lw,lh-G,'#2A2420');for(let y=G;y<lh;y+=6)rect(0,y,lw,1,'#1E1916');for(let y=G;y<lh;y+=6)for(let x=(Math.floor((y-G)/6)%2)?0:6;x<lw;x+=12)rect(x,y,1,6,'#1E1916');
+    [lw*.16,lw*.84].forEach(tx=>{tx=Math.round(tx);const ty=Math.round(G*.45);rect(tx-1,ty,3,6,'#6B5A3A');rect(tx-2,ty,5,1,'#8A7550');});
+    return c;}
+  /* field (the default) */
+  bands(['#4F96E8','#6AA8EE','#86BAF2','#A6CEF6','#C4E0F8'],0,G);
+  for(let x=0;x<lw;x++){const hh=Math.round(G*.30+G*.12*Math.sin(x*.045+1)+G*.06*Math.sin(x*.13));for(let y=G-hh;y<G;y++)px(x,y,y<G-hh+2?'#C3CCEE':'#7F8FCB');}
+  for(let x=0;x<lw;x++){const hh=Math.round(G*.12+G*.06*Math.sin(x*.09+2.2)+G*.03*Math.sin(x*.27));for(let y=G-hh;y<G;y++)px(x,y,(x+y)%7===0?'#4C9A45':'#5DAE4F');}
+  rect(0,G,lw,lh-G,'#6CC04A');for(let i=0;i<lw*(lh-G)/9;i++)px(Math.floor(R()*lw),G+Math.floor(R()*(lh-G)),R()<.5?'#5AAE3C':'#86D468');
+  const p0=G+Math.round((lh-G)*.45),p1=p0+Math.max(3,Math.round((lh-G)*.22));rect(0,p0,lw,p1-p0,'#D8B678');rect(0,p0,lw,1,'#C29A58');rect(0,p1-1,lw,1,'#C29A58');
+  for(let i=0;i<lw/3;i++)px(Math.floor(R()*lw),p0+1+Math.floor(R()*Math.max(1,p1-p0-2)),'#C9A466');
+  for(let i=0;i<lw/4;i++){const x=Math.floor(R()*lw),y=G+2+Math.floor(R()*Math.max(1,lh-G-3));if(y>=p0-1&&y<=p1)continue;px(x,y,['#FF6B8B','#FFE066','#FFFFFF','#9F7BFF'][Math.floor(R()*4)]);}
+  const tree=(tx,ty,k)=>{rect(tx-1,ty-3*k,2,3*k,'#6B4426');for(let dy=-7*k;dy<=-2*k;dy++)for(let dx=-4*k;dx<=4*k;dx++){const d=(dx*dx)/(16*k*k)+((dy+4.5*k)*(dy+4.5*k))/(9*k*k);if(d<=1)px(tx+dx,ty+dy,d>.7?'#2F7A35':(dx+dy)%5===0?'#5DB257':'#3F9443');}};
+  tree(Math.round(lw*.06),G+4,2);tree(Math.round(lw*.95),G+6,2);tree(Math.round(lw*.88),G+2,1);
+  return c;}
+function rpgDyn(g,kind,lw,lh,G,t){const rect=(x,y,w,h,col)=>{g.fillStyle=col;g.fillRect(x,y,w,h);};
+  if(kind==='field')[[.1,.12,1],[.55,.22,.7],[.8,.08,1.2]].forEach(([fx,fy,sp],i)=>{const w=18+i*4,x=Math.round(((fx*lw+t*sp*2)%(lw+w+10))-w),y=Math.round(fy*G);rect(x+3,y,w-6,2,'#FFFFFF');rect(x,y+2,w,3,'#FFFFFF');rect(x+2,y+5,w-4,1,'#DCE8F5');});
+  if(kind==='town'){const R=mulberry(99);for(let i=0;i<16;i++){const x=Math.floor(R()*lw),y=Math.floor(R()*G*.7),ph=R()*6;if(Math.sin(t*3+ph)>.3)rect(x,y,1,1,'#FFFFFF');}}
+  if(kind==='dungeon')[lw*.16,lw*.84].forEach((tx,i)=>{tx=Math.round(tx);const ty=Math.round(G*.45),f=Math.floor(t*8+i*3)%3;
+    g.fillStyle='rgba(255,150,60,.12)';g.beginPath();g.arc(tx+.5,ty-2,10+f,0,Math.PI*2);g.fill();
+    rect(tx-1,ty-3,3,3,'#FF8A2A');rect(tx,ty-4-(f===1?1:0),1,2,'#FFD25A');rect(tx-(f===2?1:0),ty-2,1,1,'#FFF1A8');});}
+let RPGLO=null,RPGST={k:'',c:null};
+function rpgSceneDraw(t){const lw=Math.round(W/8),lh=Math.round(H/8),G=Math.round(lh*(W>H?.56:.52)),kind=P.rpgScene||'field';
+  const im=kind==='photo'?(P.rpgBg||SAMPLE):null;if(im&&!im._rid)im._rid=rkey();
+  const key=[kind,lw,lh,im?im._rid:''].join('|');if(RPGST.k!==key)RPGST={k:key,c:rpgStatic(kind,lw,lh,G)};
+  if(!RPGLO||RPGLO.width!==lw||RPGLO.height!==lh){RPGLO=document.createElement('canvas');RPGLO.width=lw;RPGLO.height=lh;}
+  const g=RPGLO.getContext('2d');g.drawImage(RPGST.c,0,0);rpgDyn(g,kind,lw,lh,G,t);
+  ctx.imageSmoothingEnabled=false;ctx.drawImage(RPGLO,0,0,W,H);ctx.imageSmoothingEnabled=true;return G;}
+/* a drawn pixel face for anyone without a photo: 16 x 16 dots, with a mouth that moves and eyes that blink */
+const FACE=["....oooooooo....", "...ohhhhhhhho...", "..ohhhhhhhhhho..", "..ohhhhhhhhhho..", "..ohssssssssho..", "..ohssssssssho..", "..osseesseesso..", "..osseesseesso..", "..osssssssssso..", "..osssMMMMssso..", "..ossssNNsssso..", "...osssssssso...", "....oossssoo....", "..oobbbddbbboo..", ".obbbbbbbbbbbbo.", "obbbbbbbbbbbbbbo"];
+const HAIRS=['#3B2416','#6B3E1E','#C98A3A','#E9C46A','#1F1B24','#8E3B2E','#9AA3AE','#5B3A8C'],SKINS=['#F6D2B4','#EBB892','#CF946B','#9C6643','#6A432B'];
+function rpgPal(m){const hs=hashStr(nameOf(m)||'x'),col=isHex(colorOf(m))?colorOf(m):'#E5484D';return{o:'#141018',h:HAIRS[hs%HAIRS.length],s:SKINS[(hs>>4)%SKINS.length],e:'#141018',b:col,d:darkHex(col,.4),m:'#5A1E22'};}
+function rpgFace(x,y,w,h,pal,o){const u2=Math.floor(Math.min(w,h)/16),bx=Math.round(x+(w-16*u2)/2),by=Math.round(y+h-16*u2),open=o.talk&&Math.floor(o.t/.12)%2===1,blink=((o.t+o.ph)%3.4)<.13;
+  for(let r=0;r<16;r++){const row=FACE[r];for(let c=0;c<16;c++){const ch=row[c];if(ch==='.')continue;let col;
+    if(ch==='e')col=blink?(r===7?pal.e:pal.s):(r===6&&(c===5||c===9)?'#FFFFFF':pal.e);else if(ch==='M')col=pal.m;else if(ch==='N')col=open?'#C2454E':pal.s;else col=pal[ch];
+    ctx.fillStyle=col;ctx.fillRect(bx+c*u2,by+r*u2,u2,u2);}}}
+/* a photo turned into a chunky, few-color portrait */
+const RPGPC=new WeakMap();
+function rpgPortrait(img){let c=RPGPC.get(img);if(c)return c;const[iw,ih]=dimsOf(img);if(!iw||!ih)return null;c=document.createElement('canvas');c.width=c.height=40;const g=c.getContext('2d'),sc=Math.max(40/iw,40/ih);
+  g.drawImage(img,(40-iw*sc)/2,(40-ih*sc)/2,iw*sc,ih*sc);
+  try{const d=g.getImageData(0,0,40,40),p=d.data;for(let i=0;i<p.length;i+=4){for(let k=0;k<3;k++)p[i+k]=Math.round(p[i+k]/51)*51;p[i+3]=255;}g.putImageData(d,0,0);}catch(e){}
+  RPGPC.set(img,c);return c;}
+/* a window: dark outline, light edge, colored inside, with stepped corners */
+function rpgWinBox(x,y,w,h,th,u){const notch=(xx,yy,ww,hh,n)=>{ctx.fillRect(xx+n,yy,ww-2*n,hh);ctx.fillRect(xx,yy+n,ww,hh-2*n);};
+  ctx.fillStyle='#000';notch(x,y,w,h,2*u);ctx.fillStyle=th.edge;notch(x+u,y+u,w-2*u,h-2*u,u);
+  const g=ctx.createLinearGradient(0,y,0,y+h);g.addColorStop(0,th.a);g.addColorStop(1,th.b);ctx.fillStyle=g;notch(x+2*u,y+2*u,w-4*u,h-4*u,u);}
+function rpgText(x2,x,y,th){ctx.fillStyle=th.sh;ctx.fillText(x2,x+4,y+4);ctx.fillStyle=th.text;ctx.fillText(x2,x,y);}
+function rpgEmote(r,emo,q,u){const s=q<1?.5+.5*Math.round(q*3)/3:1,bw=11*u*s,bh=9*u*s,bx=r.x0+r.w/2-bw/2+2*u,by=r.y0-bh-3*u;
+  ctx.fillStyle='#141018';ctx.fillRect(bx-u,by,bw+2*u,bh);ctx.fillRect(bx,by-u,bw,bh+2*u);ctx.fillStyle='#FFFFFF';ctx.fillRect(bx,by,bw,bh);
+  ctx.fillStyle='#141018';ctx.fillRect(bx+2*u,by+bh+u,2*u,u);ctx.fillStyle='#FFFFFF';ctx.fillRect(bx+2*u,by+bh,2*u,u);
+  ctx.font=F(Math.round(6*u*s),400,'sys');ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(emo,bx+bw/2,by+bh/2+u*.3);}
+function rpgLay(){return W>H?{wd:true,u:6,fs:36,lh:66,tag:26,box:{x:40,y:708,w:W-80,h:332},L:{x:60,y:170,w:480,h:520},R:{x:W-540,y:170,w:480,h:520},item:{x:(W-720)/2,y:52,w:720,h:420}}
+  :{wd:false,u:6,fs:34,lh:64,tag:28,box:{x:24,y:1300,w:W-48,h:580},L:{x:40,y:620,w:470,h:620},R:{x:W-510,y:620,w:470,h:620},item:{x:80,y:100,w:W-160,h:440}};}
+/* a talking portrait: a photo turned to pixels, or a drawn face; it bobs while its person talks, and dims while they listen */
+function rpgPortraitFrame(R,m,th,u,o){rpgWinBox(R.x,R.y,R.w,R.h,th,u);const ix=R.x+3*u,iy=R.y+3*u,iw=R.w-6*u,ih=R.h-6*u,bob=o.talk?(Math.floor(o.t/.13)%2)*u:0;
+  ctx.save();ctx.beginPath();ctx.rect(ix,iy,iw,ih);ctx.clip();const g=ctx.createLinearGradient(0,iy,0,iy+ih);g.addColorStop(0,lightHex(th.a,.15));g.addColorStop(1,th.b);ctx.fillStyle=g;ctx.fillRect(ix,iy,iw,ih);
+  const me=m.from==='me',pp=me?null:personOf(m),img=me?P.txMe:(pp?pp.avatar:P.avatar),pc=img?rpgPortrait(img):null;
+  ctx.imageSmoothingEnabled=false;
+  if(pc){const sc=Math.max(iw/pc.width,ih/pc.height);ctx.drawImage(pc,ix+(iw-pc.width*sc)/2,iy+(ih-pc.height*sc)/2+bob,pc.width*sc,pc.height*sc);}
+  else rpgFace(ix,iy+bob+u,iw,ih,rpgPal(m),o);
+  ctx.imageSmoothingEnabled=true;
+  if(o.flash>0){ctx.fillStyle=`rgba(255,255,255,${o.flash})`;ctx.fillRect(ix,iy,iw,ih);}
+  if(!o.active){ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(ix,iy,iw,ih);}
+  ctx.restore();
+  ctx.font=F(o.fs,400,'pixel');ctx.textBaseline='middle';ctx.textAlign='left';const nm=rpgTxt(String(nameOf(m))),nw=Math.min(R.w-20,ctx.measureText(nm).width+64),nx=o.right?R.x+R.w-nw-16:R.x+16,ny=R.y-38;
+  rpgWinBox(nx,ny,nw,68,th,u);if(!o.active)ctx.globalAlpha=.6;rpgText(fitEnd(nm,nw-64),nx+32,ny+36,th);ctx.globalAlpha=1;}
+function rpgDialog(t,cur,th,Ly){const u=Ly.u,B=Ly.box,m=cur.m,tx=B.x+56,tw=B.w-112;
+  rpgWinBox(B.x,B.y,B.w,B.h,th,u);ctx.textBaseline='middle';ctx.textAlign='left';
+  let y0=B.y+66,rows=Math.max(1,Math.floor((B.y+B.h-48-y0)/Ly.lh)+1);
+  if(m.replyTo){const q=msgByKey(m.replyTo);if(q){ctx.font=F(Math.round(Ly.fs*.7),400,'pixel');ctx.fillStyle=th.sub;ctx.fillText(fitEnd(rpgTxt('> '+quoteText(q)),tw),tx,y0);y0+=Ly.lh;rows--;}}
+  ctx.font=F(Ly.fs,400,'pixel');const gone=cur.unsendAt!=null&&t>=cur.unsendAt;
+  if(gone&&t>=cur.unsendAt+.45){ctx.fillStyle=th.sub;ctx.fillText(rpgTxt('* withdrawn *'),tx,y0);return;}
+  const lines=txWrap(rpgTxt(rpgLine(m)),tw),total=lines.reduce((a,l)=>a+[...l].length,0);
+  let n=t<cur.typeStart?0:Math.floor(clamp((t-cur.typeStart)/Math.max(.01,cur.typeEnd-cur.typeStart),0,1)*total);if(gone)n=Math.floor(total*(1-clamp((t-cur.unsendAt)/.4,0,1)));
+  const vis=[];let left=n;for(const l of lines){const cs=[...l],take=Math.min(left,cs.length);vis.push(cs.slice(0,take).join(''));left-=take;if(left<=0)break;}
+  const shown=vis.slice(Math.max(0,vis.length-rows));shown.forEach((l,j)=>rpgText(l,tx,y0+j*Ly.lh,th));
+  if(!gone&&t>=cur.typeEnd&&Math.floor(t*2.5)%2===0){const ax=tx+tw-30,ay=B.y+B.h-56;ctx.fillStyle=th.text;for(let k=0;k<4;k++)ctx.fillRect(ax-(4-k)*u,ay+k*u,(8-2*k)*u,u);}
+  if(m.kind==='voice'&&!gone){const pr=cur.voiceStart!=null?clamp((t-cur.voiceStart)/Math.max(.1,cur.voiceEnd-cur.voiceStart),0,1):0,nb=20,bw=Math.floor((Math.min(tw,720)-(nb-1)*6)/nb),by=y0+shown.length*Ly.lh;
+    for(let k=0;k<nb;k++){const on=k<pr*nb;ctx.globalAlpha=on?1:.35;ctx.fillStyle=on?th.text:th.sub;ctx.fillRect(tx+k*(bw+6),by-10,bw,20);}ctx.globalAlpha=1;}}
+function rpgCard(t,d,Ly){const q=(t-d.start)/RPG_CH,a=q<.18?q/.18:q>.82?(1-q)/.18:1;ctx.fillStyle=`rgba(0,0,0,${clamp(a,0,1)})`;ctx.fillRect(0,0,W,H);
+  const ta=clamp(q<.25?(q-.12)/.13:q>.75?(.88-q)/.13:1,0,1);if(ta<=0)return;ctx.globalAlpha=ta;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.font=F(Ly.wd?48:42,400,'pixel');const lines=txWrap(String(d.m.text||'').toUpperCase(),W-160),y0=H/2-(lines.length-1)*34;
+  lines.forEach((l,j)=>{ctx.fillStyle='#3A3A3A';ctx.fillText(l,W/2+5,y0+j*68+5);ctx.fillStyle='#FFFFFF';ctx.fillText(l,W/2,y0+j*68);});
+  ctx.fillStyle='#FFFFFF';const dw=Math.min(W-200,560);for(let k=0;k<dw;k+=24){ctx.fillRect(W/2-dw/2+k,y0-80,12,6);ctx.fillRect(W/2-dw/2+k,y0+(lines.length-1)*68+74,12,6);}ctx.globalAlpha=1;}
+function rpgTitleDraw(t,th,Ly){rpgSceneDraw(t);ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(0,0,W,H);ctx.textAlign='center';ctx.textBaseline='middle';
+  const fs=Ly.wd?72:56,lines=(()=>{ctx.font=F(fs,400,'pixel');return txWrap(String(P.rpgTitleText||'CHAPTER 1').toUpperCase(),W-160).slice(0,3);})(),y0=H*.4-(lines.length-1)*fs*.75;
+  lines.forEach((l,j)=>{const y=y0+j*fs*1.5;ctx.fillStyle='#000';for(const[dx,dy]of[[-6,0],[6,0],[0,-6],[0,6],[6,6],[8,8]])ctx.fillText(l,W/2+dx,y+dy);
+    const g=ctx.createLinearGradient(0,y-fs/2,0,y+fs/2);g.addColorStop(0,'#FFF3A0');g.addColorStop(.5,'#FFD84D');g.addColorStop(1,'#F08A1C');ctx.fillStyle=g;ctx.fillText(l,W/2,y);});
+  const on=t<2?(t%.8)<.5:t<2.3?Math.floor(t*16)%2===0:true;if(on){ctx.font=F(Ly.wd?30:28,400,'pixel');ctx.fillStyle='#000';ctx.fillText('PRESS START',W/2+4,H*.64+4);ctx.fillStyle='#FFFFFF';ctx.fillText('PRESS START',W/2,H*.64);}
+  if(t>2.3){ctx.fillStyle=`rgba(0,0,0,${clamp((t-2.3)/.5,0,1)})`;ctx.fillRect(0,0,W,H);}}
+function rpgEndDraw(dt,Ly){ctx.fillStyle=`rgba(0,0,0,${clamp(dt/.5,0,1)})`;ctx.fillRect(0,0,W,H);if(dt<.6)return;
+  const full=(P.rpgEnd==='end'?'THE END':'TO BE CONTINUED...'),n=Math.floor(clamp((dt-.6)/.9,0,1)*full.length),x2=full.slice(0,n);
+  ctx.font=F(Ly.wd?56:44,400,'pixel');ctx.textAlign='left';ctx.textBaseline='middle';const w=ctx.measureText(full).width,x=W/2-w/2;ctx.fillStyle='#3A3A3A';ctx.fillText(x2,x+5,H/2+5);ctx.fillStyle='#FFFFFF';ctx.fillText(x2,x,H/2);}
+function drawRpg(t){const th=rpgTh(),S=SCH.rpg||{},Ly=rpgLay(),u=Ly.u;ctx.save();ctx.clearRect(0,0,W,H);ctx.textBaseline='middle';
+  if(S.title&&t<RPG_TITLE){rpgTitleDraw(t,th,Ly);ctx.restore();return;}
+  rpgSceneDraw(t);const{cur,div}=txLines(t),boxOn=!!cur&&!(div&&div.start>cur.start);
+  /* their side shows whoever of them spoke last (a group can switch people there, with a flash) */
+  let lE=null,lPrev=null;for(const e of SCH.ev){if(e.start>t)break;if(e.m.from==='them'){lPrev=lE;lE=e;}}
+  const lm=lE?lE.m:(SCH.ev.find(e=>e.m.from==='them')||{m:{from:'them',who:''}}).m;
+  const act=boxOn?(cur.m.from==='me'?'R':'L'):null,talk=boxOn&&t>=cur.typeStart&&(t<cur.typeEnd||(cur.voiceStart!=null&&t>=cur.voiceStart&&t<cur.voiceEnd))&&!(cur.unsendAt!=null&&t>=cur.unsendAt);
+  const flash=lE&&lPrev&&(lE.m.who||'')!==(lPrev.m.who||'')&&t-lE.start<.2?1-(t-lE.start)/.2:0;
+  const in0=(S.title?RPG_TITLE:0)+.15,q=easeO(clamp((t-in0)/.45,0,1)),slide=(1-q)*(Ly.L.w+120),L={...Ly.L,x:Ly.L.x-slide},R={...Ly.R,x:Ly.R.x+slide};
+  rpgPortraitFrame(L,lm,th,u,{active:act!=='R',talk:talk&&act==='L',t,ph:.7,flash,fs:Ly.tag,right:false});
+  rpgPortraitFrame(R,{from:'me'},th,u,{active:act!=='L',talk:talk&&act==='R',t,ph:2.1,flash:0,fs:Ly.tag,right:true});
+  for(const e of SCH.ev){if(e.reactAt==null||!e.m.react||t<e.reactAt||t>e.reactAt+2.2)continue;const by=e.m.reactBy||(e.m.from==='me'?'them':'me'),F0=by==='me'?R:L;
+    rpgEmote({x0:F0.x+F0.w-220,y0:F0.y+24,w:200},e.m.react,clamp((t-e.reactAt)/.15,0,1),Ly.wd?10:11);}
+  if(boxOn&&cur.voiceStart!=null&&t>=cur.voiceStart&&t<cur.voiceEnd){const F0=act==='R'?R:L;for(let k=0;k<3;k++){const ph=((t-cur.voiceStart)*.8+k/3)%1;ctx.globalAlpha=1-ph;ctx.font=F(56,400,'sys');ctx.fillStyle='#fff';ctx.textAlign='center';ctx.fillText('♪',F0.x+F0.w/2+Math.sin(ph*6+k)*40,F0.y-20-ph*160);ctx.globalAlpha=1;}}
+  let mediaR=null;
+  if(boxOn&&txMedia(cur.m)&&t>=cur.typeStart){const qq=clamp((t-cur.typeStart)/.25,0,1),qs=Math.ceil(qq*4)/4,R0=Ly.item,hh=Math.max(4*u,R0.h*qs);
+    rpgWinBox(R0.x,R0.y+(R0.h-hh)/2,R0.w,hh,th,u);if(qs>=1){mediaR={x:R0.x+3*u,y:R0.y+3*u,w:R0.w-6*u,h:R0.h-6*u};drawCover(imgOf(cur.m),mediaR);if(cur.m.kind==='post')postHeader(cur.m,mediaR.x,mediaR.y,mediaR.w);}}
+  if(boxOn)rpgDialog(t,cur,th,Ly);
+  if(div&&div.card&&t<div.end)rpgCard(t,div,Ly);
+  if(S.end!=null&&t>=S.end)rpgEndDraw(t-S.end,Ly);
+  if(S.title&&t<RPG_TITLE+.5){ctx.fillStyle=`rgba(0,0,0,${1-(t-RPG_TITLE)/.5})`;ctx.fillRect(0,0,W,H);}else if(!S.title&&t<.4){ctx.fillStyle=`rgba(0,0,0,${1-t/.4})`;ctx.fillRect(0,0,W,H);}
+  if(cur&&cur.openTap!=null&&t>=cur.openTap&&t<cur.closeEnd)drawViewer(cur,mediaR||{x:W/2-200,y:H/4,w:400,h:300},t,colors());
+  ctx.restore();}
+function rpgLook(p,r){
+  p.append(segF('l-rshape','Screen shape',[['wide','Widescreen'],['tall','Tall (9:16)']],P.rpgWide!==false?'wide':'tall',v=>{P.rpgWide=v==='wide';r();}));
+  p.append(segF('l-rscene','Scene',[['field','Field'],['town','Town at night'],['dungeon','Dungeon'],['photo','Your photo'],['none','None']],P.rpgScene||'field',v=>{P.rpgScene=v;r();}));
+  if(P.rpgScene==='photo'){const br=h('div',{class:'row'},P.rpgBg?h('img',{class:'thumb',src:P.rpgBg.src,alt:''}):h('span',{class:'thumb'}),pickImage('l-rbg',P.rpgBg?'Change':'Choose photo',im=>{P.rpgBg=im;r();}));
+    if(P.rpgBg)br.append(h('button',{type:'button',onclick:()=>{P.rpgBg=null;r();}},'Remove'));
+    p.append(h('div',{class:'field'},h('span',{class:'flabel'},'Scene photo'),br,h('p',{class:'help'},'Turned into chunky pixels with fewer colors. Without one, the sample sunset stands in.')));}
+  p.append(segF('l-rwin','Text box',[['blue','Blue'],['black','Black'],['forest','Forest'],['crimson','Crimson'],['parchment','Parchment']],P.rpgWin||'blue',v=>{P.rpgWin=v;r();}));
+  p.append(checkF('l-rcaps','ALL CAPS text',!!P.rpgCaps,v=>{P.rpgCaps=v;r();}));
+  p.append(h('p',{class:'help'},'Talking portraits: theirs on the left, yours on the right. Whoever is talking lights up and bobs along, and drawn faces move their mouths and blink. Time dividers become chapter cards, reactions pop up over the portrait of whoever reacted, and photos appear in their own window.'));
+  p.append(h('h4',{class:'fhead'},'Opening and ending'));
+  p.append(checkF('l-rtitle','Start on a title screen',P.rpgTitle!==false,v=>{P.rpgTitle=v;r();}));
+  if(P.rpgTitle!==false)p.append(textF('l-rtt','Title',P.rpgTitleText||'',v=>{P.rpgTitleText=v;drawNow();save();},'CHAPTER 1'));
+  p.append(segF('l-rend','Ending card',[['cont','To be continued'],['end','The end'],['none','None']],P.rpgEnd||'cont',v=>{P.rpgEnd=v;r();}));}
+
+/* ================= video call style: everyone's camera in tiles, live captions, and the call controls ================= */
+const CALLACC={blue:'#3B82F6',green:'#22C55E',violet:'#8B5CF6',orange:'#F97316',pink:'#EC4899'};
+const callAcc=()=>CALLACC[P.callAccent]||CALLACC.blue;
+const CALL_IN=3.2,CALL_OUT=1.8;
+function callAuto(m){return m.kind==='text'?clamp(.35+(m.text||'').length/15,.6,9):.8;}
+function callHold(m){return m.kind==='text'?clamp(.6+(m.text||'').length*.012,.8,2.4):1.2;}
+const callKeyOf=m=>m.from==='me'?'me':'them:'+(m.who||'');
+function buildCall(){
+  const ev=[],snd=[],marks=[],C={};let t=0;const st=P.callStart||'out';
+  if(st!=='none'){if(st==='in')snd.push({t:.2,type:'fx',v:'Ringtone'},{t:1.3,type:'fx',v:'Ringtone'});else snd.push({t:.25,type:'fx',v:'Ringing'},{t:1.55,type:'fx',v:'Ringing'});
+    C.join=2.6;snd.push({t:C.join,type:'fx',v:'Join'});marks.push({t:C.join,label:'📞 Connects',title:'The call connects'});t=CALL_IN;}
+  C.start=t;t+=P.startPause;
+  P.msgs.forEach((m,i)=>{const e={m,i,tx:true};t+=m.delay;e.start=e.kbUp=t;
+    if(m.from==='divider'){e.typeStart=e.typeEnd=e.arrive=t;e.popEnd=t+.3;e.end=t;ev.push(e);return;}
+    e.typeStart=t+.05;e.typeEnd=e.typeStart+Math.max(.2,typ(m));e.arrive=e.typeEnd;e.popEnd=e.arrive+.3;
+    snd.push({t:e.start,type:'line',i});
+    let end=e.arrive+callHold(m);if(txMedia(m))end=Math.max(end,e.arrive+Math.max(1.5,holdOf(m)));
+    if(m.kind==='voice'&&m.voice&&m.voicePlay){e.voiceStart=e.arrive+.15;e.voiceEnd=e.voiceStart+voiceSecs(m);snd.push({t:e.voiceStart,type:'voice',i});if(m.voiceWait!==false)end=Math.max(end,e.voiceEnd+.4);}
+    if(m.react){e.reactAt=e.arrive+Math.max(.2,m.reactDelay);snd.push({t:e.reactAt,type:'react',i});end=Math.max(end,e.reactAt+.8);}
+    if(m.unsend){e.unsendAt=e.arrive+Math.max(.3,m.unsendAfter);end=Math.max(end,e.unsendAt+.9);}
+    e.end=end;ev.push(e);t=e.end;});
+  let dur=t+P.endHold;if(P.callEnd!==false){C.off=dur;marks.push({t:dur,label:'■ Ends',title:'The call ends'});snd.push({t:dur,type:'fx',v:'Leave'});dur+=CALL_OUT;}
+  return{ev,snd:snd.sort((a,b)=>a.t-b.t),kb:[],dur,intro:null,marks,call:C};}
+function callPeople(){const ps=[{key:'them:',m:{from:'them',who:''},name:P.name,img:P.avatar,vid:P.callThemKey,color:P.color0||PCOL[0]}];
+  if(isGroup())(P.people||[]).forEach(pp=>ps.push({key:'them:'+pp.id,m:{from:'them',who:pp.id},name:pp.name,img:pp.avatar,vid:'',color:pp.color}));
+  ps.push({key:'me',m:{from:'me'},name:P.myName||'You',img:P.txMe,vid:P.callMeKey,color:P.myColor||'#F0B232',me:true});return ps;}
+function callAreas(){const wd=W>H;return wd?{wd,stage:{x:24,y:88,w:W-48,h:H-88-128},ctrlY:H-64,br:34}:{wd,stage:{x:24,y:240,w:W-48,h:H-240-210},ctrlY:H-112,br:46};}
+function gridRects(n,a,g,ar){let best=null;for(let cols=1;cols<=n;cols++){const rows=Math.ceil(n/cols),w=(a.w-(cols-1)*g)/cols,h=(a.h-(rows-1)*g)/rows,sc=Math.min(w/ar,h);if(!best||sc>best.sc)best={cols,rows,w,h,sc};}
+  const{cols,rows}=best;let tw=best.w,th=best.h;tw=Math.min(tw,th*ar*1.6);th=Math.min(th,tw/ar*1.6);
+  const out=[],totH=rows*th+(rows-1)*g,y0=a.y+(a.h-totH)/2;for(let i=0;i<n;i++){const r=Math.floor(i/cols),c=i%cols,inRow=r===rows-1?n-r*cols:cols,rowW=inRow*tw+(inRow-1)*g,x0=a.x+(a.w-rowW)/2;out.push({x:x0+c*(tw+g),y:y0+r*(th+g),w:tw,h:th});}return out;}
+function callBaseRects(ps,A,mainKey){const a=A.stage,g=16,out={};
+  if(P.callLayout==='speaker'&&ps.length>1){const others=ps.filter(p=>p.key!==mainKey),sw=A.wd?320:260,sh=A.wd?180:340;out[mainKey]={...a};others.forEach((p,i)=>{out[p.key]={x:a.x+a.w-20-(i+1)*sw-i*g,y:a.y+20,w:sw,h:sh};});return out;}
+  const rs=gridRects(ps.length,a,g,A.wd?16/9:3/4);ps.forEach((p,i)=>out[p.key]=rs[i]);return out;}
+function callShareRects(ps,A){const a=A.stage,g=16,out={};let share;
+  if(A.wd){share={x:a.x,y:a.y,w:a.w-400,h:a.h};const tw=384,th=216;ps.forEach((p,i)=>{out[p.key]={x:a.x+a.w-tw,y:a.y+i*(th+g),w:tw,h:i<4?th:0};});}
+  else{share={x:a.x,y:a.y,w:a.w,h:Math.round(a.h*.62)};const n=ps.length,tw=(a.w-(n-1)*g)/n,th=Math.min(a.h-share.h-g,tw*1.3);ps.forEach((p,i)=>{out[p.key]={x:a.x+i*(tw+g),y:share.y+share.h+g,w:tw,h:th};});}
+  return{share,out};}
+function callTile(p,r,lv,t,acc,A){const rad=A.wd?18:24;ctx.save();rr(r.x,r.y,r.w,r.h,rad);ctx.clip();ctx.fillStyle='#1E222A';ctx.fillRect(r.x,r.y,r.w,r.h);
+  const v=feedVid(p.vid),ph=(hashStr(p.key)%100)/16;
+  if(v)drawCover(v.el,r);
+  else if(p.img){const s=1.07+.025*Math.sin(t*.5+ph),dx=Math.sin(t*.31+ph)*r.w*.012,dy=Math.cos(t*.27+ph)*r.h*.012,bob=lv?Math.sin(t*9)*r.h*.003:0;drawCover(p.img,{x:r.x-r.w*(s-1)/2+dx,y:r.y-r.h*(s-1)/2+dy+bob,w:r.w*s,h:r.h*s});}
+  else{const g=ctx.createLinearGradient(0,r.y,0,r.y+r.h);g.addColorStop(0,darkHex(p.color,.55));g.addColorStop(1,darkHex(p.color,.78));ctx.fillStyle=g;ctx.fillRect(r.x,r.y,r.w,r.h);
+    const cr=Math.min(r.w,r.h)*.2;ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(r.x+r.w/2,r.y+r.h/2,cr,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.font=F(cr*.8,600,'sys');ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(initials(p.name),r.x+r.w/2,r.y+r.h/2+2);}
+  const gg=ctx.createLinearGradient(0,r.y+r.h-120,0,r.y+r.h);gg.addColorStop(0,'rgba(0,0,0,0)');gg.addColorStop(1,'rgba(0,0,0,.45)');ctx.fillStyle=gg;ctx.fillRect(r.x,r.y+r.h-120,r.w,120);
+  ctx.restore();
+  if(lv>0){ctx.strokeStyle=acc;ctx.lineWidth=A.wd?5:6;rr(r.x+2.5,r.y+2.5,r.w-5,r.h-5,rad-2);ctx.stroke();}
+  const small=r.w<420,fs=small?20:(A.wd?24:28),ph2=small?38:46;ctx.font=F(fs,600,'sys');ctx.textBaseline='middle';
+  const nm=fitEnd(p.me?((P.myName&&P.myName!=='You')?P.myName+' (you)':'You'):p.name,Math.max(40,r.w-ph2-60)),tw=ctx.measureText(nm).width,tx=r.x+12,ty=r.y+r.h-12-ph2;
+  ctx.fillStyle='rgba(0,0,0,.55)';rr(tx,ty,tw+ph2+22,ph2,ph2/2);ctx.fill();
+  const mx=tx+ph2/2+2,my=ty+ph2/2;if(lv>0){for(let k=0;k<3;k++){const hh=(.35+.65*Math.abs(Math.sin(t*14+k*1.7)))*ph2*.5;ctx.fillStyle=acc;rr(mx-9+k*7,my-hh/2,4,hh,2);ctx.fill();}}else icon('mic',mx,my,ph2*.55,'#fff');
+  ctx.fillStyle='#fff';ctx.textAlign='left';ctx.fillText(nm,tx+ph2+6,my+1);}
+function callTop(t,C,A,ps){const t0=C.join!=null?C.join:(C.start||0),el=Math.max(0,Math.min(t,C.off!=null?C.off:t)-t0),title=isGroup()?groupTitle():P.name;ctx.textBaseline='middle';
+  if(A.wd){icon('lock',50,44,28,'#A0A6B2');ctx.font=F(28,600,'sys');ctx.fillStyle='#F4F5F7';ctx.textAlign='left';const tt=fitEnd(title,900);ctx.fillText(tt,78,45);const ttw=ctx.measureText(tt).width;
+    ctx.font=F(26,400,'sys');ctx.fillStyle='#A0A6B2';ctx.fillText('·  '+fmtClock(el),78+ttw+16,45);ctx.textAlign='right';ctx.fillText(`${ps.length} in call`,W-28,45);}
+  else{statusBar('#FFFFFF','sys',P.time);ctx.font=F(40,600,'sys');ctx.fillStyle='#F4F5F7';ctx.textAlign='center';ctx.fillText(fitEnd(title,W-160),W/2,160);ctx.font=F(28,400,'sys');ctx.fillStyle='#A0A6B2';ctx.fillText(fmtClock(el),W/2,204);}}
+function callControls(A){const y=A.ctrlY,r=A.br,items=A.wd?['mic','video','share','mood','more']:['mic','video','mood','more'],gap=A.wd?22:30,endW=A.wd?110:132,tot=items.length*(2*r+gap)+endW,x0=W/2-tot/2;
+  items.forEach((ic,i)=>{const cx=x0+r+i*(2*r+gap);ctx.fillStyle='#2A2E37';ctx.beginPath();ctx.arc(cx,y,r,0,Math.PI*2);ctx.fill();icon(ic,cx,y,r,'#F4F5F7');});
+  const ex=x0+items.length*(2*r+gap);ctx.fillStyle='#E5484D';rr(ex,y-r,endW,2*r,r);ctx.fill();ctx.save();ctx.translate(ex+endW/2,y);ctx.rotate(Math.PI*.75);icon('call',0,0,r*1.05,'#fff');ctx.restore();}
+function callCaption(t,cur,A){if(!cur||t<cur.typeStart)return;const m=cur.m,gone=cur.unsendAt!=null&&t>=cur.unsendAt+.3,fadeAt=cur.end+1.6,al=t>fadeAt?1-clamp((t-fadeAt)/.4,0,1):1;if(al<=0)return;
+  const fs=A.wd?36:40,lh=A.wd?50:56,maxW=A.wd?1300:W-120,maxL=A.wd?2:3;
+  const text=gone?'(message removed)':m.kind==='voice'?`🎤 Voice message · ${fmtClock(voiceSecs(m))}`:m.kind==='photo'?'📷 Shared a photo':m.kind==='video'?'🎬 Shared a video':m.kind==='post'?`Shared a post from @${m.postUser||'someone'}`:(m.text||'');
+  ctx.font=F(fs,400,'sys');const lines=wrap(text,maxW-64);let shown=lines;
+  if(!gone&&m.kind==='text'){const full=lines.join(' ');let n=Math.floor(clamp((t-cur.typeStart)/Math.max(.01,cur.typeEnd-cur.typeStart),0,1)*full.length);if(n<full.length){const sp=full.lastIndexOf(' ',n);n=sp<0?0:sp;}
+    shown=[];let left=n;for(const l of lines){if(left<=0)break;const take=Math.min(left,l.length);shown.push(l.slice(0,take));left-=take+1;}}
+  shown=shown.slice(-maxL);if(!shown.length)shown=[''];
+  const q=m.replyTo?msgByKey(m.replyTo):null,nameH=lh*.8,qh=q?lh*.7:0,bw=Math.min(maxW,Math.max(300,...lines.slice(-maxL).map(l=>ctx.measureText(l).width))+64),bh=nameH+qh+shown.length*lh+28,bx=W/2-bw/2,by=A.stage.y+A.stage.h-(A.wd?84:96)-bh;
+  ctx.save();ctx.globalAlpha=al;ctx.fillStyle='rgba(8,9,12,.74)';rr(bx,by,bw,bh,18);ctx.fill();ctx.textAlign='left';ctx.textBaseline='middle';
+  ctx.font=F(Math.round(fs*.7),700,'sys');ctx.fillStyle=lightHex(colorOf(m),.35);ctx.fillText(nameOf(m),bx+32,by+14+nameH/2);let yy=by+14+nameH;
+  if(q){ctx.font=F(Math.round(fs*.62),400,'sys');ctx.fillStyle='#A0A6B2';ctx.fillText(fitEnd('↪ '+quoteText(q),bw-64),bx+32,yy+qh/2);yy+=qh;}
+  ctx.font=gone?`italic 400 ${fs}px ${FAM.sys}`:F(fs,400,'sys');ctx.fillStyle=gone?'#A0A6B2':'#FFFFFF';shown.forEach((l,j)=>ctx.fillText(l,bx+32,yy+lh*(j+.5)));
+  if(m.kind==='voice'&&!gone&&cur.voiceStart!=null){const pr=clamp((t-cur.voiceStart)/Math.max(.1,cur.voiceEnd-cur.voiceStart),0,1);ctx.fillStyle='rgba(255,255,255,.25)';ctx.fillRect(bx+32,by+bh-16,bw-64,4);ctx.fillStyle='#fff';ctx.fillRect(bx+32,by+bh-16,(bw-64)*pr,4);}
+  ctx.restore();}
+function callMain(t,C,A){const acc=callAcc(),ps=callPeople(),a=A.stage,{cur,div}=txLines(t);
+  ctx.fillStyle='#0E1014';ctx.fillRect(0,0,W,H);
+  let lastThem=null,prevThem=null;for(const e of SCH.ev){if(e.start>t)break;if(e.m.from==='them'){prevThem=lastThem;lastThem=e;}}
+  const mainKey=lastThem?callKeyOf(lastThem.m):'them:',prevKey=prevThem?callKeyOf(prevThem.m):'them:';
+  let base=callBaseRects(ps,A,mainKey);
+  if(P.callLayout==='speaker'&&lastThem&&prevKey!==mainKey){const q=smooth((t-lastThem.start)/.35);if(q<1){const b0=callBaseRects(ps,A,prevKey);for(const k in base)base[k]=lerpR(b0[k],base[k],q);}}
+  let pres=null,pq=0;{let mE=null,nx=null;for(const e of SCH.ev){if(e.m.from==='divider')continue;if(e.typeStart<=t&&txMedia(e.m)){mE=e;nx=null;}else if(mE&&!nx&&e.start>mE.start)nx=e;}
+    if(mE){const endT=nx?nx.start:Infinity;pq=Math.min(smooth((t-mE.typeStart)/.35),t>=endT?1-smooth((t-endT)/.35):1);if(pq>0)pres=mE;}}
+  let rects=base,share=null;if(pres){const S=callShareRects(ps,A);share=S.share;rects={};for(const k in base)rects[k]=lerpR(base[k],S.out[k],pq);}
+  const lvl=k=>{if(!cur||callKeyOf(cur.m)!==k)return 0;if(cur.unsendAt!=null&&t>=cur.unsendAt)return 0;if(cur.voiceStart!=null&&t>=cur.voiceStart&&t<cur.voiceEnd)return 1;return t>=cur.typeStart&&t<cur.typeEnd+.25?1:0;};
+  if(share&&pq>0){ctx.save();ctx.globalAlpha=pq;rr(share.x,share.y,share.w,share.h,18);ctx.clip();ctx.fillStyle='#000';ctx.fillRect(share.x,share.y,share.w,share.h);
+    const src=imgOf(pres.m),[iw,ih]=dimsOf(src);if(iw&&ih){const sc=Math.min(share.w/iw,share.h/ih),dw=iw*sc,dh=ih*sc,sx=share.x+(share.w-dw)/2,sy=share.y+(share.h-dh)/2;ctx.drawImage(src,sx,sy,dw,dh);if(pres.m.kind==='post')postHeader(pres.m,sx,sy,dw);}ctx.restore();
+    ctx.save();ctx.globalAlpha=pq;const who=pres.m.from==='me'?'You are presenting':`${nameOf(pres.m)} is presenting`;ctx.font=F(A.wd?24:28,600,'sys');ctx.textBaseline='middle';const bw=ctx.measureText(who).width+80;
+    ctx.fillStyle='rgba(0,0,0,.6)';rr(share.x+16,share.y+16,bw,50,25);ctx.fill();icon('share',share.x+46,share.y+41,26,'#fff');ctx.fillStyle='#fff';ctx.textAlign='left';ctx.fillText(who,share.x+68,share.y+42);ctx.restore();}
+  ps.map(p=>({p,r:rects[p.key]})).filter(o=>o.r&&o.r.h>2).sort((x,y)=>y.r.w*y.r.h-x.r.w*x.r.h).forEach(({p,r})=>callTile(p,r,lvl(p.key),t,acc,A));
+  callTop(t,C,A,ps);callCaption(t,cur,A);
+  for(const e of SCH.ev){if(e.reactAt==null||!e.m.react||t<e.reactAt||t>e.reactAt+2.4)continue;const by=e.m.reactBy||(e.m.from==='me'?'them':'me'),key=by==='me'?'me':(e.m.from==='them'?callKeyOf(e.m):'them:'),r=rects[key]||a,q=(t-e.reactAt)/2.4;
+    ctx.save();ctx.globalAlpha=q<.1?q/.1:q>.7?(1-q)/.3:1;ctx.font=F(A.wd?72:84,400,'sys');ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(e.m.react,r.x+70+Math.sin(q*9)*18,r.y+r.h-90-q*Math.min(320,r.h*.7));ctx.restore();}
+  if(div&&t<div.start+2.6){const q=(t-div.start)/2.6,al=q<.1?q/.1:q>.85?(1-q)/.15:1;ctx.save();ctx.globalAlpha=al;ctx.font=F(A.wd?24:30,500,'sys');ctx.textBaseline='middle';const tw2=ctx.measureText(div.m.text||'').width+48;
+    ctx.fillStyle='rgba(30,33,40,.92)';rr(W/2-tw2/2,a.y+20,tw2,52,26);ctx.fill();ctx.fillStyle='#E6E8EC';ctx.textAlign='center';ctx.fillText(div.m.text||'',W/2,a.y+47);ctx.restore();}
+  callControls(A);}
+const CALLBLUR=new WeakMap();
+function callBg(img,col){if(img){const k=W+'x'+H;let c=CALLBLUR.get(img);if(!c||c.k!==k){const sc=document.createElement('canvas');sc.width=24;sc.height=Math.max(1,Math.round(24*H/W));coverOn(sc.getContext('2d'),img,{x:0,y:0,w:sc.width,h:sc.height});c={c:sc,k};CALLBLUR.set(img,c);}
+    ctx.imageSmoothingQuality='high';ctx.drawImage(c.c,0,0,W,H);}else{const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,darkHex(col,.35));g.addColorStop(1,darkHex(col,.8));ctx.fillStyle=g;ctx.fillRect(0,0,W,H);}
+  ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(0,0,W,H);}
+function callIntro(t,C,A){const inc=P.callStart==='in',wd=A.wd,cx=W/2,cy=wd?H*.38:H*.34,r=wd?120:170,col=P.color0||PCOL[0];
+  callBg(P.avatar,col);
+  for(let i=0;i<3;i++){const q=((t*.7)+i/3)%1;ctx.strokeStyle=`rgba(255,255,255,${.35*(1-q)})`;ctx.lineWidth=4;ctx.beginPath();ctx.arc(cx,cy,r+20+q*r*.9,0,Math.PI*2);ctx.stroke();}
+  circImg(P.avatar,cx,cy,r,col,P.name);ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#fff';ctx.font=F(wd?52:64,600,'sys');ctx.fillText(fitEnd(isGroup()?groupTitle():P.name,W-160),cx,cy+r+(wd?80:100));
+  ctx.font=F(wd?28:34,400,'sys');ctx.fillStyle='rgba(255,255,255,.75)';ctx.fillText(inc?'Incoming video call…':(t<2.1?'Calling…':'Connecting…'),cx,cy+r+(wd?130:160));
+  const by=wd?H-150:H-260,br=wd?44:62;
+  if(inc){const press=t>=2.1?clamp((t-2.1)/.3,0,1):0;
+    [[cx-(wd?160:220),'#E5484D','call',Math.PI*.75,'Decline'],[cx+(wd?160:220),'#22C55E','video',0,'Accept']].forEach(([bx,c2,ic,rot,lab],k)=>{const s=k===1&&press>0?1-.12*Math.sin(Math.PI*press):1;
+      ctx.save();ctx.translate(bx,by);ctx.scale(s,s);ctx.fillStyle=c2;ctx.beginPath();ctx.arc(0,0,br,0,Math.PI*2);ctx.fill();ctx.rotate(rot);icon(ic,0,0,br*1.05,'#fff');ctx.restore();
+      ctx.fillStyle='rgba(255,255,255,.8)';ctx.font=F(wd?22:28,400,'sys');ctx.fillText(lab,bx,by+br+(wd?34:44));});
+    if(press>0){ctx.strokeStyle=`rgba(255,255,255,${.6*(1-press)})`;ctx.lineWidth=4;ctx.beginPath();ctx.arc(cx+(wd?160:220),by,br+press*50,0,Math.PI*2);ctx.stroke();}}
+  else{ctx.save();ctx.translate(cx,by);ctx.fillStyle='#E5484D';ctx.beginPath();ctx.arc(0,0,br,0,Math.PI*2);ctx.fill();ctx.rotate(Math.PI*.75);icon('call',0,0,br*1.05,'#fff');ctx.restore();}
+  if(!wd)statusBar('#FFFFFF','sys',P.time);}
+function callEndScreen(t,C,A){const wd=A.wd,cx=W/2,cy=wd?H*.38:H*.36,r=wd?90:130,t0=C.join!=null?C.join:(C.start||0),col=P.color0||PCOL[0];callBg(P.avatar,col);circImg(P.avatar,cx,cy,r,col,P.name);
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#fff';ctx.font=F(wd?48:60,600,'sys');ctx.fillText('Call ended',cx,cy+r+(wd?80:100));
+  ctx.font=F(wd?28:34,400,'sys');ctx.fillStyle='rgba(255,255,255,.75)';ctx.fillText(fmtClock(Math.max(0,C.off-t0)),cx,cy+r+(wd?130:160));if(!wd)statusBar('#FFFFFF','sys',P.time);}
+/* draw one screen, keep it aside, and fade it over the other */
+function callLayer(fn){fn();const o=ovOff(3),g=o.getContext('2d');g.clearRect(0,0,W,H);g.drawImage(cv,0,0);ctx.clearRect(0,0,W,H);return o;}
+function drawCall(t){const C=SCH.call||{},A=callAreas();ctx.save();ctx.clearRect(0,0,W,H);
+  if(C.join!=null&&t<C.join){callIntro(t,C,A);ctx.restore();return;}
+  if(C.off!=null&&t>=C.off+.45){callEndScreen(t,C,A);ctx.restore();return;}
+  if(C.join!=null&&t<C.join+.6){const o=callLayer(()=>callIntro(t,C,A));callMain(t,C,A);ctx.globalAlpha=1-(t-C.join)/.6;ctx.drawImage(o,0,0);ctx.globalAlpha=1;}
+  else if(C.off!=null&&t>=C.off){const o=callLayer(()=>callEndScreen(t,C,A));callMain(t,C,A);ctx.globalAlpha=clamp((t-C.off)/.45,0,1);ctx.drawImage(o,0,0);ctx.globalAlpha=1;}
+  else callMain(t,C,A);
+  ctx.restore();}
+function callLook(p,r){
+  p.append(segF('l-cshape','Screen shape',[['wide','Widescreen'],['tall','Tall (9:16)']],P.callWide!==false?'wide':'tall',v=>{P.callWide=v==='wide';r();}));
+  p.append(segF('l-clay','Layout',[['grid','Everyone the same size'],['speaker','Whoever’s talking, big']],P.callLayout||'grid',v=>{P.callLayout=v;r();}));
+  p.append(segF('l-cacc','Talking highlight',[['blue','Blue'],['green','Green'],['violet','Violet'],['orange','Orange'],['pink','Pink']],P.callAccent||'blue',v=>{P.callAccent=v;r();}));
+  p.append(h('p',{class:'help'},'Messages show as live captions. Photos, videos and posts are shared on screen. Reactions float up from the person who reacted.'));
+  p.append(h('h4',{class:'fhead'},'Cameras'));
+  p.append(clipField('l-cthem','Their camera (a video clip)','callThemKey','Loops for the whole call. Without one, their contact photo is used.'));
+  p.append(clipField('l-cme','Your camera (a video clip)','callMeKey','Without one, your photo below is used.'));
+  p.append(h('h4',{class:'fhead'},'Call'));
+  p.append(segF('l-cstart','Start',[['out','You call them'],['in','They call you'],['none','Already on the call']],P.callStart||'out',v=>{P.callStart=v;r();}));
+  p.append(checkF('l-cend','End with “Call ended”',P.callEnd!==false,v=>{P.callEnd=v;r();}));}
+
+/* ================= over your video: chat bubbles floating over a clip or photo of your own ================= */
+function ovBgSrc(strict){const v=feedVid(P.ovBgKey);if(v)return v.el;if(P.ovBgImg)return P.ovBgImg;return strict?null:SAMPLE;}
+function ovDims(){const sh=P.ovShape||'auto';if(sh==='9:16')return[1080,1920];if(sh==='16:9')return[1920,1080];if(sh==='1:1')return[1080,1080];if(sh==='4:5')return[1080,1350];
+  const src=ovBgSrc(true);if(!src)return[1080,1920];const[a,b]=dimsOf(src);if(!a||!b)return[1080,1920];const ra=a/b;return ra>1.25?[1920,1080]:ra>.9?[1080,1080]:ra>.7?[1080,1350]:[1080,1920];}
+function ovCol(){const sc=clamp(+P.ovSize||1,.4,2),wd=W>H,cw=Math.min(W,1080*sc*(wd?.85:1));
+  if(wd){const pos=P.ovPosH||'right',x=pos==='left'?24:pos==='center'?(W-cw)/2:W-cw-24;return{x,y:0,w:cw,h:H,s:cw/1080};}
+  const pos=P.ovPosV||'bottom',hh=H*(H/W>1.5?.6:.78),y=pos==='top'?0:pos==='middle'?(H-hh)/2:H-hh;return{x:(W-cw)/2,y,w:cw,h:hh,s:cw/1080};}
+function ovChipDraw(col,t){const first=SCH.ev.find(e=>e.m.from!=='divider');if(!first)return;const q=clamp((t-first.start+.4)/.4,0,1);if(q<=0)return;
+  const sc=col.s,x=col.x+40*sc,y=col.y+30*sc,hh=96*sc,dark=P.mode==='dark';ctx.save();ctx.globalAlpha=q;ctx.font=F(34*sc,600,'sys');ctx.textBaseline='middle';
+  const nm=fitEnd(isGroup()?groupTitle():P.name,col.w-260*sc),w=ctx.measureText(nm).width+hh+44*sc;ctx.fillStyle=dark?'rgba(28,28,30,.88)':'rgba(255,255,255,.92)';rr(x,y,w,hh,hh/2);ctx.fill();
+  circImg(P.avatar,x+hh/2,y+hh/2,hh/2-10*sc,P.color0||PCOL[0],P.name);ctx.fillStyle=dark?'#fff':'#111';ctx.textAlign='left';ctx.fillText(nm,x+hh+12*sc,y+hh/2+1);ctx.restore();}
+function drawOverlay(t){const col=ovCol(),o=ovOff(1),g=o.getContext('2d'),wd=W>H;
+  g.clearRect(0,0,W,H);coverOn(g,ovBgSrc(),{x:0,y:0,w:W,h:H});
+  const sh=P.ovShade||'soft';if(sh!=='none'){const a=sh==='dark'?.6:.35,fill=(gr,x,y,w,h)=>{gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,`rgba(0,0,0,${a})`);g.fillStyle=gr;g.fillRect(x,y,w,h);};
+    if(wd){const pos=P.ovPosH||'right';if(pos==='right')fill(g.createLinearGradient(col.x-160,0,col.x+80,0),0,0,W,H);else if(pos==='left')fill(g.createLinearGradient(col.x+col.w+160,0,col.x+col.w-80,0),0,0,W,H);else{g.fillStyle=`rgba(0,0,0,${a*.8})`;g.fillRect(col.x,0,col.w,H);}}
+    else{const pos=P.ovPosV||'bottom';if(pos==='bottom')fill(g.createLinearGradient(0,col.y,0,col.y+col.h*.4),0,col.y,W,H-col.y);else if(pos==='top')fill(g.createLinearGradient(0,col.y+col.h,0,col.y+col.h*.6),0,0,W,col.y+col.h);
+      else{const gr=g.createLinearGradient(0,col.y,0,col.y+col.h);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(.25,`rgba(0,0,0,${a})`);gr.addColorStop(.75,`rgba(0,0,0,${a})`);gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(0,col.y,W,col.h);}}}
+  ctx.save();ctx.clearRect(0,0,W,H);ctx.drawImage(o,0,0);
+  const chipH=P.ovChip!==false?150:0,look=P.ovLook||'ios',sv={st:P.style,W,H},lh=col.h/col.s;
+  ctx.save();ctx.beginPath();ctx.rect(col.x,col.y,col.w,col.h);ctx.clip();ctx.translate(col.x,col.y);ctx.scale(col.s,col.s);
+  try{P.style=look;W=1080;H=Math.round(lh);const c=colors(),L={...LAY[look],top:30+chipH,bottom:lh-(sv.H>sv.W?((P.ovPosV||'bottom')==='top'?40:90):60)};if(isGroup()&&(look==='ios'||look==='wa'))L.left=118;
+    if(c.grad){c.gradFill=ctx.createLinearGradient(0,L.top,0,L.bottom);c.gradFill.addColorStop(0,'#B02BFF');c.gradFill.addColorStop(1,'#3A6BFF');}
+    drawThread(L,c,t);}
+  finally{P.style=sv.st;W=sv.W;H=sv.H;}
+  ctx.restore();
+  /* the chat fades into the video where it scrolls away at the top */
+  const yTop=col.y+chipH*col.s,band=Math.round(Math.min(150*col.s,col.h*.2));
+  if(yTop>col.y)ctx.drawImage(o,col.x,col.y,col.w,yTop-col.y,col.x,col.y,col.w,yTop-col.y);
+  if(band>0){const o2=ovOff(2),g2=o2.getContext('2d');g2.clearRect(0,0,W,H);g2.drawImage(o,col.x,yTop,col.w,band,col.x,yTop,col.w,band);g2.globalCompositeOperation='destination-in';
+    const fg=g2.createLinearGradient(0,yTop,0,yTop+band);fg.addColorStop(0,'rgba(0,0,0,1)');fg.addColorStop(1,'rgba(0,0,0,0)');g2.fillStyle=fg;g2.fillRect(col.x,yTop,col.w,band);g2.globalCompositeOperation='source-over';
+    ctx.drawImage(o2,col.x,yTop,col.w,band,col.x,yTop,col.w,band);}
+  if(chipH)ovChipDraw(col,t);
+  ctx.restore();}
+function ovLookPanel(p,r){
+  p.append(segF('l-ovlook','Bubble look',[['ios','iPhone'],['android','Android'],['dm','Social DM'],['wa','WhatsApp-style']],P.ovLook||'ios',v=>{P.ovLook=v;r();}));
+  const v=feedVid(P.ovBgKey),inp=h('input',{type:'file',id:'l-ovvid',accept:'video/*,.mp4,.mov,.m4v,.webm'}),st=h('span',{class:'small'},v?`${v.name} · ${v.dur.toFixed(1)} s`:P.ovBgImg?'Your photo':'The sample sunset');
+  inp.onchange=async()=>{const f=inp.files[0];inp.value='';if(!f)return;st.textContent='Opening the video…';const nid=await addClip(f);if(nid){P.ovBgKey=nid;P.ovBgImg=null;refresh();}else st.textContent='';};
+  const row=h('div',{class:'row'},st,h('label',{class:'btn primary',for:'l-ovvid'},v?'Change video':'Choose video',inp),pickImage('l-ovimg','Use a photo',im=>{P.ovBgImg=im;P.ovBgKey='';r();}));
+  if(v||P.ovBgImg)row.append(h('button',{type:'button',onclick:()=>{P.ovBgKey='';P.ovBgImg=null;r();}},'Remove'));
+  p.append(h('div',{class:'field'},h('span',{class:'flabel'},'Background'),row,h('p',{class:'help'},'A video plays from the start of the reel and loops if it’s shorter. It’s kept in this browser with your work, but not in project files.')));
+  if(v)p.append(checkF('l-ovsnd','Keep the video’s sound',!!P.ovSound,val=>{P.ovSound=val;refresh();}));
+  p.append(segF('l-ovshape','Shape',[['auto','Match the background'],['9:16','9:16'],['4:5','4:5'],['1:1','1:1'],['16:9','16:9']],P.ovShape||'auto',v2=>{P.ovShape=v2;r();}));
+  const[cw,ch]=canvasDims();
+  if(cw>ch)p.append(segF('l-ovposh','Where the chat sits',[['left','Left'],['center','Middle'],['right','Right']],P.ovPosH||'right',v2=>{P.ovPosH=v2;r();}));
+  else p.append(segF('l-ovposv','Where the chat sits',[['top','Top'],['middle','Middle'],['bottom','Bottom']],P.ovPosV||'bottom',v2=>{P.ovPosV=v2;r();}));
+  p.append(rangeF('l-ovsize','Chat size',.6,1.4,.05,+P.ovSize||1,v2=>Math.round(v2*100)+'%',v2=>{P.ovSize=v2;drawNow();save();}));
+  p.append(segF('l-ovshade','Shade behind the chat',[['none','None'],['soft','Soft'],['dark','Dark']],P.ovShade||'soft',v2=>{P.ovShade=v2;r();}));
+  p.append(checkF('l-ovchip','Show their name above the chat',P.ovChip!==false,v2=>{P.ovChip=v2;r();}));}
+
 /* ================= schedule ================= */
 const CPS={Slow:7,Normal:11,Fast:16};
 function autoTyping(m){if(m.from==='them')return m.kind==='text'?clamp(.7+m.text.length*.03,.6,2.8):1.2;return Math.max(.4,(m.text||'').length/CPS[P.kbSpeed]);}
-const typ=m=>m.typingAuto?(P.style==='tx'?txAuto(m):autoTyping(m)):m.typing;
-const usesKeyboard=m=>m.from==='me'&&m.kind==='text'&&m.keyboard&&!!m.text;
+const typ=m=>m.typingAuto?(P.style==='tx'?txAuto(m):P.style==='rpg'?rpgAuto(m):P.style==='call'?callAuto(m):autoTyping(m)):m.typing;
+const usesKeyboard=m=>m.from==='me'&&m.kind==='text'&&m.keyboard&&!!m.text&&P.style!=='overlay';
 /* their messages before your first one can open on the lock screen (the phone is locked, so you haven't replied yet) */
 function leadThem(){let n=0;for(const m of P.msgs){if(m.from==='me')break;if(m.from==='them')n++;}return n;}
 /* the last message that's part of the lock screen opening: up to and including their Nth message */
-function introLast(){if(!P.lockIntro||P.style==='lock'||P.style==='tx')return -1;const want=Math.min(Math.max(1,P.lockCount||1),leadThem());let n=0;
+function introLast(){if(!P.lockIntro||P.style==='lock'||['tx','rpg','call','overlay'].includes(P.style))return -1;const want=Math.min(Math.max(1,P.lockCount||1),leadThem());let n=0;
   if(want<1)return -1;for(let i=0;i<P.msgs.length;i++)if(P.msgs[i].from==='them'&&++n>=want)return i;return -1;}
 function build(){
   if(P.style==='tx')return buildTx();
+  if(P.style==='rpg')return buildRpg();
+  if(P.style==='call')return buildCall();
   const ev=[],snd=[],kb=[],iL=introLast();let t=P.startPause,intro=null;
   P.msgs.forEach((m,i)=>{const lock=P.style==='lock'||i<=iL;
     const e={m,i};t+=m.delay;e.start=t;
@@ -864,7 +1258,7 @@ function build(){
       if(m.kind==='voice'&&m.voice&&m.voicePlay&&!lock){e.voiceStart=e.popEnd+.3;e.voiceEnd=e.voiceStart+voiceSecs(m);snd.push({t:e.voiceStart,type:'voice',i});if(m.voiceWait!==false)end=Math.max(end,e.voiceEnd);}
       if(m.react){const by=m.reactBy||(m.from==='me'?'them':'me');e.reactAt=e.arrive+Math.max(.2,m.reactDelay);if(!(lock&&(m.from!=='me'||by==='me')))snd.push({t:e.reactAt,type:'react',i});end=Math.max(end,e.reactAt+.35);}
       if(m.unsend){e.unsendAt=e.arrive+Math.max(.3,m.unsendAfter);end=Math.max(end,e.unsendAt+.5);}}
-    if(m.open&&m.kind!=='text'&&m.kind!=='voice'&&m.from!=='divider'&&!lock&&!m.unsend){e.openTap=end+.4;e.openStart=e.openTap+.35;e.openFull=e.openStart+.55;e.closeStart=e.openFull+holdOf(m);e.closeEnd=e.closeStart+.45;e.end=e.closeEnd;snd.push({t:e.openTap,type:'tap',i});}
+    if(m.open&&m.kind!=='text'&&m.kind!=='voice'&&m.from!=='divider'&&!lock&&!m.unsend&&P.style!=='overlay'){e.openTap=end+.4;e.openStart=e.openTap+.35;e.openFull=e.openStart+.55;e.closeStart=e.openFull+holdOf(m);e.closeEnd=e.closeStart+.45;e.end=e.closeEnd;snd.push({t:e.openTap,type:'tap',i});}
     else e.end=end;
     if(e.keys)kb.push([e.kbUp,e.arrive+.45]);
     ev.push(e);t=e.end;
@@ -889,6 +1283,7 @@ const LAY={ios:{font:F(44,400,'sys'),lh:54,padX:34,padY:22,maxW:740,left:40,righ
   discord:{font:F(38,400,'sys'),lh:52,padX:0,padY:0,maxW:W-200,left:150,right:W-40,top:270,photoW:700,photoR:16,gapSame:6,gapDiff:34,inBase:H-150,inGap:150,bare:190,receipt:''}};
 LAY.lock={...LAY.ios};
 LAY.tx={...LAY.ios,photoR:0};
+LAY.rpg={...LAY.ios,photoR:0};LAY.call={...LAY.ios,photoR:16};LAY.overlay={...LAY.ios};
 function colors(){const d=P.mode==='dark';
   if(P.style==='tx'){const k=txK();return{...k,mu:k.dim,me:k.fg,meText:k.bg,them:k.dark,dots:k.fg};}
   if(P.style==='ios')return{bg:d?'#000':'#fff',fg:d?'#fff':'#000',hdr:d?'#1C1C1E':'#F6F6F8',mu:'#8E8E93',me:P.iosColor==='Green'?'#34C759':'#0A84FF',meText:'#fff',them:d?'#26252A':'#E9E9EB',line:d?'#333':'#D8D8DC',pill:d?'#3A3A3C':'#C7C7CC',plus:d?'#2C2C2E':'#E9E9EB',dots:'#8E8E93'};
@@ -1208,6 +1603,7 @@ function drawViewer(e,r0,t,c){
     [['share','Share'],['heartO','Favorite'],['trash','Delete']].forEach(([ic,lab],k)=>{const x=W*(k*2+1)/6;icon(ic,x,H-200,56,wh);ctx.fillStyle='#E2E2E6';ctx.textAlign='center';ctx.font=F(26,400,'rob');ctx.fillText(lab,x,H-140);});homeBar(wh,220);}
   else if(P.style==='tx'){const k=txK(),wd=W>H;ctx.fillStyle=k.fg;ctx.font=F(30,700,'mono');spaced('◉ '+(m.kind==='video'?'VIDEO FEED':'IMAGE FEED'),70,wd?60:170,6,'left');ctx.fillStyle=k.dim;ctx.font=F(28,400,'mono');spaced(String(who).toUpperCase().slice(0,20),W-70,wd?60:170,5,'right');
     ctx.fillStyle=hexA(k.fg,.5);ctx.fillRect(70,wd?100:214,W-140,3);ctx.fillStyle=k.dim;ctx.font=F(28,400,'mono');spaced('[ CLOSE ]',W/2,H-(wd?62:160),6,'center');}
+  else if(P.style==='rpg'){const wd=W>H;ctx.font=F(wd?28:26,400,'pixel');ctx.textAlign='left';ctx.fillStyle='#fff';ctx.fillText(rpgTxt(String(who)),60,wd?64:170);ctx.textAlign='center';ctx.fillText(rpgTxt('CLOSE'),W/2,H-(wd?60:160));}
   else{statusBar(wh,'sys',P.time);ctx.strokeStyle=wh;ctx.lineWidth=6;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(52,178);ctx.lineTo(96,222);ctx.moveTo(96,178);ctx.lineTo(52,222);ctx.stroke();
     ctx.textAlign='left';ctx.fillStyle=wh;ctx.font=F(36,700,'sys');ctx.fillText(m.kind==='post'?(m.postUser||'someone'):who,140,200);
     ctx.strokeStyle='rgba(255,255,255,.45)';ctx.lineWidth=3;rr(36,H-212,W-170,104,52);ctx.stroke();ctx.fillStyle=gr;ctx.font=F(36,400,'sys');ctx.fillText('Send message…',84,H-160);icon('heartO',W-74,H-160,60,wh);homeBar(wh);}
@@ -1237,6 +1633,9 @@ function drawFrame(t){
 }
 function drawChat(t){
   if(P.style==='tx'){drawTx(t);return;}
+  if(P.style==='rpg'){drawRpg(t);return;}
+  if(P.style==='call'){drawCall(t);return;}
+  if(P.style==='overlay'){drawOverlay(t);return;}
   const c=colors(),L0=LAY[P.style];
   if(c.grad){c.gradFill=ctx.createLinearGradient(0,L0.top,0,H-250);c.gradFill.addColorStop(0,'#B02BFF');c.gradFill.addColorStop(1,'#3A6BFF');}
   const k=kbAt(t),bm=barMode(),kTop=H-KBH-80;let inC,bottom;
@@ -1269,7 +1668,20 @@ const BUILTIN={
   Signal:w=>{osc('square',1320,0,w,.08,.06);osc('square',1320,0,w+.15,.08,.06);osc('square',990,0,w+.3,.12,.05);},
   Static:w=>{noise(w,.45,.32,'bandpass',2200,500,.6);noise(w+.04,.22,.16,'highpass',4200,0,.5);},
   Line:w=>{osc('square',1560,0,w,.035,.045);osc('square',2090,0,w+.06,.045,.04);},
-  Off:w=>{osc('sine',880,110,w,.42,.22);noise(w,.18,.12,'lowpass',2600,300,.7);}};
+  Off:w=>{osc('sine',880,110,w,.42,.22);noise(w,.18,.12,'lowpass',2600,300,.7);},
+  'Talk Hi':w=>osc('square',990,0,w,.028,.03),'Talk Lo':w=>osc('square',720,0,w,.028,.035),
+  Next:w=>{osc('square',1250,0,w,.035,.04);osc('square',1670,0,w+.045,.04,.035);},
+  'Item Get':w=>[523,659,784,1047].forEach((f,k)=>osc('square',f,0,w+k*.085,.1,.045)),
+  Emote:w=>osc('square',620,1480,w,.13,.045),
+  Chapter:w=>{osc('triangle',330,0,w,.3,.2);osc('triangle',494,0,w+.2,.45,.18);},
+  Coin:w=>{osc('square',988,0,w,.07,.05);osc('square',1319,0,w+.07,.3,.05);},
+  'The End':w=>[784,659,523,392].forEach((f,k)=>osc('square',f,0,w+k*.17,.22,.045)),
+  Ringing:w=>{osc('sine',440,0,w,1,.1);osc('sine',480,0,w,1,.1);},
+  Ringtone:w=>[880,1109,1319,1109,880].forEach((f,k)=>osc('sine',f,0,w+k*.1,.14,.16)),
+  Join:w=>{osc('sine',660,0,w,.2,.2);osc('sine',990,0,w+.12,.35,.2);},
+  Leave:w=>{osc('sine',990,0,w,.2,.2);osc('sine',660,0,w+.12,.35,.2);}};
+/* the sound as each spoken line starts: a blip on the transmission screen, a menu tick in the game, nothing on a call */
+const lineSnd=()=>P.style==='rpg'?'Next':P.style==='call'?'none':'Line';
 /* your own sound files, kept in this browser (IndexedDB) */
 let LIB=[];
 const IDB={db:null,
@@ -1295,7 +1707,7 @@ async function addClip(file){const id='v'+Date.now().toString(36)+Math.random().
   const v=await makeClip(id,name,file);if(!v){toast('That video couldn’t be opened here. Try an MP4 or WebM file.');return null;}IDB.putClip({id,name,blob:file});return id;}
 async function loadClips(){const rows=await IDB.clips();for(const r of rows)if(r&&r.id&&r.blob&&!VIDS[r.id])await makeClip(r.id,r.name||'Video',r.blob);if(rows.length){SCH=build();refresh({side:tab==='msg'});}}
 /* clips nobody uses any more are cleared out when your work is saved */
-function pruneClips(){const used=new Set(P.msgs.map(m=>m.vkey).filter(Boolean));Object.keys(VIDS).forEach(id=>{if(used.has(id))return;const v=VIDS[id];try{v.el.pause();}catch(e){}if(v.node){try{v.node.disconnect();}catch(e){}}delete VIDS[id];IDB.delClip(id);});}
+function pruneClips(){const used=new Set([...P.msgs.map(m=>m.vkey),P.ovBgKey,P.callThemKey,P.callMeKey].filter(Boolean));Object.keys(VIDS).forEach(id=>{if(used.has(id))return;const v=VIDS[id];try{v.el.pause();}catch(e){}if(v.node){try{v.node.disconnect();}catch(e){}}delete VIDS[id];IDB.delClip(id);});}
 /* where a clip is at time t: playing silently in its bubble after it arrives, or from the start with sound once it's opened full screen */
 function clipTime(m,e,t){const v=vidOf(m);if(!v||!e)return{lt:0,run:false,loud:false};const d=v.dur;
   if(e.openTap!=null&&t>=e.openStart&&t<e.closeEnd){if(t<e.openFull)return{lt:0,run:false,loud:false};const k=t-e.openFull;
@@ -1304,12 +1716,18 @@ function clipTime(m,e,t){const v=vidOf(m);if(!v||!e)return{lt:0,run:false,loud:f
   return{lt:0,run:false,loud:false};}
 const vidRolling=(m,e,t)=>!!vidOf(m)&&clipTime(m,e,t).run;
 function clipAudio(){if(!AC)return;Object.values(VIDS).forEach(v=>{if(v.el&&!v.node){try{v.node=AC.createMediaElementSource(v.el);v.gain=AC.createGain();v.gain.gain.value=0;v.node.connect(v.gain);v.gain.connect(master);v.el.muted=false;}catch(e){}}});}
-function syncClips(t,playing){(SCH.ev||[]).forEach(e=>{const m=e.m,v=vidOf(m);if(!v)return;const{lt,run,loud}=clipTime(m,e,t),el=v.el;
+const feedVid=k=>k&&VIDS[k]&&VIDS[k].ready?VIDS[k]:null;
+function feedKeys(){const ks=[];if(P.style==='overlay'&&P.ovBgKey)ks.push([P.ovBgKey,P.ovSound===true]);if(P.style==='call'){if(P.callThemKey)ks.push([P.callThemKey,false]);if(P.callMeKey)ks.push([P.callMeKey,false]);}return ks;}
+const feedTime=(v,t)=>v.dur>.05?t%v.dur:0;
+function syncOne(v,lt,run,loud,playing){const el=v.el;
   if(v.gain&&AC)v.gain.gain.setTargetAtTime(loud&&playing?1:0,AC.currentTime,.02);
   if(playing&&run){if(el.paused){try{el.currentTime=lt;}catch(err){}const p=el.play();if(p&&p.catch)p.catch(()=>{});}else if(Math.abs(el.currentTime-lt)>.3){try{el.currentTime=lt;}catch(err){}}}
-  else{if(!el.paused)el.pause();if(Math.abs(el.currentTime-lt)>.04&&!el.seeking){try{el.currentTime=lt;}catch(err){}}}});}
+  else{if(!el.paused)el.pause();if(Math.abs(el.currentTime-lt)>.04&&!el.seeking){try{el.currentTime=lt;}catch(err){}}}}
+function syncClips(t,playing){(SCH.ev||[]).forEach(e=>{const m=e.m,v=vidOf(m);if(!v)return;const{lt,run,loud}=clipTime(m,e,t);syncOne(v,lt,run,loud,playing);});
+  feedKeys().forEach(([k,loud])=>{const v=feedVid(k);if(v)syncOne(v,feedTime(v,t),true,loud,playing);});}
 async function seekClips(t){for(const e of SCH.ev||[]){const v=vidOf(e.m);if(!v)continue;const{lt}=clipTime(e.m,e,t),el=v.el;if(!el.paused)el.pause();
-  if(Math.abs(el.currentTime-lt)>.004||el.seeking){el.currentTime=lt;await waitEvt(el,'seeked',2500);}}}
+  if(Math.abs(el.currentTime-lt)>.004||el.seeking){el.currentTime=lt;await waitEvt(el,'seeked',2500);}}
+  for(const[k]of feedKeys()){const v=feedVid(k);if(!v)continue;const lt=feedTime(v,t),el=v.el;if(!el.paused)el.pause();if(Math.abs(el.currentTime-lt)>.004||el.seeking){el.currentTime=lt;await waitEvt(el,'seeked',2500);}}}
 const decodeAB=ab=>new Promise((res,rej)=>{try{const pr=AC.decodeAudioData(ab.slice(0),res,rej);if(pr&&pr.catch)pr.catch(rej);}catch(e){rej(e);}});
 async function decodeAll(){if(!audio())return;for(const it of LIB)if(!it.buf&&!it.bad){try{it.buf=await decodeAB(it.data);}catch(e){it.bad=true;}}}
 const libItem=v=>typeof v==='string'&&v.startsWith('lib:')?LIB.find(x=>x.id===v.slice(4)):null;
@@ -1320,7 +1738,8 @@ function playSound(v,when){if(!audio()||!v||v==='none')return;when=Math.max(when
 /* which sound an event plays: a message's own sound wins over the defaults */
 function resolveSound(e){
   if(e.type==='fx')return e.v;
-  if(e.type==='line'){const m=P.msgs[e.i],own=m&&m.sound&&m.sound!=='default'?m.sound:null;if(own==='none')return'none';return own&&(libItem(own)||BUILTIN[own])?own:'Line';}
+  if(e.type==='line'){const m=P.msgs[e.i],own=m&&m.sound&&m.sound!=='default'?m.sound:null;if(own==='none')return'none';return own&&(libItem(own)||BUILTIN[own])?own:lineSnd();}
+  if(e.type==='rpgkey')return P.sound.keys?e.v:'none';
   if(e.type==='voice'){const m=P.msgs[e.i];return m&&m.voice&&(libItem(m.voice)||BUILTIN[m.voice])?m.voice:'none';}
   if(e.type==='react'){const v=P.sound.react;return v==='none'?'none':(libItem(v)||BUILTIN[v]?v:'Bubble');}
   if(e.type==='key')return P.sound.keys?(libItem(P.sound.keySound)||BUILTIN[P.sound.keySound]?P.sound.keySound:'Click'):'none';
@@ -1389,6 +1808,7 @@ function renderTimeline(){
       (tw>2&&(m.from==='them'||e.keys||e.tx)?`<div class="hdl h-type" data-i="${i}" style="left:${tw-7}px" title="Drag to change how long typing lasts"></div>`:'')+`</div>`;});
   if(SCH.tx&&SCH.tx.on!=null)tr+=`<div class="lockmark" style="left:${PAD+SCH.tx.on*pps}px" title="The call connects"><span>📡 Connects</span></div>`;
   if(SCH.tx&&SCH.tx.off!=null)tr+=`<div class="lockmark" style="left:${PAD+SCH.tx.off*pps}px" title="The call ends"><span>■ Ends</span></div>`;
+  if(SCH.marks)SCH.marks.forEach(k2=>{tr+=`<div class="lockmark" style="left:${PAD+k2.t*pps}px" title="${esc(k2.title)}"><span>${esc(k2.label)}</span></div>`;});
   if(SCH.intro)tr+=`<div class="lockmark" style="left:${PAD+SCH.intro.tap*pps}px" title="The notification is tapped and the chat opens"><span>🔓 Opens chat</span></div>`;
   tlTrack.innerHTML=tr;
   let sl='';if(P.sound.on)SCH.snd.forEach(s=>{const v=resolveSound(s);if(v==='none')return;if(s.type==='key')sl+=`<i class="sk key" style="left:${PAD+s.t*pps}px"></i>`;else sl+=`<i class="sk ${s.type}" style="left:${PAD+s.t*pps}px" title="${esc(soundName(v))}"></i>`;});
@@ -1514,19 +1934,19 @@ function msgPanel(p){
   }
   p.append(h('h4',{class:'fhead'},'Timing'));
   p.append(rangeF('i-delay','Pause before it',0,6,.05,m.delay,fmtS,v=>{m.delay=v;soft();}));
-  const txs=P.style==='tx';
+  const txs=['tx','rpg','call'].includes(P.style);
   if(m.from==='them'||(txs&&m.from==='me')){
     p.append(rangeF('i-typ',txs?'Speaking time':'Typing dots',0,6,.05,typ(m),fmtS,v=>{m.typing=v;m.typingAuto=false;soft();}));
     p.append(h('div',{class:'row'},checkF('i-auto','Set typing time from message length',m.typingAuto,v=>{if(!v)m.typing=typ(m);m.typingAuto=v;refresh();})));
     p.append(h('p',{class:'help'},txs?'How long the line takes to type out on the screen.':'Drag to 0 for no typing dots.'));
   }
-  if(m.from==='me'&&m.kind==='text'&&!txs){
+  if(m.from==='me'&&m.kind==='text'&&!txs&&P.style!=='overlay'){
     p.append(checkF('i-kb','Type it out on the keyboard',m.keyboard,v=>{m.keyboard=v;refresh();}));
     if(m.keyboard){p.append(rangeF('i-typ','Typing time',.3,10,.05,typ(m),fmtS,v=>{m.typing=v;m.typingAuto=false;soft();}));
       p.append(checkF('i-auto','Set typing time from keyboard speed',m.typingAuto,v=>{if(!v)m.typing=typ(m);m.typingAuto=v;refresh();}));}
   }
   if(m.from!=='divider'){
-    p.append(selectF('i-snd','Sound for this message',soundGroups([['default',`Default (${txs?'Line':soundName(P.sound[m.from==='me'?'send':'receive'])})`],['none','Silent']]),m.sound||'default',v=>{m.sound=v;refresh();const ac=audio();if(ac&&v!=='none'){ac.resume();decodeAll().then(()=>playSound(resolveSound({type:txs?'line':(m.from==='me'?'send':'receive'),i:sel}),AC.currentTime+.05));}}));
+    p.append(selectF('i-snd','Sound for this message',soundGroups([['default',`Default (${txs?soundName(lineSnd()):soundName(P.sound[m.from==='me'?'send':'receive'])})`],['none','Silent']]),m.sound||'default',v=>{m.sound=v;refresh();const ac=audio();if(ac&&v!=='none'){ac.resume();decodeAll().then(()=>playSound(resolveSound({type:txs?'line':(m.from==='me'?'send':'receive'),i:sel}),AC.currentTime+.05));}}));
   }
   if(m.from!=='divider'){
     p.append(h('h4',{class:'fhead'},'Reply, reaction and unsend'));
@@ -1544,7 +1964,7 @@ function msgPanel(p){
     p.append(checkF('i-uns','Unsend it after a moment',m.unsend,v=>{m.unsend=v;refresh();}));
     if(m.unsend)p.append(rangeF('i-unsd','Unsent after',.3,10,.05,m.unsendAfter,fmtS,v=>{m.unsendAfter=v;soft();}));
   }
-  if(m.from!=='divider'&&m.kind!=='text'&&m.kind!=='voice'){
+  if(m.from!=='divider'&&m.kind!=='text'&&m.kind!=='voice'&&!['call','overlay'].includes(P.style)){
     p.append(checkF('i-open','Tap to open it full screen after it arrives',m.open,v=>{m.open=v;refresh();}));
     if(m.open&&vidOf(m))p.append(checkF('i-hvid','Stay open for the whole video',m.holdVid!==false,v=>{m.holdVid=v;if(!v)m.openHold=Math.min(10,vidOf(m).dur);refresh();}));
     if(m.open&&!(vidOf(m)&&m.holdVid!==false))p.append(rangeF('i-hold','Stays open for',.3,vidOf(m)?Math.max(10,Math.ceil(vidOf(m).dur)):10,.05,m.openHold,fmtS,v=>{m.openHold=v;soft();}));
@@ -1556,7 +1976,7 @@ let resetArmed=0;
 function newPerson(){const names=['Theo','Jo','Sam','Ava','Leo','Mia'],n=P.people.length;return{id:'p'+rkey(),name:names[n%names.length],color:PCOL[(n+1)%PCOL.length],avatar:null};}
 function lookPanel(p){
   const r=()=>refresh();
-  p.append(segF('l-style','Phone style',[['ios','iPhone'],['android','Android'],['dm','Social DM'],['wa','WhatsApp-style'],['discord','Discord-style'],['tx','Transmission'],['lock','Lock screen']],P.style,v=>{if(v==='wa'&&P.status==='Active now')P.status='online';else if(v==='dm'&&P.status==='online')P.status='Active now';P.style=v;r();}));
+  p.append(segF('l-style','Style',[['ios','iPhone'],['android','Android'],['dm','Social DM'],['wa','WhatsApp-style'],['discord','Discord-style'],['tx','Transmission'],['rpg','Retro game'],['call','Video call'],['overlay','Over your video'],['lock','Lock screen']],P.style,v=>{if(v==='wa'&&P.status==='Active now')P.status='online';else if(v==='dm'&&P.status==='online')P.status='Active now';P.style=v;r();}));
   const lock=P.style==='lock';
   const lockFields=()=>{
     p.append(segF('l-lphone','Phone',['iPhone','Android'],P.lockPhone,v=>{P.lockPhone=v;r();}));
@@ -1566,17 +1986,22 @@ function lookPanel(p){
     if(P.wall)wr.append(h('button',{type:'button',onclick:()=>{P.wall=null;r();}},'Remove'));
     p.append(h('div',{class:'field'},h('span',{class:'flabel'},'Wallpaper'),wr,h('p',{class:'help'},'Without one, the sample sunset stands in.')));};
   if(lock){p.append(h('p',{class:'help'},'Their messages pop up as notifications over a wallpaper, newest on top. Your messages don’t show, but their reactions to yours do.'));lockFields();}
+  else if(P.style==='rpg')rpgLook(p,r);
+  else if(P.style==='call')callLook(p,r);
   else if(P.style==='tx'){p.append(segF('l-txshape','Screen shape',[['wide','Widescreen'],['tall','Tall (phone)']],P.txWide!==false?'wide':'tall',v=>{P.txWide=v==='wide';r();}));
     p.append(h('p',{class:'help'},P.txWide!==false?'16:9. Both of you stay on screen; whoever is talking lights up, and the lines change in the middle.':'9:19.5, like a phone. One person on screen at a time.'));
     p.append(segF('l-tint','Screen color',[['amber','Amber'],['green','Green'],['blue','Blue'],['ice','Ice'],['violet','Violet'],['rose','Rose'],['red','Red'],['white','White'],['custom','Custom']],P.txTint||'amber',v=>{P.txTint=v;r();}));
     if(P.txTint==='custom')p.append(h('div',{class:'field'},h('label',{for:'l-txcol'},'Custom color'),h('input',{type:'color',id:'l-txcol',value:(/^#[0-9a-f]{6}$/i.test(P.txCustom||'')?P.txCustom:'#ffb547').toLowerCase(),oninput:e=>{P.txCustom=e.target.value;drawNow();save();}}),
       h('p',{class:'help'},'The darker and lighter shades are made from it. Very dark colors are brightened a little so text stays readable.')));}
   else p.append(segF('l-mode','Mode',[['light','Light'],['dark','Dark']],P.mode,v=>{P.mode=v;r();}));
+  if(P.style==='overlay')ovLookPanel(p,r);
   p.append(textF('l-name',P.style==='dm'?'Contact username':'Contact name',P.name,v=>{P.name=v;drawNow();save();renderList();}));
   if(P.style==='dm'||P.style==='wa')p.append(textF('l-status','Status line',P.status,v=>{P.status=v;drawNow();save();},P.style==='wa'?'online':'Active now'));
   const ar=h('div',{class:'row'},P.avatar?h('img',{class:'thumb round',src:P.avatar.src,alt:''}):h('span',{class:'thumb round'}),pickImage('l-av',P.avatar?'Change':'Choose photo',im=>{P.avatar=im;r();}));
   if(P.avatar)ar.append(h('button',{type:'button',onclick:()=>{P.avatar=null;r();}},'Remove'));
-  p.append(h('div',{class:'field'},h('span',{class:'flabel'},'Contact photo'),ar,h('p',{class:'help'},P.style==='tx'?'Optional. It’s tinted to the screen color; an outline stands in until you add one.':'Optional. Initials stand in until you add one.')));
+  p.append(h('div',{class:'field'},h('span',{class:'flabel'},'Contact photo'),ar,h('p',{class:'help'},P.style==='tx'?'Optional. It’s tinted to the screen color; an outline stands in until you add one.':P.style==='rpg'?'Optional. It becomes their pixel portrait; without one, a drawn pixel face stands in.':P.style==='call'?'Their camera, gently moving like a live feed. Without one, their initials show, like a camera that’s off.':'Optional. Initials stand in until you add one.')));
+  if(P.style==='rpg')myFields(p,r,'Becomes your pixel portrait. Without one, a drawn pixel face stands in.');
+  if(P.style==='call')myFields(p,r,'Your camera. Without a photo or clip, your initials show.');
   if(P.style==='tx'){if(!P.group)p.append(textF('l-myname','Your name',P.myName,v=>{P.myName=v;drawNow();save();},'You'));
     const mr=h('div',{class:'row'},P.txMe?h('img',{class:'thumb round',src:P.txMe.src,alt:''}):h('span',{class:'thumb round'}),pickImage('l-txme',P.txMe?'Change':'Choose photo',im=>{P.txMe=im;r();}));
     if(P.txMe)mr.append(h('button',{type:'button',onclick:()=>{P.txMe=null;r();}},'Remove'));
@@ -1584,14 +2009,15 @@ function lookPanel(p){
     p.append(h('h4',{class:'fhead'},'Call'));
     p.append(checkF('l-txin','Start with the incoming call',P.txIntro!==false,v=>{P.txIntro=v;r();}));
     p.append(checkF('l-txout','End with the sign-off',P.txOutro!==false,v=>{P.txOutro=v;r();}));}
-  if(P.style==='ios')p.append(segF('l-col','Your bubble color',[['Blue','Blue'],['Green','Green (SMS)']],P.iosColor,v=>{P.iosColor=v;r();}));
-  if(P.style==='dm')p.append(segF('l-col','Your bubble color',['Purple','Blue','Gradient'],P.dmColor,v=>{P.dmColor=v;r();}));
-  if(P.style==='android')p.append(segF('l-col','Avatar color',['Green','Blue','Peach','Lilac'],P.avColor,v=>{P.avColor=v;r();}));
-  if(P.style==='wa')p.append(segF('l-ticks','Ticks on your messages',[['Read','Read (blue)'],['Delivered','Delivered'],['Sent','Sent']],P.ticks,v=>{P.ticks=v;r();}));
+  const lkS=P.style==='overlay'?(P.ovLook||'ios'):P.style;
+  if(lkS==='ios')p.append(segF('l-col','Your bubble color',[['Blue','Blue'],['Green','Green (SMS)']],P.iosColor,v=>{P.iosColor=v;r();}));
+  if(lkS==='dm')p.append(segF('l-col','Your bubble color',['Purple','Blue','Gradient'],P.dmColor,v=>{P.dmColor=v;r();}));
+  if(lkS==='android')p.append(segF('l-col','Avatar color',['Green','Blue','Peach','Lilac'],P.avColor,v=>{P.avColor=v;r();}));
+  if(lkS==='wa')p.append(segF('l-ticks','Ticks on your messages',[['Read','Read (blue)'],['Delivered','Delivered'],['Sent','Sent']],P.ticks,v=>{P.ticks=v;r();}));
   if(P.style==='discord'){p.append(textF('l-myname','Your name',P.myName,v=>{P.myName=v;drawNow();save();},'You'));
     p.append(h('div',{class:'field'},h('label',{for:'l-mycol'},'Your name color'),h('input',{type:'color',id:'l-mycol',value:(P.myColor||'#f0b232').toLowerCase(),oninput:e=>{P.myColor=e.target.value;drawNow();save();}})));}
-  if(['ios','android','dm'].includes(P.style))p.append(textF('l-receipt','Under your last message',P.receipt,v=>{P.receipt=v;drawNow();save();},LAY[P.style].receipt));
-  if(!lock&&P.style!=='tx'){p.append(segF('l-bar','Message box at the bottom',[['auto','Auto'],['always','Always'],['typing','Only while typing']],P.inputBar||'auto',v=>{P.inputBar=v;r();}));
+  if(['ios','android','dm'].includes(lkS))p.append(textF('l-receipt','Under your last message',P.receipt,v=>{P.receipt=v;drawNow();save();},LAY[lkS].receipt));
+  if(!lock&&!['tx','rpg','call','overlay'].includes(P.style)){p.append(segF('l-bar','Message box at the bottom',[['auto','Auto'],['always','Always'],['typing','Only while typing']],P.inputBar||'auto',v=>{P.inputBar=v;r();}));
     p.append(h('p',{class:'help'},(P.inputBar||'auto')==='auto'?(SCH.ev.some(e=>e.keys)?'Shown, because some of your messages are typed out on the keyboard.':'Hidden, because none of your messages are typed out, so the messages just appear and send on their own.'):(P.inputBar==='always'?'Always shown, like the real app.':'Hidden, and slides up with the keyboard when one of your messages is typed out.')));
     p.append(h('h4',{class:'fhead'},'Start on the lock screen'));
     p.append(checkF('l-intro','Open on the lock screen, then tap into the chat',!!P.lockIntro,v=>{P.lockIntro=v;
@@ -1617,7 +2043,7 @@ function lookPanel(p){
     p.append(h('p',{class:'help'},'Choose who sends each of their messages in the Message tab.'));}
   p.append(textF('l-time','Clock',P.time,v=>{P.time=v;drawNow();save();}));
   p.append(h('h4',{class:'fhead'},'Pacing'));
-  if(P.style!=='tx')p.append(segF('l-kb','Keyboard typing speed',['Slow','Normal','Fast'],P.kbSpeed,v=>{P.kbSpeed=v;r();}));
+  if(!['tx','rpg','call','overlay'].includes(P.style))p.append(segF('l-kb','Keyboard typing speed',['Slow','Normal','Fast'],P.kbSpeed,v=>{P.kbSpeed=v;r();}));
   p.append(rangeF('l-start','Pause at the start',0,4,.05,P.startPause,fmtS,v=>{P.startPause=v;refresh({list:false,side:false});updateListMeta();}));
   p.append(rangeF('l-end','Hold at the end',0,8,.05,P.endHold,fmtS,v=>{P.endHold=v;refresh({list:false,side:false});updateListMeta();}));
   p.append(h('h4',{class:'fhead'},'Project'));
@@ -1900,7 +2326,7 @@ $('openProj').onchange=async e=>{
 async function applyReel(doc){
   for(const sd of doc.sounds||[]){if(!sd||!sd.id||!sd.data||LIB.some(x=>x.id===sd.id))continue;try{const data=b64ToAb(sd.data);LIB.push({id:sd.id,name:sd.name||'Sound',data,buf:null});IDB.put({id:sd.id,name:sd.name||'Sound',data});}catch(err){}}
   const o=doc.project,d=DEFAULT();
-  P={...d,...o,sound:{...d.sound,...(o.sound||{})},avatar:await dataToImg(o.avatar),wall:await dataToImg(o.wall),txMe:await dataToImg(o.txMe),
+  P={...d,...o,sound:{...d.sound,...(o.sound||{})},avatar:await dataToImg(o.avatar),wall:await dataToImg(o.wall),txMe:await dataToImg(o.txMe),rpgBg:await dataToImg(o.rpgBg),ovBgImg:await dataToImg(o.ovBgImg),
     people:await Promise.all((o.people||[]).map(async pp=>({...pp,avatar:await dataToImg(pp.avatar)}))),msgs:await Promise.all(o.msgs.map(async m=>mk({...m,img:await dataToImg(m.img)})))};
   if(!LAY[P.style])P.style='ios';
 }
@@ -1947,7 +2373,7 @@ IDB.getState().then(async doc=>{
 })();
 
 window.addEventListener('resize',()=>renderTimeline());
-Promise.all(['400 40px Roboto','500 40px Roboto','400 40px "IBM Plex Mono"','700 40px "IBM Plex Mono"'].map(s=>document.fonts.load(s).catch(()=>{}))).then(()=>drawNow());
+Promise.all(['400 40px Roboto','500 40px Roboto','400 40px "IBM Plex Mono"','700 40px "IBM Plex Mono"','400 32px "Press Start 2P"'].map(s=>document.fonts.load(s).catch(()=>{}))).then(()=>drawNow());
 
 function syncDock(){document.querySelector('main.app').dataset.dock=dock;document.querySelectorAll('#dock [data-dock]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.dock===dock)));}
 function setDock(d){dock=d;if(d==='msg'||d==='look'||d==='sound')tab=d;syncDock();renderSide();
