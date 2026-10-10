@@ -1,0 +1,14 @@
+{
+  "_about": "Claude artifact links for test copies. 'site' is the whole suite; the rest are single-tool copies used by each tool's switcher when it runs inside Claude.",
+  "site": "https://claude.ai/artifact/DJ24DmLzaS2EJQRvJE4dur",
+  "tools": {
+    "photo-frame-studio.html": "https://claude.ai/artifact/BTFF4oB7m8EHQMWNwCo2Uw",
+    "photo-splitter.html": "https://claude.ai/artifact/ENVcKXEpCdopL6rRfj1fT9",
+    "chat-reel.html": "https://claude.ai/artifact/Tzehgnj1qjBYtpZ6oxKAhG",
+    "metadata-scrubber.html": "https://claude.ai/artifact/8kwiNFdeFAR3uZ8NTzKVnX",
+    "video-layers.html": "https://claude.ai/artifact/HMnHFrAaDUyaiSg7H8uxwN",
+    "delivery-reel.html": "https://claude.ai/artifact/4XzpUcdVZdRCviwGjyvTNQ",
+    "visual-novel.html": "https://claude.ai/artifact/GUKwPgmd3o8tZarDH4ygRx",
+    "motion-comic.html": "https://claude.ai/artifact/QA3g3sR3Jy4etrFoq8rNBD"
+  }
+}

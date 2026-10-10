@@ -525,3 +525,5 @@ Open each tool once while you're online so everything, fonts included, is saved 
 Each tool is a single self-contained HTML file with no build step and no server code. Chat Reel's emoji list comes from [unicode-emoji-json](https://github.com/muan/unicode-emoji-json) and [emoji-data](https://github.com/iamcal/emoji-data), both MIT licensed. The background remover's files are the only ones loaded from elsewhere in the site, and only when you turn it on.
 
 `.github/workflows/fetch-models.yml` downloads newer copies of the background remover's files when run from the Actions tab and puts them on the `cutout-files` branch.
+
+`dev/` holds the helpers for working on the site: `dev/build.py` checks that the pages, offline list and tool switchers agree, bumps the offline version so installed copies update, and packages a test copy for Claude; `dev/test.py` opens every page in a headless browser and reports anything broken. They aren't part of the site itself. `CLAUDE.md` explains the workflow.

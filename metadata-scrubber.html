@@ -607,7 +607,7 @@ async function makeSample(){
 /* ================= switching tools ================= */
 function flushAutosave(){return Promise.resolve();}
 (function(){
-  const ART={'photo-frame-studio.html':'https://claude.ai/artifact/BTFF4oB7m8EHQMWNwCo2Uw','chat-reel.html':'https://claude.ai/artifact/Tzehgnj1qjBYtpZ6oxKAhG','metadata-scrubber.html':'https://claude.ai/artifact/8kwiNFdeFAR3uZ8NTzKVnX','video-layers.html':'https://claude.ai/artifact/HMnHFrAaDUyaiSg7H8uxwN','photo-splitter.html':'https://claude.ai/artifact/ENVcKXEpCdopL6rRfj1fT9'};
+  const ART={'photo-frame-studio.html':'https://claude.ai/artifact/BTFF4oB7m8EHQMWNwCo2Uw','photo-splitter.html':'https://claude.ai/artifact/ENVcKXEpCdopL6rRfj1fT9','chat-reel.html':'https://claude.ai/artifact/Tzehgnj1qjBYtpZ6oxKAhG','metadata-scrubber.html':'https://claude.ai/artifact/8kwiNFdeFAR3uZ8NTzKVnX','video-layers.html':'https://claude.ai/artifact/HMnHFrAaDUyaiSg7H8uxwN','delivery-reel.html':'https://claude.ai/artifact/4XzpUcdVZdRCviwGjyvTNQ','visual-novel.html':'https://claude.ai/artifact/GUKwPgmd3o8tZarDH4ygRx','motion-comic.html':'https://claude.ai/artifact/QA3g3sR3Jy4etrFoq8rNBD'};
   document.querySelectorAll('.switch a').forEach(a=>{
     if(a.getAttribute('aria-current')){a.addEventListener('click',e=>e.preventDefault());return;}
     if(!topLevel){const u=ART[a.getAttribute('href')];if(u&&!u.startsWith('__')){a.href=u;a.target='_blank';a.rel='noopener';}return;}
